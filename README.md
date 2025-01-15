@@ -151,6 +151,26 @@ To add a new responder, you need to create a new responder in the `responders` p
 
 ---
 
+## **Running Tests**
+
+To validate the IP blocking functionality, you can run the tests included in the repository. The tests simulate IP blocking based on the IP addresses in `ranges/data/generated.go`.
+
+### **Running Tests with `go test`**
+
+1. **Navigate to the Project Directory**:
+   ```bash
+   cd caddy-defender
+   ```
+
+2. **Run the Tests**:
+   ```bash
+   go test ./...
+   ```
+
+This will run all the tests in the repository, including the tests that validate IP blocking functionality.
+
+---
+
 ## **License**
 
 This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) file for details.
