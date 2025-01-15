@@ -201,3 +201,55 @@ Responders are responsible for handling requests that match the specified IP ran
 
 5. **Update the Caddyfile Documentation**:
    Add your new responder to the `README.md` and `docs/index.md` so users know how to use it.
+
+---
+
+## **Adding Tests for Responders**
+
+Tests are essential to ensure that responders work as expected. To add tests for a new responder:
+
+1. **Create a New Test File**:
+   Create a new file in the `caddy-plugin/responders` directory, e.g., `my_responder_test.go`.
+
+2. **Write Test Cases**:
+   Write test cases for your responder using the `testing` package:
+   ```go
+   package responders
+
+   import (
+       "net/http"
+       "net/http/httptest"
+       "testing"
+   )
+
+   func TestMyResponder(t *testing.T) {
+       responder := MyResponder{}
+       req := httptest.NewRequest("GET", "http://example.com", nil)
+       w := httptest.NewRecorder()
+
+       err := responder.Respond(w, req)
+       if err != nil {
+           t.Fatalf("expected no error, got %v", err)
+       }
+
+       resp := w.Result()
+       if resp.StatusCode != http.StatusOK {
+           t.Errorf("expected status %d, got %d", http.StatusOK, resp.StatusCode)
+       }
+
+       body := w.Body.String()
+       expectedBody := "This is my custom responder!"
+       if body != expectedBody {
+           t.Errorf("expected body %q, got %q", expectedBody, body)
+       }
+   }
+   ```
+
+3. **Run the Tests**:
+   Run the tests to ensure that your responder works as expected:
+   ```bash
+   go test ./...
+   ```
+
+4. **Update the Documentation**:
+   Update the `README.md` and `docs/index.md` to include information about the new responder and its tests.
