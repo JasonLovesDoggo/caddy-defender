@@ -41,6 +41,24 @@ func (m *DefenderMiddleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			"type":    "custom",
 			"message": d.Val(),
 		}
+	case "file":
+		if !d.NextArg() {
+			return d.ArgErr()
+		}
+		filePath := d.Val()
+		headers := make(map[string]string)
+		for d.NextArg() {
+			header := d.Val()
+			if !d.NextArg() {
+				return d.ArgErr()
+			}
+			headers[header] = d.Val()
+		}
+		responderConfig = map[string]interface{}{
+			"type":    "file",
+			"file":    filePath,
+			"headers": headers,
+		}
 	default:
 		return d.Errf("unknown responder type: %s", responderType)
 	}
@@ -110,6 +128,12 @@ func (m *DefenderMiddleware) UnmarshalJSON(b []byte) error {
 			return err
 		}
 		m.responder = &customResp
+	case "file":
+		var fileResp responders.FileResponder
+		if err := json.Unmarshal(m.ResponderRaw, &fileResp); err != nil {
+			return err
+		}
+		m.responder = &fileResp
 	default:
 		return fmt.Errorf("unknown responder type: %s", responderType)
 	}

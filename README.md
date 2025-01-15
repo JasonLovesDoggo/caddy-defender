@@ -13,6 +13,7 @@ The **Caddy Defender** plugin is a middleware for Caddy that allows you to block
   - **Block**: Return a `403 Forbidden` response.
   - **Garbage**: Return garbage data to pollute AI training.
   - **Custom**: Return a custom message.
+  - **File**: Return a file with specified headers.
 
 ---
 
@@ -75,8 +76,8 @@ defender <responder> [responder_args...] <ip_ranges...>
 ```
 
 - `<ip_ranges...>`: A list of CIDR ranges to match against the client's IP.
-- `<responder>`: The responder backend to use (`block`, `garbage`, or `custom`).
-- `[responder_args...]`: Additional arguments for the responder backend (e.g., a custom message for the `custom` responder).
+- `<responder>`: The responder backend to use (`block`, `garbage`, `custom`, or `file`).
+- `[responder_args...]`: Additional arguments for the responder backend (e.g., a custom message for the `custom` responder, file path and headers for the `file` responder).
 
 ---
 
@@ -122,6 +123,22 @@ localhost:8082 {
     } 
     respond "Hello, world!" # what humans see
 } 
+```
+
+#### **File Response**
+Return a file with specified headers for requests from specific IP ranges:
+```caddyfile
+{
+    order defender before basicauth
+}
+localhost:8083 {
+    defender file "/path/to/file.txt" {
+        header Content-Type text/plain
+        header Content-Encoding gzip
+        range 203.0.113.0/24
+    }
+    respond "Hello, world!" # what humans see
+}
 ```
 
 ---
