@@ -2,7 +2,6 @@ package caddydefender
 
 import (
 	"bufio"
-	"encoding/json"
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
@@ -22,19 +21,19 @@ func init() {
 
 // Defender implements an HTTP middleware that enforces IP-based rules to protect your site from AIs/Scrapers.
 type Defender struct {
-	// Additional IP ranges specified by the user
+	// Additional IP ranges specified by the user to block. (optional)
 	AdditionalRanges []string `json:"additional_ranges,omitempty"`
 
 	// specifies the path to a file containing IP ranges (one per line) to act on. (optional)
 	RangesFile string `json:"ranges_file,omitempty"`
 
-	// Use concrete responder type for JSON
-	ResponderRaw json.RawMessage `json:"responder,omitempty"`
-
 	// Custom message to return to the client when using "custom" middleware (optional)
 	Message string `json:"message,omitempty"`
 
-	// Internal field for the actual responder interface
+	// Internal field representing the actual responder interface
+	RawResponder string `json:"raw_responder,omitempty"`
+
+	//  the type of responder to use. (e.g. "block", "custom", etc.)
 	responder Responder
 
 	// Logger

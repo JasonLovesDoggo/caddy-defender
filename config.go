@@ -3,12 +3,13 @@ package caddydefender
 import (
 	"bufio"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
+	"maps"
 	"net"
 	"os"
+	"slices"
 
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 )
@@ -33,6 +34,7 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	if !d.NextArg() {
 		return d.ArgErr()
 	}
+	m.RawResponder = d.Val()
 
 	// Parse the block if it exists
 	var ranges []string
@@ -64,41 +66,25 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	return nil
 }
 
-// UnmarshalJSON handles the responder interface
+// UnmarshalJSON handles the Responder interface
 func (m *Defender) UnmarshalJSON(b []byte) error {
-	type tempMiddleware Defender
-	var temp tempMiddleware
-	if err := json.Unmarshal(b, &temp); err != nil {
+	type rawDefender Defender
+	var rawConfig rawDefender
+	if err := json.Unmarshal(b, &rawConfig); err != nil {
 		return err
 	}
 
-	m.AdditionalRanges = temp.AdditionalRanges
-	m.ResponderRaw = temp.ResponderRaw
-
-	if len(m.ResponderRaw) == 0 {
-		return fmt.Errorf("missing responder configuration")
-	}
-
-	var responderMap map[string]interface{}
-	if err := json.Unmarshal(m.ResponderRaw, &responderMap); err != nil {
-		return err
-	}
-
-	responderType, ok := responderMap["type"].(string)
-	if !ok {
-		return fmt.Errorf("missing or invalid responder type")
-	}
-
-	switch responderType {
+	switch rawConfig.RawResponder {
 	case "block":
 		m.responder = &responders.BlockResponder{}
 	case "garbage":
 		m.responder = &responders.GarbageResponder{}
 	case "custom":
-		m.responder = responders.CustomResponder{Defender: m}
-
+		var customResp responders.CustomResponder
+		customResp.Message = &m.Message
+		m.responder = &customResp
 	default:
-		return fmt.Errorf("unknown responder type: %s", responderType)
+		return fmt.Errorf("unknown responder type: %s", rawConfig.RawResponder)
 	}
 
 	return nil
@@ -110,9 +96,8 @@ func (m *Defender) Validate() error {
 		return fmt.Errorf("responder not configured")
 	}
 	if len(m.AdditionalRanges) == 0 && m.RangesFile == "" {
-		//m.log.Fatal("either 'ranges' or 'ranges_file' must be specified") // This looks better but is not properly
-		//supported by caddy
-		return errors.New("either 'ranges' or 'ranges_file' must be specified")
+		// set the default ranges to be all of the predefined ranges
+		m.AdditionalRanges = slices.Collect(maps.Keys(data.IPRanges))
 	}
 
 	for _, ipRange := range m.AdditionalRanges {
