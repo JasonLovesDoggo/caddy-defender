@@ -39,25 +39,20 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	middleware := map[string]interface{}{}
 
 	// Handle responder configuration
-	var responderConfig map[string]interface{}
 	switch responderType {
 	case "block":
-		responderConfig = map[string]interface{}{"type": "block"}
+		m.responder = &responders.BlockResponder{}
 	case "garbage":
-		responderConfig = map[string]interface{}{"type": "garbage"}
+		m.responder = &responders.GarbageResponder{}
 	case "custom":
 		if !d.NextArg() {
 			return d.ArgErr()
 		}
-		responderConfig = map[string]interface{}{
-			"type":    "custom",
-			"message": d.Val(),
-		}
+		m.Message = d.Val()
+		m.responder = &responders.CustomResponder{Message: m.Message}
 	default:
 		return d.Errf("unknown responder type: %s", responderType)
 	}
-
-	middleware["responder"] = responderConfig
 
 	// Parse the block if it exists
 	var ranges []string
@@ -78,17 +73,10 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	}
 
 	if len(ranges) > 0 {
-		middleware["additional_ranges"] = ranges
+		m.AdditionalRanges = ranges
 	}
 
-	// Marshal the complete middleware structure
-	rawJSON, err := json.Marshal(middleware)
-	if err != nil {
-		return fmt.Errorf("marshaling middleware config: %v", err)
-	}
-
-	// Unmarshal into the middleware struct
-	return json.Unmarshal(rawJSON, m)
+	return nil
 }
 
 // UnmarshalJSON handles the responder interface
@@ -101,6 +89,7 @@ func (m *Defender) UnmarshalJSON(b []byte) error {
 
 	m.AdditionalRanges = temp.AdditionalRanges
 	m.ResponderRaw = temp.ResponderRaw
+	m.Message = temp.Message
 
 	if len(m.ResponderRaw) == 0 {
 		return fmt.Errorf("missing responder configuration")

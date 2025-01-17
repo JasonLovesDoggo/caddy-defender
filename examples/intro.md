@@ -33,7 +33,8 @@ localhost:8080 {
     }
 
     # Return a custom message for requests from another IP range
-    defender custom "Access denied!" {
+    defender custom {
+        message "Access denied!"
         range 10.0.0.0/8
     }
 

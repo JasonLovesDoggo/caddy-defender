@@ -29,11 +29,13 @@ type Defender struct {
 	ResponderRaw json.RawMessage `json:"responder,omitempty"`
 
 	// Internal field for the actual responder interface
-	responder       Responder
-	ResponderConfig json.RawMessage `json:"responder_config,omitempty"`
+	responder Responder
 
 	// specifies the path to a file containing IP ranges (one per line) to act on. (optional)
 	RangesFile string `json:"ranges_file,omitempty"`
+
+	// Custom message for the custom responder
+	Message string `json:"message,omitempty"`
 
 	// Logger
 	log *zap.Logger
