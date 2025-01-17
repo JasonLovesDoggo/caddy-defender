@@ -1,11 +1,13 @@
 package caddydefender
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
 	"net"
+	"os"
 
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 )
@@ -55,6 +57,11 @@ func (m *DefenderMiddleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			for d.NextArg() {
 				ranges = append(ranges, d.Val())
 			}
+		case "ranges_file":
+			if !d.NextArg() {
+				return d.ArgErr()
+			}
+			m.RangesFile = d.Val()
 		default:
 			return d.Errf("unknown subdirective '%s'", d.Val())
 		}
@@ -123,6 +130,10 @@ func (m *DefenderMiddleware) Validate() error {
 		return fmt.Errorf("responder not configured")
 	}
 
+	if len(m.AdditionalRanges) == 0 && m.RangesFile == "" {
+		return fmt.Errorf("either 'ranges' or 'ranges_file' must be specified")
+	}
+
 	for _, ipRange := range m.AdditionalRanges {
 		// Check if the range is a predefined key (e.g., "openai")
 		if _, ok := data.IPRanges[ipRange]; ok {
@@ -134,6 +145,28 @@ func (m *DefenderMiddleware) Validate() error {
 		_, _, err := net.ParseCIDR(ipRange)
 		if err != nil {
 			return fmt.Errorf("invalid IP range %q: %v", ipRange, err)
+		}
+	}
+
+	// Validate ranges loaded from the text file
+	if m.RangesFile != "" {
+		file, err := os.Open(m.RangesFile)
+		if err != nil {
+			return fmt.Errorf("failed to open ranges file: %v", err)
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			line := scanner.Text()
+			_, _, err := net.ParseCIDR(line)
+			if err != nil {
+				return fmt.Errorf("invalid IP range in file %q: %v", line, err)
+			}
+		}
+
+		if err := scanner.Err(); err != nil {
+			return fmt.Errorf("error reading ranges file: %v", err)
 		}
 	}
 

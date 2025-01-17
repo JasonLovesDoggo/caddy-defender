@@ -74,6 +74,7 @@ The `defender` directive is used to configure the Caddy Defender plugin. It has 
 ```caddyfile
 defender <responder> [responder_args...] {
     range <ip_ranges...>
+    ranges_file <file_path>
 }
 ```
 
@@ -83,6 +84,7 @@ defender <responder> [responder_args...] {
   - `custom`: Returns a custom message (requires `responder_args`).
 - `[responder_args...]`: Additional arguments for the responder backend. For the `custom` responder, this is the custom message to return.
 - `<ip_ranges...>`: A list of CIDR ranges or predefined range keys (e.g., `openai`, `localhost`) to match against the client's IP.
+- `<file_path>`: Path to a file containing IP ranges, one per line.
 
 #### **Ordering the Middleware**
 To ensure the `defender` middleware runs before other middleware (e.g., `basicauth`), add the following to your global configuration:
@@ -128,6 +130,17 @@ localhost:8082 {
     } 
     respond "Hello, world!" # what humans see
 } 
+```
+
+#### **Load IP Ranges from a File**
+Load IP ranges from a file:
+```caddyfile
+localhost:8083 {
+    defender block {
+        ranges_file ./path/to/ranges.txt
+    }
+    respond "Hello, world!" # what humans see
+}
 ```
 
 ---

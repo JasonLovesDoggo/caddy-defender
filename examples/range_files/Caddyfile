@@ -1,0 +1,15 @@
+{
+    auto_https off
+    order defender before basicauth
+}
+
+:80 {
+    defender block {
+        ranges_file ./examples/range_files/ranges.txt
+    }
+    respond "This is what a human sees"
+}
+
+:83 {
+    respond "Clear text HTTP"
+}

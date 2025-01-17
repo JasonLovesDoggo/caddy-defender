@@ -1,10 +1,12 @@
 package caddydefender
 
 import (
+	"bufio"
 	"fmt"
 	"go.uber.org/zap"
 	"net"
 	"net/http"
+	"os"
 
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/jasonlovesdoggo/caddy-defender/utils"
@@ -29,6 +31,34 @@ func (m DefenderMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, ne
 	// Check if the client IP is in any of the additional ranges
 	if utils.IPInRanges(clientIP, m.AdditionalRanges, m.log) {
 		return m.responder.Respond(w, r)
+	}
+
+	// Check if the client IP is in any of the ranges loaded from the text file
+	if m.RangesFile != "" {
+		file, err := os.Open(m.RangesFile)
+		if err != nil {
+			m.log.Error("Failed to open ranges file", zap.String("file", m.RangesFile))
+			return caddyhttp.Error(http.StatusInternalServerError, fmt.Errorf("failed to open ranges file"))
+		}
+		defer file.Close()
+
+		scanner := bufio.NewScanner(file)
+		for scanner.Scan() {
+			line := scanner.Text()
+			_, ipNet, err := net.ParseCIDR(line)
+			if err != nil {
+				m.log.Error("Invalid IP range in file", zap.String("range", line))
+				continue
+			}
+			if ipNet.Contains(clientIP) {
+				return m.responder.Respond(w, r)
+			}
+		}
+
+		if err := scanner.Err(); err != nil {
+			m.log.Error("Error reading ranges file", zap.String("file", m.RangesFile))
+			return caddyhttp.Error(http.StatusInternalServerError, fmt.Errorf("error reading ranges file"))
+		}
 	}
 
 	// IP is not in any of the ranges, proceed to the next handler
