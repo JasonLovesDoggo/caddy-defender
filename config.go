@@ -33,26 +33,6 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	if !d.NextArg() {
 		return d.ArgErr()
 	}
-	responderType := d.Val()
-
-	// Build middleware structure
-	middleware := map[string]interface{}{}
-
-	// Handle responder configuration
-	switch responderType {
-	case "block":
-		m.responder = &responders.BlockResponder{}
-	case "garbage":
-		m.responder = &responders.GarbageResponder{}
-	case "custom":
-		if !d.NextArg() {
-			return d.ArgErr()
-		}
-		m.Message = d.Val()
-		m.responder = &responders.CustomResponder{Message: m.Message}
-	default:
-		return d.Errf("unknown responder type: %s", responderType)
-	}
 
 	// Parse the block if it exists
 	var ranges []string
@@ -67,6 +47,11 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 				return d.ArgErr()
 			}
 			m.RangesFile = d.Val()
+		case "message":
+			if !d.NextArg() {
+				return d.ArgErr()
+			}
+			m.Message = d.Val()
 		default:
 			return d.Errf("unknown subdirective '%s'", d.Val())
 		}
@@ -89,7 +74,6 @@ func (m *Defender) UnmarshalJSON(b []byte) error {
 
 	m.AdditionalRanges = temp.AdditionalRanges
 	m.ResponderRaw = temp.ResponderRaw
-	m.Message = temp.Message
 
 	if len(m.ResponderRaw) == 0 {
 		return fmt.Errorf("missing responder configuration")
@@ -111,11 +95,8 @@ func (m *Defender) UnmarshalJSON(b []byte) error {
 	case "garbage":
 		m.responder = &responders.GarbageResponder{}
 	case "custom":
-		var customResp responders.CustomResponder
-		if err := json.Unmarshal(m.ResponderRaw, &customResp); err != nil {
-			return err
-		}
-		m.responder = &customResp
+		m.responder = responders.CustomResponder{Defender: m}
+
 	default:
 		return fmt.Errorf("unknown responder type: %s", responderType)
 	}

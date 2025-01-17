@@ -24,18 +24,18 @@ func init() {
 type Defender struct {
 	// Additional IP ranges specified by the user
 	AdditionalRanges []string `json:"additional_ranges,omitempty"`
-	// Responder backend to use
-	// Use concrete responder type for JSON
-	ResponderRaw json.RawMessage `json:"responder,omitempty"`
-
-	// Internal field for the actual responder interface
-	responder Responder
 
 	// specifies the path to a file containing IP ranges (one per line) to act on. (optional)
 	RangesFile string `json:"ranges_file,omitempty"`
 
-	// Custom message for the custom responder
+	// Use concrete responder type for JSON
+	ResponderRaw json.RawMessage `json:"responder,omitempty"`
+
+	// Custom message to return to the client when using "custom" middleware (optional)
 	Message string `json:"message,omitempty"`
+
+	// Internal field for the actual responder interface
+	responder Responder
 
 	// Logger
 	log *zap.Logger
