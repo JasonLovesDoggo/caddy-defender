@@ -1,6 +1,5 @@
 {
     auto_https off
-    order defender before basicauth
 }
 
 :80 {

@@ -15,6 +15,8 @@ func init() {
 	// Register the module with Caddy
 	caddy.RegisterModule(DefenderMiddleware{})
 	httpcaddyfile.RegisterHandlerDirective("defender", parseCaddyfile)
+	httpcaddyfile.RegisterDirectiveOrder("defender", "before", "basicauth")
+
 }
 
 // DefenderMiddleware implements an HTTP middleware that enforces IP-based rules.
