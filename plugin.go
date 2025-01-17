@@ -27,11 +27,12 @@ type Defender struct {
 	// Responder backend to use
 	// Use concrete responder type for JSON
 	ResponderRaw json.RawMessage `json:"responder,omitempty"`
+
 	// Internal field for the actual responder interface
 	responder       Responder
 	ResponderConfig json.RawMessage `json:"responder_config,omitempty"`
 
-	// RangesFile specifies the path to a file containing IP ranges
+	// specifies the path to a file containing IP ranges (one per line) to act on. (optional)
 	RangesFile string `json:"ranges_file,omitempty"`
 
 	// Logger
