@@ -10,6 +10,7 @@ import (
 	"net"
 	"os"
 	"slices"
+	"strings"
 
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 )
@@ -49,6 +50,26 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 				return d.ArgErr()
 			}
 			m.RangesFile = d.Val()
+
+			// Load ranges from file immediately
+			file, err := os.Open(m.RangesFile)
+			if err != nil {
+				return fmt.Errorf("failed to open ranges file: %v", err)
+			}
+			defer file.Close()
+
+			scanner := bufio.NewScanner(file)
+			for scanner.Scan() {
+				line := strings.TrimSpace(scanner.Text())
+				if line != "" {
+					ranges = append(ranges, line)
+				}
+			}
+
+			if err := scanner.Err(); err != nil {
+				return fmt.Errorf("error reading ranges file: %v", err)
+			}
+
 		case "message":
 			if !d.NextArg() {
 				return d.ArgErr()
@@ -61,7 +82,10 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	}
 
 	if len(ranges) > 0 {
-		m.AdditionalRanges = ranges
+		m.Ranges = ranges
+	} else {
+		// If no ranges were specified, use all predefined ranges
+		m.Ranges = slices.Collect(maps.Keys(data.IPRanges))
 	}
 
 	return nil
@@ -99,12 +123,7 @@ func (m *Defender) Validate() error {
 	if m.responder == nil {
 		return fmt.Errorf("responder not configured")
 	}
-	if len(m.AdditionalRanges) == 0 && m.RangesFile == "" {
-		// set the default ranges to be all of the predefined ranges
-		m.AdditionalRanges = slices.Collect(maps.Keys(data.IPRanges))
-	}
-
-	for _, ipRange := range m.AdditionalRanges {
+	for _, ipRange := range m.Ranges {
 		// Check if the range is a predefined key (e.g., "openai")
 		if _, ok := data.IPRanges[ipRange]; ok {
 			// If it's a predefined key, skip CIDR validation

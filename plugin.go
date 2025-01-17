@@ -1,21 +1,18 @@
 package caddydefender
 
 import (
-	"bufio"
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"go.uber.org/zap"
-	"net"
-	"os"
 )
 
 func init() {
 	// Register the module with Caddy
 	caddy.RegisterModule(Defender{})
 	httpcaddyfile.RegisterHandlerDirective("defender", parseCaddyfile)
-	httpcaddyfile.RegisterDirectiveOrder("defender", "before", "basicauth")
+	httpcaddyfile.RegisterDirectiveOrder("defender", "before", "respond")
 
 }
 
@@ -26,10 +23,10 @@ func init() {
 // The middleware supports multiple responder types, including blocking requests, returning garbage data, or
 // sending custom messages.
 type Defender struct {
-	// AdditionalRanges specifies additional IP ranges provided by the user to block or manipulate.
+	// Ranges specifies additional IP ranges provided by the user to block or manipulate.
 	// These ranges are in CIDR notation (e.g., "192.168.1.0/24") and are applied alongside predefined ranges.
 	// This field is optional.
-	AdditionalRanges []string `json:"additional_ranges,omitempty"`
+	Ranges []string `json:"ranges,omitempty"`
 
 	// RangesFile specifies the path to a file containing IP ranges (one per line) to block or manipulate.
 	// The file can include CIDR ranges or predefined range keys (e.g., "aws", "gcloud").
@@ -55,30 +52,9 @@ type Defender struct {
 
 // Provision sets up the middleware and logger.
 func (m *Defender) Provision(ctx caddy.Context) error {
+
 	m.log = ctx.Logger(m)
-
-	// Load ranges from the specified text filez
-	if m.RangesFile != "" {
-		file, err := os.Open(m.RangesFile)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			line := scanner.Text()
-			_, _, err := net.ParseCIDR(line)
-			if err != nil {
-				return err
-			}
-		}
-
-		if err := scanner.Err(); err != nil {
-			return err
-		}
-	}
-
+	m.log.Debug("Provisioning Defender", zap.Strings("ranges", m.Ranges), zap.String("ranges_file", m.RangesFile))
 	return nil
 }
 
@@ -92,14 +68,17 @@ func (Defender) CaddyModule() caddy.ModuleInfo {
 
 // parseCaddyfile unmarshals tokens from h into a new Defender.
 func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
-	var m Defender
-	err := m.UnmarshalCaddyfile(h.Dispenser)
-	return m, err
+	defender := new(Defender)
+	err := defender.UnmarshalCaddyfile(h.Dispenser)
+	if err != nil {
+		return nil, err
+	}
+	return defender, nil
 }
 
-// Interface guards
 var (
-	_ caddy.Provisioner = (*Defender)(nil)
-	//_ caddyhttp.MiddlewareHandler = (*Defender)(nil)
-	_ caddyfile.Unmarshaler = (*Defender)(nil)
+	_ caddy.Provisioner           = (*Defender)(nil)
+	_ caddy.Validator             = (*Defender)(nil)
+	_ caddyhttp.MiddlewareHandler = (*Defender)(nil)
+	_ caddyfile.Unmarshaler       = (*Defender)(nil)
 )
