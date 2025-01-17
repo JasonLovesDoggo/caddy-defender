@@ -21,8 +21,8 @@ func init() {
 
 // Defender implements an HTTP middleware that enforces IP-based rules to protect your site from AIs/Scrapers.
 type Defender struct {
-	// Additional IP ranges specified by the user to block. (optional)
-	AdditionalRanges []string `json:"additional_ranges,omitempty"`
+	// IP ranges specified by the user to block. (optional)
+	Ranges []string `json:"ranges,omitempty"`
 
 	// specifies the path to a file containing IP ranges (one per line) to act on. (optional)
 	RangesFile string `json:"ranges_file,omitempty"`

@@ -17,7 +17,7 @@ import (
 // UnmarshalCaddyfile sets up the handler from Caddyfile tokens. Syntax:
 //
 //		defender <responder> {
-//		# Additional IP ranges to block (optional)
+//		# IP ranges to block (optional)
 //		ranges
 //	 # file containing IP ranges to block (optional)
 //	 ranges_file
@@ -60,7 +60,7 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	}
 
 	if len(ranges) > 0 {
-		m.AdditionalRanges = ranges
+		m.Ranges = ranges
 	}
 
 	return nil
@@ -95,12 +95,12 @@ func (m *Defender) Validate() error {
 	if m.responder == nil {
 		return fmt.Errorf("responder not configured")
 	}
-	if len(m.AdditionalRanges) == 0 && m.RangesFile == "" {
+	if len(m.Ranges) == 0 && m.RangesFile == "" {
 		// set the default ranges to be all of the predefined ranges
-		m.AdditionalRanges = slices.Collect(maps.Keys(data.IPRanges))
+		m.Ranges = slices.Collect(maps.Keys(data.IPRanges))
 	}
 
-	for _, ipRange := range m.AdditionalRanges {
+	for _, ipRange := range m.Ranges {
 		// Check if the range is a predefined key (e.g., "openai")
 		if _, ok := data.IPRanges[ipRange]; ok {
 			// If it's a predefined key, skip CIDR validation

@@ -82,7 +82,7 @@ defender <responder> [responder_args...] {
   - `block`: Returns a `403 Forbidden` response.
   - `garbage`: Returns garbage data to pollute AI training.
   - `custom`: Returns a custom message (requires `responder_args`).
-- `[responder_args...]`: Additional arguments for the responder backend. For the `custom` responder, this is the custom message to return.
+- `[responder_args...]`: arguments for the responder backend. For the `custom` responder, this is the custom message to return.
 - `<ip_ranges...>`: A list of CIDR ranges or predefined range keys (e.g., `openai`, `localhost`) to match against the client's IP.
 - `<file_path>`: Path to a file containing IP ranges, one per line.
 

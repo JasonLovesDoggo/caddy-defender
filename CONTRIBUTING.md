@@ -168,7 +168,7 @@ Responders are responsible for handling requests that match the specified IP ran
    func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
        for d.Next() {
            for d.NextArg() {
-               m.AdditionalRanges = append(m.AdditionalRanges, d.Val())
+               m.Ranges = append(m.Ranges, d.Val())
            }
 
            if d.NextArg() {
