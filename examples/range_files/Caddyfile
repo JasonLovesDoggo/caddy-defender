@@ -1,10 +1,11 @@
 {
     auto_https off
+    debug
 }
 
 :80 {
-    defender block {
-        ranges_file ./examples/range_files/ranges.txt
+    defender garbage  {
+        ranges_file ../examples/range_files/ranges.txt
     }
     respond "This is what a human sees"
 }

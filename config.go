@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
-	"maps"
+	"github.com/jasonlovesdoggo/caddy-defender/utils"
 	"net"
 	"os"
 	"slices"
@@ -59,7 +59,8 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 		}
 	}
 
-	if len(ranges) > 0 {
+	if m.RangesFile == "" && len(ranges) == 0 {
+		fmt.Println("Neither ranges nor ranges_file are specified. defaulting to all predefined ranges")
 		m.Ranges = ranges
 	}
 
@@ -76,13 +77,13 @@ func (m *Defender) UnmarshalJSON(b []byte) error {
 
 	switch rawConfig.RawResponder {
 	case "block":
-		m.responder = &responders.BlockResponder{}
+		m.Responder = &responders.BlockResponder{}
 	case "garbage":
-		m.responder = &responders.GarbageResponder{}
+		m.Responder = &responders.GarbageResponder{}
 	case "custom":
 		var customResp responders.CustomResponder
 		customResp.Message = &m.Message
-		m.responder = &customResp
+		m.Responder = &customResp
 	default:
 		return fmt.Errorf("unknown responder type: %s", rawConfig.RawResponder)
 	}
@@ -92,12 +93,8 @@ func (m *Defender) UnmarshalJSON(b []byte) error {
 
 // Validate ensures the middleware configuration is valid
 func (m *Defender) Validate() error {
-	if m.responder == nil {
+	if m.Responder == nil {
 		return fmt.Errorf("responder not configured")
-	}
-	if len(m.Ranges) == 0 && m.RangesFile == "" {
-		// set the default ranges to be all of the predefined ranges
-		m.Ranges = slices.Collect(maps.Keys(data.IPRanges))
 	}
 
 	for _, ipRange := range m.Ranges {
@@ -113,28 +110,42 @@ func (m *Defender) Validate() error {
 			return fmt.Errorf("invalid IP range %q: %v", ipRange, err)
 		}
 	}
-
-	// Validate ranges loaded from the text file
-	if m.RangesFile != "" {
-		file, err := os.Open(m.RangesFile)
-		if err != nil {
-			return fmt.Errorf("failed to open ranges file: %v", err)
-		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			line := scanner.Text()
-			_, _, err := net.ParseCIDR(line)
-			if err != nil {
-				return fmt.Errorf("invalid IP range in file %q: %v", line, err)
-			}
-		}
-
-		if err := scanner.Err(); err != nil {
-			return fmt.Errorf("error reading ranges file: %v", err)
-		}
-	}
+	fmt.Printf("Ranges file: %s", m.RangesFile) //Validate ranges loaded from the text file
+	//_, err := loadRangesFromFile(m.RangesFile)
+	//if err != nil {
+	//	return err
+	//}
 
 	return nil
+}
+
+func loadRangesFromFile(filePath string) ([]string, error) {
+	var ranges []string
+
+	file, err := os.Open(filePath)
+	if err != nil {
+		return nil, fmt.Errorf("failed to open ranges file: %v", err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		if slices.Contains(utils.PredefinedRangeKeys, line) {
+			ranges = append(ranges, data.IPRanges[line]...)
+			continue
+		}
+
+		_, ipNet, err := net.ParseCIDR(line)
+		if err != nil {
+			return nil, fmt.Errorf("invalid IP range in file %q: %v", line, err)
+		}
+		ranges = append(ranges, ipNet.String())
+	}
+
+	if err := scanner.Err(); err != nil {
+		return nil, fmt.Errorf("error reading ranges file: %v", err)
+	}
+
+	return ranges, nil
 }

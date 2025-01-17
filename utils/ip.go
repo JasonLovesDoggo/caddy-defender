@@ -5,13 +5,21 @@ import (
 	"github.com/hashicorp/golang-lru/v2/expirable"
 	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
 	"go.uber.org/zap"
+	"maps"
 	"net"
+	"slices"
 	"time"
 )
 
 const MaxKeys = 10000
 
 var cache = expirable.NewLRU[string, bool](MaxKeys, nil, time.Minute*10)
+
+var PredefinedRangeKeys []string
+
+func init() {
+	PredefinedRangeKeys = slices.Collect(maps.Keys(data.IPRanges))
+}
 
 // normalizeIP converts an IP to its normalized string representation.
 func normalizeIP(ip net.IP) string {
@@ -23,6 +31,7 @@ func normalizeIP(ip net.IP) string {
 
 // rawIPInRanges checks if the given IP is in the given CIDR ranges without using the cache.
 func rawIPInRanges(clientIP net.IP, cidrRanges []string, log *zap.Logger) bool {
+	log.Debug(fmt.Sprintf("Checking IP %v against ranges %v", clientIP, cidrRanges))
 	for _, cidr := range cidrRanges {
 		// If the range is a predefined key (e.g., "openai"), use the corresponding CIDRs
 		if ranges, ok := data.IPRanges[cidr]; ok {

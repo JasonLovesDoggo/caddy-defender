@@ -1,21 +1,19 @@
 package caddydefender
 
 import (
-	"bufio"
+	"fmt"
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"go.uber.org/zap"
-	"net"
-	"os"
 )
 
 func init() {
 	// Register the module with Caddy
 	caddy.RegisterModule(Defender{})
 	httpcaddyfile.RegisterHandlerDirective("defender", parseCaddyfile)
-	httpcaddyfile.RegisterDirectiveOrder("defender", "before", "basicauth")
+	httpcaddyfile.RegisterDirectiveOrder("defender", "before", "request_header")
 
 }
 
@@ -31,10 +29,10 @@ type Defender struct {
 	Message string `json:"message,omitempty"`
 
 	// Internal field representing the actual responder interface
-	RawResponder string `json:"raw_responder,omitempty"`
+	RawResponder string `json:"raw_responder,omitempty"  caddy:"namespace=http.handlers.defender inline_key=responder"`
 
-	//  the type of responder to use. (e.g. "block", "custom", etc.)
-	responder Responder
+	//  the type of Responder to use. (e.g. "block", "custom", etc.)
+	Responder Responder `json:"-"`
 
 	// Logger
 	log *zap.Logger
@@ -43,27 +41,24 @@ type Defender struct {
 // Provision sets up the middleware and logger.
 func (m *Defender) Provision(ctx caddy.Context) error {
 	m.log = ctx.Logger(m)
+	// print everythibng in m
+	fmt.Println(m.Message)
+	fmt.Println(m.RawResponder)
+	fmt.Println(m.Ranges)
+	fmt.Println(m.RangesFile)
 
-	// Load ranges from the specified text filez
+	// Load ranges from file if specified
 	if m.RangesFile != "" {
-		file, err := os.Open(m.RangesFile)
+		m.log.Info("Loading ranges from file", zap.String("file", m.RangesFile))
+		ranges, err := loadRangesFromFile(m.RangesFile)
 		if err != nil {
-			return err
+			m.log.Error("Failed to load ranges from file", zap.Error(err))
+			return fmt.Errorf("failed to load ranges from file: %v", err)
 		}
-		defer file.Close()
-
-		scanner := bufio.NewScanner(file)
-		for scanner.Scan() {
-			line := scanner.Text()
-			_, _, err := net.ParseCIDR(line)
-			if err != nil {
-				return err
-			}
-		}
-
-		if err := scanner.Err(); err != nil {
-			return err
-		}
+		m.Ranges = ranges
+		m.log.Info("Ranges loaded successfully", zap.Strings("ranges", m.Ranges))
+	} else {
+		m.log.Info("No ranges file specified, using default ranges")
 	}
 
 	return nil
@@ -81,12 +76,14 @@ func (Defender) CaddyModule() caddy.ModuleInfo {
 func parseCaddyfile(h httpcaddyfile.Helper) (caddyhttp.MiddlewareHandler, error) {
 	var m Defender
 	err := m.UnmarshalCaddyfile(h.Dispenser)
-	return m, err
+	return &m, err
 }
 
 // Interface guards
 var (
-	_ caddy.Provisioner = (*Defender)(nil)
-	//_ caddyhttp.MiddlewareHandler = (*Defender)(nil)
-	_ caddyfile.Unmarshaler = (*Defender)(nil)
+	_ caddy.Provisioner           = (*Defender)(nil)
+	_ caddyhttp.MiddlewareHandler = (*Defender)(nil)
+	_ caddyfile.Unmarshaler       = (*Defender)(nil)
+	_ caddy.Validator             = (*Defender)(nil)
+	_ caddy.Module                = (*Defender)(nil)
 )
