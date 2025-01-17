@@ -4,7 +4,8 @@
 }
 
 :80 {
-    defender custom "My AI only response"  {
+    defender custom {
+        message "My AI only response"
         ranges localhost
     }
     respond "This is what a human sees"
@@ -14,4 +15,3 @@
 :83 {
     respond "Clear text HTTP"
 }
-
