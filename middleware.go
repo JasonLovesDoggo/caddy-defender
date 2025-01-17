@@ -13,7 +13,7 @@ import (
 )
 
 // ServeHTTP implements the middleware logic.
-func (m DefenderMiddleware) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
+func (m Defender) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
 	// Split the RemoteAddr into IP and port
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {

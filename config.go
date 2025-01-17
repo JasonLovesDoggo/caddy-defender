@@ -3,6 +3,7 @@ package caddydefender
 import (
 	"bufio"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
@@ -12,8 +13,17 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 )
 
-// UnmarshalCaddyfile implements caddyfile.Unmarshaler
-func (m *DefenderMiddleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
+// UnmarshalCaddyfile sets up the handler from Caddyfile tokens. Syntax:
+//
+//		defender <responder> {
+//		# Additional IP ranges to block (optional)
+//		ranges
+//	 # file containing IP ranges to block (optional)
+//	 ranges_file
+//	 # Custom message to return to the client when using "custom" middleware (optional)
+//	 message
+//		}
+func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	// Skip the "defender" token
 	if !d.Next() {
 		return d.Err("expected defender directive")
@@ -82,8 +92,8 @@ func (m *DefenderMiddleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 }
 
 // UnmarshalJSON handles the responder interface
-func (m *DefenderMiddleware) UnmarshalJSON(b []byte) error {
-	type tempMiddleware DefenderMiddleware
+func (m *Defender) UnmarshalJSON(b []byte) error {
+	type tempMiddleware Defender
 	var temp tempMiddleware
 	if err := json.Unmarshal(b, &temp); err != nil {
 		return err
@@ -125,13 +135,14 @@ func (m *DefenderMiddleware) UnmarshalJSON(b []byte) error {
 }
 
 // Validate ensures the middleware configuration is valid
-func (m *DefenderMiddleware) Validate() error {
+func (m *Defender) Validate() error {
 	if m.responder == nil {
 		return fmt.Errorf("responder not configured")
 	}
-
 	if len(m.AdditionalRanges) == 0 && m.RangesFile == "" {
-		return fmt.Errorf("either 'ranges' or 'ranges_file' must be specified")
+		//m.log.Fatal("either 'ranges' or 'ranges_file' must be specified") // This looks better but is not properly
+		//supported by caddy
+		return errors.New("either 'ranges' or 'ranges_file' must be specified")
 	}
 
 	for _, ipRange := range m.AdditionalRanges {

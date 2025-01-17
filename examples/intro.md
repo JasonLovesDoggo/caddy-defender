@@ -21,10 +21,6 @@ docker pull ghcr.io/jasonlovesdoggo/caddy-defender:latest
 Create a `Caddyfile` with the following configuration:
 
 ```caddyfile
-{
-    order defender before basicauth
-}
-
 localhost:8080 {
     # Block requests from OpenAI's IP range
     defender block {

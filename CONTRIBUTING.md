@@ -165,7 +165,7 @@ Responders are responsible for handling requests that match the specified IP ran
 3. **Register the Responder**:
    Update the `UnmarshalCaddyfile` method in `caddy-plugin/plugin.go` to support your new responder:
    ```go
-   func (m *DefenderMiddleware) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
+   func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
        for d.Next() {
            for d.NextArg() {
                m.AdditionalRanges = append(m.AdditionalRanges, d.Val())

@@ -86,15 +86,6 @@ defender <responder> [responder_args...] {
 - `<ip_ranges...>`: A list of CIDR ranges or predefined range keys (e.g., `openai`, `localhost`) to match against the client's IP.
 - `<file_path>`: Path to a file containing IP ranges, one per line.
 
-#### **Ordering the Middleware**
-To ensure the `defender` middleware runs before other middleware (e.g., `basicauth`), add the following to your global configuration:
-
-```caddyfile
-{
-    order defender before basicauth
-}
-```
-
 ---
 
 ### **Examples**
@@ -168,7 +159,7 @@ To add new IP ranges, you need to create a new fetcher in the `ranges/fetchers` 
 
 ### Adding a New Responder
 
-To add a new responder, you need to create a new responder in the `responders` package and update the `UnmarshalCaddyfile` method in the `DefenderMiddleware` struct to handle the new responder. Follow the steps in the [Contributing Guide](CONTRIBUTING.md).
+To add a new responder, you need to create a new responder in the `responders` package and update the `UnmarshalCaddyfile` method in the `Defender` struct to handle the new responder. Follow the steps in the [Contributing Guide](CONTRIBUTING.md).
 
 ---
 
