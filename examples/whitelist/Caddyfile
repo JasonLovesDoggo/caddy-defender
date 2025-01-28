@@ -1,0 +1,15 @@
+{
+	auto_https off
+	order defender after header
+	debug
+}
+
+:80 {
+	bind 127.0.0.1 ::1
+	# Everything in AWS besides my EC2 instance is blocked from accessing this site.
+	defender block {
+		ranges aws
+    	whitelist 169.254.169.254 # my ec2's public IP.
+	}
+	respond "This is what a human sees"
+}
