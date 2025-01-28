@@ -18,11 +18,13 @@ var responderTypes = []string{"block", "garbage", "custom", "ratelimit"}
 // UnmarshalCaddyfile sets up the handler from Caddyfile tokens. Syntax:
 //
 //		defender <responder> {
-//		# IP ranges to block
-//		ranges
-//	 # Custom message to return to the client when using "custom" middleware (optional)
-//	 message
-//		}
+//			# IP ranges to block
+//			ranges
+//	     # Whitelisted IP addresses to allow to bypass ranges (optional)
+//			whitelist
+//		    # Custom message to return to the client when using "custom" middleware (optional)
+//		    message
+//			}
 func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	d.Next() // consume directive name
 
