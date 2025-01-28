@@ -62,9 +62,10 @@ func NewIPChecker(cidrRanges, whitelistedIPs []string, log *zap.Logger) *IPCheck
 
 func (c *IPChecker) ReqAllowed(ctx context.Context, clientIP net.IP) bool {
 	if c.whitelist.Allowed(clientIP.String()) {
+		c.log.Debug("IP is whitelisted", zap.String("ip", clientIP.String()))
 		return true
 	}
-	return c.IPInRanges(ctx, clientIP)
+	return !c.IPInRanges(ctx, clientIP)
 }
 
 func (c *IPChecker) IPInRanges(ctx context.Context, clientIP net.IP) bool {
