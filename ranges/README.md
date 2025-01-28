@@ -17,14 +17,14 @@ The **Fetchers Module** is a Go package designed to fetch IP ranges for various 
 
 ## Supported Fetchers
 
-| Fetcher Name           | Description                                                         |
-|------------------------|---------------------------------------------------------------------|
-| `AWSFetcher`           | Fetches global IP ranges for AWS services.                          |
-| `AWSRegionFetcher`     | Fetches IP ranges for a specific AWS region (e.g., `us-east-1`).    |
-| `GCloudFetcher`        | Fetches IP ranges for Google Cloud Platform (GCP) services.         |
-| `OpenAIFetcher`        | Fetches IP ranges for OpenAI services (e.g., ChatGPT, GPTBot).      |
-| `GithubCopilotFetcher` | Fetches IP ranges for GitHub Copilot services.                      |
-| `LocalhostFetcher`     | Fetches IP ranges for localhost (used for development and testing). |
+| Fetcher Name           | Description                                                      |
+|------------------------|------------------------------------------------------------------|
+| `AWSFetcher`           | Fetches global IP ranges for AWS services.                       |
+| `AWSRegionFetcher`     | Fetches IP ranges for a specific AWS region (e.g., `us-east-1`). |
+| `GCloudFetcher`        | Fetches IP ranges for Google Cloud Platform (GCP) services.      |
+| `OpenAIFetcher`        | Fetches IP ranges for OpenAI services (e.g., ChatGPT, GPTBot).   |
+| `GithubCopilotFetcher` | Fetches IP ranges for GitHub Copilot services.                   |
+| `PrivateFetcher`       | Fetches IP ranges for private network ranges (used for testing). |
 
 ---
 
@@ -63,16 +63,16 @@ func main() {
 
 The `IPRanges` map in the `data` package contains the following keys:
 
-| Key               | Description                                                                 |
-|-------------------|-----------------------------------------------------------------------------|
-| `aws`             | Global IP ranges for AWS services.                                          |
-| `aws-us-east-1`   | IP ranges for the AWS `us-east-1` region.                                   |
-| `aws-us-west-1`   | IP ranges for the AWS `us-west-1` region.                                   |
-| `aws-eu-west-1`   | IP ranges for the AWS `eu-west-1` region.                                   |
-| `gcloud`          | IP ranges for Google Cloud Platform (GCP) services.                         |
-| `openai`          | IP ranges for OpenAI services (e.g., ChatGPT, GPTBot).                      |
-| `githubcopilot`   | IP ranges for GitHub Copilot services.                                      |
-| `localhost`       | IP ranges for localhost (used for development and testing).                 |
+| Key             | Description                                            |
+|-----------------|--------------------------------------------------------|
+| `aws`           | Global IP ranges for AWS services.                     |
+| `aws-us-east-1` | IP ranges for the AWS `us-east-1` region.              |
+| `aws-us-west-1` | IP ranges for the AWS `us-west-1` region.              |
+| `aws-eu-west-1` | IP ranges for the AWS `eu-west-1` region.              |
+| `gcloud`        | IP ranges for Google Cloud Platform (GCP) services.    |
+| `openai`        | IP ranges for OpenAI services (e.g., ChatGPT, GPTBot). |
+| `githubcopilot` | IP ranges for GitHub Copilot services.                 |
+| `private`       | IP ranges for private networks (used for testing).     |
 
 ### Regenerating Pregenerated Results
 

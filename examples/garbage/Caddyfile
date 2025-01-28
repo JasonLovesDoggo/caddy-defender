@@ -8,7 +8,7 @@
 	bind 127.0.0.1 ::1
 
 	defender garbage {
-		ranges localhost
+		ranges private
 	}
 	respond "This is what a human sees"
 }

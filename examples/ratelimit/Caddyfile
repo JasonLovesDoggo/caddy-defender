@@ -4,7 +4,7 @@
 
 :80 {
 	defender ratelimit {
-		ranges localhost
+		ranges private
 	}
 
 	rate_limit {

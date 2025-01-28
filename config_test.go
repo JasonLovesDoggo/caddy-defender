@@ -208,7 +208,7 @@ func TestDefenderValidation(t *testing.T) {
                 {
                   "handler": "defender",
                   "ranges": [
-                    "localhost"
+                    "private"
                   ],
                   "raw_responder": "pineapple"
                 },

@@ -82,7 +82,7 @@ Integrate with [caddy-ratelimit](https://github.com/mholt/caddy-ratelimit):
 
 :80 {
 	defender ratelimit {
-		ranges localhost
+		ranges private
 	}
     
 	rate_limit {

@@ -83,7 +83,7 @@ defender <responder> {
   - `garbage`: Returns garbage data to pollute AI training.
   - `custom`: Returns a custom message (requires `responder_args`).
   - `ratelimit`: Marks requests for rate limiting (requires [Caddy-Ratelimit](https://github.com/mholt/caddy-ratelimit) to be installed as well ).
-- `<ip_ranges...>`: A list of CIDR ranges or predefined range keys (e.g., `openai`, `localhost`) to match against the client's IP.
+- `<ip_ranges...>`: A list of CIDR ranges or predefined range keys (e.g., `openai`, `private`) to match against the client's IP.
 - `<custom message>`: A custom message to return when using the `custom` responder.
 ---
 
@@ -96,16 +96,16 @@ defender <responder> {
 
 The plugin includes predefined IP ranges for popular AI services. These ranges are embedded in the binary and can be used without additional configuration.
 
-| Service               | Key                                         | IP Ranges                                          |
-|-----------------------|---------------------------------------------|----------------------------------------------------|
-| AWS                   | aws                                         | [aws.go](ranges/fetchers/aws/aws.go)               |
-| AWS Region            | aws-us-east-1, aws-us-west-1, aws-eu-west-1 | [aws_region.go](ranges/fetchers/aws/aws_region.go) |
-| DeepSeek              | deepseek                                    | [deepseek.go](ranges/fetchers/deepseek.go)         |
-| GitHub Copilot        | githubcopilot                               | [github.go](ranges/fetchers/github.go)             |
-| Google Cloud Platform | gcloud                                      | [gcloud.go](ranges/fetchers/gcloud.go)             |
-| Microsoft Azure       | azurepubliccloud                            | [azure.go](ranges/fetchers/azure.go)               |
-| OpenAI                | openai                                      | [openai.go](ranges/fetchers/openai.go)             |
-| Localhost (testing)   | localhost                                   | [localhost.go](ranges/fetchers/localhost.go)       |
+| Service                                                              | Key                                         | IP Ranges                                          |
+|----------------------------------------------------------------------|---------------------------------------------|----------------------------------------------------|
+| AWS                                                                  | aws                                         | [aws.go](ranges/fetchers/aws/aws.go)               |
+| AWS Region                                                           | aws-us-east-1, aws-us-west-1, aws-eu-west-1 | [aws_region.go](ranges/fetchers/aws/aws_region.go) |
+| DeepSeek                                                             | deepseek                                    | [deepseek.go](ranges/fetchers/deepseek.go)         |
+| GitHub Copilot                                                       | githubcopilot                               | [github.go](ranges/fetchers/github.go)             |
+| Google Cloud Platform                                                | gcloud                                      | [gcloud.go](ranges/fetchers/gcloud.go)             |
+| Microsoft Azure                                                      | azurepubliccloud                            | [azure.go](ranges/fetchers/azure.go)               |
+| OpenAI                                                               | openai                                      | [openai.go](ranges/fetchers/openai.go)             |
+| [Private](https://caddyserver.com/docs/caddyfile/matchers#remote-ip) | private                                     | [private.go](ranges/fetchers/private.go)           |
 
 More are welcome! for a precompiled list, see the [embedded results](ranges/data/generated.go)
 

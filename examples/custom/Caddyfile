@@ -8,7 +8,7 @@
 	bind 127.0.0.1 ::1
 
 	defender custom {
-		ranges localhost
+		ranges private
 		message "You are not welcome here"
 	}
 	respond "This is what a human sees"
