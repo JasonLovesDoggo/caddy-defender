@@ -61,6 +61,11 @@ type Defender struct {
 	// Default: All predefined ranges if empty
 	Ranges []string `json:"ranges,omitempty"`
 
+	// An optional whitelist of IP addresses to exclude from blocking. If empty, no IPs are whitelisted.
+	// NOTE: this only supports IP addresses, not ranges.
+	// Default: []
+	WhiteList []string `json:"whitelist,omitempty"`
+
 	// Message specifies the custom response message for 'custom' responder type.
 	// Required only when using 'custom' responder.
 	Message string `json:"message,omitempty"`
@@ -86,7 +91,7 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 	}
 
 	// ensure to keep AFTER the ranges are checked (above)
-	m.ipChecker = ip.NewIPChecker(m.Ranges, m.log)
+	m.ipChecker = ip.NewIPChecker(m.Ranges, m.WhiteList, m.log)
 
 	return nil
 }

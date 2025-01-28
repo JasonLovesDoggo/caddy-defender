@@ -46,7 +46,7 @@ func TestIPInRanges(t *testing.T) {
 	data.IPRanges = predefinedCIDRs
 
 	// Create a new IPChecker with valid CIDRs
-	checker := NewIPChecker(validCIDRs, testLogger)
+	checker := NewIPChecker(validCIDRs, []string{}, testLogger)
 
 	tests := []struct {
 		name     string
@@ -93,7 +93,7 @@ func TestIPInRanges(t *testing.T) {
 
 func TestIPInRangesCache(t *testing.T) {
 	// Create a new IPChecker with valid CIDRs
-	checker := NewIPChecker(validCIDRs, testLogger)
+	checker := NewIPChecker(validCIDRs, []string{}, testLogger)
 
 	// Test IP
 	clientIP := net.ParseIP("192.168.1.100")
@@ -110,7 +110,7 @@ func TestIPInRangesCache(t *testing.T) {
 
 func TestIPInRangesCacheExpiration(t *testing.T) {
 	// Create a new IPChecker with a short cache TTL for testing
-	checker := NewIPChecker(validCIDRs, testLogger)
+	checker := NewIPChecker(validCIDRs, []string{}, testLogger)
 
 	// Test IP
 	clientIP := net.ParseIP("192.168.1.100")
@@ -130,7 +130,7 @@ func TestIPInRangesCacheExpiration(t *testing.T) {
 
 func TestIPInRangesInvalidCIDR(t *testing.T) {
 	// Create a new IPChecker with invalid CIDRs
-	checker := NewIPChecker(invalidCIDRs, testLogger)
+	checker := NewIPChecker(invalidCIDRs, []string{}, testLogger)
 
 	// Test IP
 	clientIP := net.ParseIP("192.168.1.100")
@@ -143,7 +143,7 @@ func TestIPInRangesInvalidCIDR(t *testing.T) {
 
 func TestIPInRangesInvalidIP(t *testing.T) {
 	// Create a new IPChecker with valid CIDRs
-	checker := NewIPChecker(validCIDRs, testLogger)
+	checker := NewIPChecker(validCIDRs, []string{}, testLogger)
 
 	// Test invalid IP
 	clientIP := net.IP([]byte{1, 2, 3}) // Invalid IP
@@ -216,7 +216,7 @@ func TestPredefinedCIDRGroups(t *testing.T) {
 				return nil
 			}))
 
-			checker := NewIPChecker(tt.groups, logger)
+			checker := NewIPChecker(tt.groups, []string{}, logger)
 			clientIP := net.ParseIP(tt.ip)
 			assert.NotNil(t, clientIP, "Failed to parse IP")
 

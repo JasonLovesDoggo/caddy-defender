@@ -14,12 +14,13 @@ import (
 )
 
 type IPChecker struct {
-	table *bart.Table[struct{}]
-	cache *sturdyc.Client[string]
-	log   *zap.Logger
+	table     *bart.Table[struct{}]
+	cache     *sturdyc.Client[string]
+	whitelist *Whitelist
+	log       *zap.Logger
 }
 
-func NewIPChecker(cidrRanges []string, log *zap.Logger) *IPChecker {
+func NewIPChecker(cidrRanges, whitelistedIPs []string, log *zap.Logger) *IPChecker {
 	const (
 		capacity        = 10000
 		numShards       = 10
@@ -29,6 +30,13 @@ func NewIPChecker(cidrRanges []string, log *zap.Logger) *IPChecker {
 		maxRefreshDelay = 300 * time.Millisecond
 		retryBaseDelay  = 10 * time.Millisecond
 	)
+
+	whitelist, err := NewWhitelist(whitelistedIPs)
+	if err != nil {
+		log.Warn("Invalid whitelist IP",
+			zap.Strings("whitelist", whitelistedIPs),
+			zap.Error(err))
+	}
 
 	cache := sturdyc.New[string](
 		capacity,
@@ -45,10 +53,18 @@ func NewIPChecker(cidrRanges []string, log *zap.Logger) *IPChecker {
 	)
 
 	return &IPChecker{
-		table: buildTable(cidrRanges, log),
-		cache: cache,
-		log:   log,
+		table:     buildTable(cidrRanges, log),
+		cache:     cache,
+		log:       log,
+		whitelist: whitelist,
 	}
+}
+
+func (c *IPChecker) ReqAllowed(ctx context.Context, clientIP net.IP) bool {
+	if c.whitelist.Allowed(clientIP.String()) {
+		return true
+	}
+	return c.IPInRanges(ctx, clientIP)
 }
 
 func (c *IPChecker) IPInRanges(ctx context.Context, clientIP net.IP) bool {

@@ -52,6 +52,10 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			}
 			Message := d.Val()
 			m.Message = Message
+		case "whitelist":
+			for d.NextArg() {
+				m.WhiteList = append(m.WhiteList, d.Val())
+			}
 		default:
 			return d.Errf("unknown subdirective '%s'", d.Val())
 		}
@@ -128,6 +132,13 @@ func (m *Defender) Validate() error {
 		_, _, err := net.ParseCIDR(ipRange)
 		if err != nil {
 			return fmt.Errorf("invalid IP range %q: %v", ipRange, err)
+		}
+	}
+
+	// Check if the whitelist is valid
+	for _, ip := range m.WhiteList {
+		if net.ParseIP(ip) == nil {
+			return fmt.Errorf("invalid IP address %q in whitelist", ip)
 		}
 	}
 
