@@ -5,9 +5,9 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+	"github.com/jasonlovesdoggo/caddy-defender/modules/matcher"
 	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
-	"github.com/jasonlovesdoggo/caddy-defender/utils/ip"
 	"go.uber.org/zap"
 	"maps"
 	"slices"
@@ -76,7 +76,7 @@ type Defender struct {
 
 	// responder is the internal implementation of the response strategy
 	responder responders.Responder
-	ipChecker *ip.IPChecker
+	ipChecker *matcher.IPChecker
 	log       *zap.Logger
 }
 
@@ -91,7 +91,7 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 	}
 
 	// ensure to keep AFTER the ranges are checked (above)
-	m.ipChecker = ip.NewIPChecker(m.Ranges, m.Whitelist, m.log)
+	m.ipChecker = matcher.NewIPChecker(m.Ranges, m.Whitelist, m.log)
 
 	return nil
 }
