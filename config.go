@@ -8,6 +8,7 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
+	"github.com/jasonlovesdoggo/caddy-defender/utils/ip/whitelist"
 	"net"
 	"reflect"
 	"slices"
@@ -56,7 +57,7 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			m.Message = Message
 		case "whitelist":
 			for d.NextArg() {
-				m.WhiteList = append(m.WhiteList, d.Val())
+				m.Whitelist = append(m.Whitelist, d.Val())
 			}
 		default:
 			return d.Errf("unknown subdirective '%s'", d.Val())
@@ -118,10 +119,6 @@ func (m *Defender) Validate() error {
 	if m.responder == nil {
 		return fmt.Errorf("responder not configured")
 	}
-	if len(m.Ranges) == 0 {
-		// set the default ranges to be all of the predefined ranges
-		return fmt.Errorf("no ranges specified, this is required")
-	}
 
 	for _, ipRange := range m.Ranges {
 		// Check if the range is a predefined key (e.g., "openai")
@@ -138,10 +135,9 @@ func (m *Defender) Validate() error {
 	}
 
 	// Check if the whitelist is valid
-	for _, ip := range m.WhiteList {
-		if net.ParseIP(ip) == nil {
-			return fmt.Errorf("invalid IP address %q in whitelist", ip)
-		}
+	err := whitelist.ValidateWhitelist(m.Whitelist)
+	if err != nil {
+		return err
 	}
 
 	return nil

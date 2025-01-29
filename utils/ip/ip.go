@@ -3,6 +3,7 @@ package ip
 import (
 	"context"
 	"fmt"
+	Whitelist "github.com/jasonlovesdoggo/caddy-defender/utils/ip/whitelist"
 	"net"
 	"net/netip"
 	"time"
@@ -16,7 +17,7 @@ import (
 type IPChecker struct {
 	table     *bart.Table[struct{}]
 	cache     *sturdyc.Client[string]
-	whitelist *Whitelist
+	whitelist *Whitelist.Whitelist
 	log       *zap.Logger
 }
 
@@ -31,7 +32,7 @@ func NewIPChecker(cidrRanges, whitelistedIPs []string, log *zap.Logger) *IPCheck
 		retryBaseDelay  = 10 * time.Millisecond
 	)
 
-	whitelist, err := NewWhitelist(whitelistedIPs)
+	whitelist, err := Whitelist.NewWhitelist(whitelistedIPs)
 	if err != nil {
 		log.Warn("Invalid whitelist IP",
 			zap.Strings("whitelist", whitelistedIPs),
@@ -61,15 +62,7 @@ func NewIPChecker(cidrRanges, whitelistedIPs []string, log *zap.Logger) *IPCheck
 }
 
 func (c *IPChecker) ReqAllowed(ctx context.Context, clientIP net.IP) bool {
-	if c.whitelist.Allowed(clientIP.String()) {
-		c.log.Debug("IP is whitelisted", zap.String("ip", clientIP.String()))
-		return true
-	}
-	return !c.IPInRanges(ctx, clientIP)
-}
-
-func (c *IPChecker) IPInRanges(ctx context.Context, clientIP net.IP) bool {
-	// Convert to netip.Addr first to handle IPv4-mapped IPv6 addresses
+	// convert net.IP to netip.Addr
 	ipAddr, err := ipToAddr(clientIP)
 	if err != nil {
 		c.log.Warn("Invalid IP address format",
@@ -78,6 +71,17 @@ func (c *IPChecker) IPInRanges(ctx context.Context, clientIP net.IP) bool {
 		return false
 	}
 
+	// Check if the IP is whitelisted
+	if c.whitelist.Whitelisted(ipAddr) {
+		c.log.Debug("IP is whitelisted", zap.String("ip", clientIP.String()))
+		return true
+	}
+	// Check if the IP is in the blocked ranges
+	return !c.IPInRanges(ctx, ipAddr)
+}
+
+func (c *IPChecker) IPInRanges(ctx context.Context, ipAddr netip.Addr) bool {
+	// Convert to netip.Addr first to handle IPv4-mapped IPv6 addresses
 	// Use the normalized string representation for cache keys
 	cacheKey := ipAddr.String()
 

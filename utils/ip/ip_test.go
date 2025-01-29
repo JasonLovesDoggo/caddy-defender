@@ -84,8 +84,10 @@ func TestIPInRanges(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			clientIP := net.ParseIP(tt.ip)
 			assert.NotNil(t, clientIP, "Failed to parse IP")
+			ipAddr, err := ipToAddr(clientIP)
+			assert.NoError(t, err, "Failed to convert IP to netip.Addr")
 
-			result := checker.IPInRanges(context.Background(), clientIP)
+			result := checker.IPInRanges(context.Background(), ipAddr)
 			assert.Equal(t, tt.expected, result, "Unexpected result for IP %s", tt.ip)
 		})
 	}
@@ -98,13 +100,14 @@ func TestIPInRangesCache(t *testing.T) {
 	// Test IP
 	clientIP := net.ParseIP("192.168.1.100")
 	assert.NotNil(t, clientIP, "Failed to parse IP")
-
+	ipAddr, err := ipToAddr(clientIP)
+	assert.NoError(t, err, "Failed to convert IP to netip.Addr")
 	// First call (not cached)
-	result := checker.IPInRanges(context.Background(), clientIP)
+	result := checker.IPInRanges(context.Background(), ipAddr)
 	assert.True(t, result, "Expected IP to be in range (first call)")
 
 	// Second call (cached)
-	result = checker.IPInRanges(context.Background(), clientIP)
+	result = checker.IPInRanges(context.Background(), ipAddr)
 	assert.True(t, result, "Expected IP to be in range (second call)")
 }
 
@@ -115,16 +118,18 @@ func TestIPInRangesCacheExpiration(t *testing.T) {
 	// Test IP
 	clientIP := net.ParseIP("192.168.1.100")
 	assert.NotNil(t, clientIP, "Failed to parse IP")
+	ipAddr, err := ipToAddr(clientIP)
+	assert.NoError(t, err, "Failed to convert IP to netip.Addr")
 
 	// First call (not cached)
-	result := checker.IPInRanges(context.Background(), clientIP)
+	result := checker.IPInRanges(context.Background(), ipAddr)
 	assert.True(t, result, "Expected IP to be in range (first call)")
 
 	// Wait for cache to expire
 	time.Sleep(100 * time.Millisecond)
 
 	// Second call (cache expired)
-	result = checker.IPInRanges(context.Background(), clientIP)
+	result = checker.IPInRanges(context.Background(), ipAddr)
 	assert.True(t, result, "Expected IP to be in range (second call, cache expired)")
 }
 
@@ -135,9 +140,10 @@ func TestIPInRangesInvalidCIDR(t *testing.T) {
 	// Test IP
 	clientIP := net.ParseIP("192.168.1.100")
 	assert.NotNil(t, clientIP, "Failed to parse IP")
-
+	ipAddr, err := ipToAddr(clientIP)
+	assert.NoError(t, err, "Failed to convert IP to netip.Addr")
 	// Call with invalid CIDRs
-	result := checker.IPInRanges(context.Background(), clientIP)
+	result := checker.IPInRanges(context.Background(), ipAddr)
 	assert.False(t, result, "Expected IP to not be in range due to invalid CIDRs")
 }
 
@@ -149,8 +155,11 @@ func TestIPInRangesInvalidIP(t *testing.T) {
 	clientIP := net.IP([]byte{1, 2, 3}) // Invalid IP
 	assert.NotNil(t, clientIP, "Failed to create invalid IP")
 
+	ipAddr, err := ipToAddr(clientIP)
+	assert.Error(t, err, "Failed to convert IP to netip.Addr")
+
 	// Call with invalid IP
-	result := checker.IPInRanges(context.Background(), clientIP)
+	result := checker.IPInRanges(context.Background(), ipAddr)
 	assert.False(t, result, "Expected IP to not be in range due to invalid IP")
 }
 
@@ -220,7 +229,10 @@ func TestPredefinedCIDRGroups(t *testing.T) {
 			clientIP := net.ParseIP(tt.ip)
 			assert.NotNil(t, clientIP, "Failed to parse IP")
 
-			result := checker.IPInRanges(context.Background(), clientIP)
+			ipAddr, err := ipToAddr(clientIP)
+			assert.NoError(t, err, "Failed to convert IP to netip.Addr")
+
+			result := checker.IPInRanges(context.Background(), ipAddr)
 			assert.Equal(t, tt.expected, result, "Unexpected result for IP %s", tt.ip)
 
 			// Verify error logging for problematic cases

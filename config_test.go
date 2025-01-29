@@ -2,8 +2,13 @@ package caddydefender
 
 import (
 	"encoding/json"
+	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddytest"
+	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
+	"maps"
+	"slices"
+	"sort"
 	"testing"
 
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
@@ -166,6 +171,7 @@ func TestValidation(t *testing.T) {
 		def := Defender{
 			RawResponder: "block",
 			Ranges:       []string{"10.0.0.0/8"},
+			Whitelist:    []string{"126.39.0.3"},
 			responder:    &responders.BlockResponder{},
 		}
 		require.NoError(t, def.Validate())
@@ -186,6 +192,40 @@ func TestValidation(t *testing.T) {
 		}
 		require.ErrorContains(t, def.Validate(), "invalid IP range")
 	})
+
+	t.Run("invalid whitelist IP", func(t *testing.T) {
+		def := Defender{
+			RawResponder: "block",
+			Whitelist:    []string{"invalid"},
+			responder:    &responders.BlockResponder{},
+		}
+		require.ErrorContains(t, def.Validate(), "invalid IP address")
+	})
+
+	t.Run("Missing ranges", func(t *testing.T) {
+		def := Defender{
+			RawResponder: "block",
+			responder:    &responders.BlockResponder{},
+		}
+		err := def.Provision(caddy.Context{Context: caddy.ActiveContext()})
+		if err != nil {
+			return
+		}
+
+		// We must sort the ranges to compare them as the order is not guaranteed
+		sort.Slice(def.Ranges, func(i, j int) bool {
+			return def.Ranges[i] < def.Ranges[j]
+		})
+
+		defaultRanges := slices.Collect(maps.Keys(data.IPRanges))
+
+		sort.Slice(defaultRanges, func(i, j int) bool {
+			return defaultRanges[i] < defaultRanges[j]
+		})
+
+		require.Equal(t, defaultRanges, def.Ranges)
+	})
+
 }
 
 func TestDefenderValidation(t *testing.T) {
