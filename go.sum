@@ -350,8 +350,6 @@ github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d h1:5PJl274Y63IEHC+7izoQ
 github.com/mgutz/ansi v0.0.0-20200706080929-d51e80ef957d/go.mod h1:01TrycV0kFyexm33Z7vhZRXopbI8J3TDReVlkTgMUxE=
 github.com/mholt/acmez/v3 v3.0.0 h1:r1NcjuWR0VaKP2BTjDK9LRFBw/WvURx3jlaEUl9Ht8E=
 github.com/mholt/acmez/v3 v3.0.0/go.mod h1:L1wOU06KKvq7tswuMDwKdcHeKpFFgkppZy/y0DFxagQ=
-github.com/mholt/caddy-ratelimit v0.1.0 h1:73lOvdSLSoBGPT5l61nrTzh9liax+IDfXeQDtfzNcZ4=
-github.com/mholt/caddy-ratelimit v0.1.0/go.mod h1:smAiS3nAflvLDTiGNKUlPXG47Ke3bAiexcWWipVzvMY=
 github.com/microcosm-cc/bluemonday v1.0.1/go.mod h1:hsXNsILzKxV+sX77C5b8FSuKF00vh2OMYv+xgHpAMF4=
 github.com/miekg/dns v1.1.62 h1:cN8OuEF1/x5Rq6Np+h1epln8OiyPWV+lROx9LxcGgIQ=
 github.com/miekg/dns v1.1.62/go.mod h1:mvDlcItzm+br7MToIKqkglaGhlFMHJ9DTNNWONWXbNQ=
