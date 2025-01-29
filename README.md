@@ -83,7 +83,7 @@ defender <responder> {
   - `garbage`: Returns garbage data to pollute AI training.
   - `custom`: Returns a custom message (requires `responder_args`).
   - `ratelimit`: Marks requests for rate limiting (requires [Caddy-Ratelimit](https://github.com/mholt/caddy-ratelimit) to be installed as well ).
-- `<ip_ranges...>`: A list of CIDR ranges or predefined range keys (e.g., `openai`, `private`) to match against the client's IP.
+- `<ip_ranges...>`: An optional list of CIDR ranges or predefined range keys to match against the client's IP. Defaults to `aws azurepubliccloud deepseek gcloud githubcopilot openai private`.
 - `<custom message>`: A custom message to return when using the `custom` responder.
 ---
 
