@@ -135,7 +135,7 @@ func (m *Defender) Validate() error {
 	}
 
 	// Check if the whitelist is valid
-	err := whitelist.ValidateWhitelist(m.Whitelist)
+	err := whitelist.Validate(m.Whitelist)
 	if err != nil {
 		return err
 	}

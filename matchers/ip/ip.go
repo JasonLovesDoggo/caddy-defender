@@ -32,7 +32,7 @@ func NewIPChecker(cidrRanges, whitelistedIPs []string, log *zap.Logger) *IPCheck
 		retryBaseDelay  = 10 * time.Millisecond
 	)
 
-	whitelist, err := Whitelist.NewWhitelist(whitelistedIPs)
+	whitelist, err := Whitelist.Initialize(whitelistedIPs)
 	if err != nil {
 		log.Warn("Invalid whitelist IP",
 			zap.Strings("whitelist", whitelistedIPs),
@@ -72,7 +72,7 @@ func (c *IPChecker) ReqAllowed(ctx context.Context, clientIP net.IP) bool {
 	}
 
 	// Check if the IP is whitelisted
-	if c.whitelist.Whitelisted(ipAddr) {
+	if ok, _ := c.whitelist.Matches(ipAddr); ok {
 		c.log.Debug("IP is whitelisted", zap.String("ip", clientIP.String()))
 		return true
 	}

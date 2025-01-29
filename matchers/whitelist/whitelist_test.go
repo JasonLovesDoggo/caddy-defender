@@ -30,7 +30,7 @@ func TestNewWhitelist(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			wl, err := NewWhitelist(tt.ipStrings)
+			wl, err := Initialize(tt.ipStrings)
 			if tt.expectError {
 				if err == nil {
 					t.Error("Expected error for invalid IPs, but got nil")
@@ -51,7 +51,7 @@ func TestNewWhitelist(t *testing.T) {
 }
 
 func TestWhitelisted(t *testing.T) {
-	wl, err := NewWhitelist([]string{"192.168.1.1", "2001:db8::1"})
+	wl, err := Initialize([]string{"192.168.1.1", "2001:db8::1"})
 	if err != nil {
 		t.Fatalf("Failed to create whitelist: %v", err)
 	}
@@ -85,7 +85,7 @@ func TestWhitelisted(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := wl.Whitelisted(tt.ip)
+			result, _ := wl.Matches(tt.ip)
 			if result != tt.expected {
 				t.Errorf("Expected %v for IP %v, but got %v", tt.expected, tt.ip, result)
 			}
@@ -118,7 +118,7 @@ func TestValidateWhitelist(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			err := ValidateWhitelist(tt.ipStrings)
+			err := Validate(tt.ipStrings)
 			if tt.expectError {
 				if err == nil {
 					t.Error("Expected error for invalid IPs, but got nil")

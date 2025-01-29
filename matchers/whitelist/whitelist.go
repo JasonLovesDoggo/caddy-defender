@@ -10,8 +10,8 @@ type Whitelist struct {
 	ips map[netip.Addr]struct{} // Use netip.Addr for efficient IP handling
 }
 
-// NewWhitelist initializes a new Whitelist from IP strings.
-func NewWhitelist(ipStrings []string) (*Whitelist, error) {
+// Initialize initializes a new Whitelist from IP strings.
+func Initialize(ipStrings []string) (*Whitelist, error) {
 	wl := &Whitelist{
 		ips: make(map[netip.Addr]struct{}),
 	}
@@ -22,18 +22,19 @@ func NewWhitelist(ipStrings []string) (*Whitelist, error) {
 		}
 		wl.ips[ip] = struct{}{}
 	}
+
 	return wl, nil
 }
 
-// Whitelisted checks if the remote address is in the whitelist.
-func (wl *Whitelist) Whitelisted(ip netip.Addr) bool {
+// Matches checks if the remote address is in the whitelist.
+func (wl *Whitelist) Matches(ip netip.Addr) (bool, error) {
 	// Check if the IP is in the whitelist
 	_, ok := wl.ips[ip]
-	return ok
+	return ok, nil
 }
 
-// ValidateWhitelist checks if a list of IP strings are valid.
-func ValidateWhitelist(ipStrings []string) error {
+// Validate checks if a list of IP strings are valid.
+func Validate(ipStrings []string) error {
 	for _, ipStr := range ipStrings {
 		_, err := netip.ParseAddr(ipStr)
 		if err != nil {
