@@ -1,4 +1,4 @@
-package matcher
+package ip
 
 import (
 	"fmt"

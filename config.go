@@ -6,7 +6,7 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
-	"github.com/jasonlovesdoggo/caddy-defender/modules/whitelist"
+	"github.com/jasonlovesdoggo/caddy-defender/matchers/whitelist"
 	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
 	"net"

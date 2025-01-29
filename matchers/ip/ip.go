@@ -1,9 +1,9 @@
-package matcher
+package ip
 
 import (
 	"context"
 	"fmt"
-	Whitelist "github.com/jasonlovesdoggo/caddy-defender/modules/whitelist"
+	Whitelist "github.com/jasonlovesdoggo/caddy-defender/matchers/whitelist"
 	"net"
 	"net/netip"
 	"time"
