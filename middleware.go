@@ -9,8 +9,23 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 )
 
+// serveIgnore is a helper function to serve a robots.txt file if the ServeIgnore option is enabled.
+// It returns true if the request was handled, false otherwise.
+func (m Defender) serveGitignore(w http.ResponseWriter, r *http.Request) bool {
+	if !m.ServeIgnore && r.URL.Path != "/robots.txt" && r.Method != http.MethodGet {
+		return false
+	}
+	w.Header().Set("Content-Type", "text/plain")
+	w.WriteHeader(http.StatusOK)
+	w.Write([]byte("User-agent: *\nDisallow: /\n"))
+	return true
+}
+
 // ServeHTTP implements the middleware logic.
 func (m Defender) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyhttp.Handler) error {
+	if m.serveGitignore(w, r) {
+		return nil
+	}
 	// Split the RemoteAddr into IP and port
 	host, _, err := net.SplitHostPort(r.RemoteAddr)
 	if err != nil {

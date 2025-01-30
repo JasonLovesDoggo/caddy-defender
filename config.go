@@ -18,14 +18,16 @@ var responderTypes = []string{"block", "garbage", "custom", "ratelimit"}
 
 // UnmarshalCaddyfile sets up the handler from Caddyfile tokens. Syntax:
 //
-//		defender <responder> {
-//			# IP ranges to block
-//			ranges
-//	     # Whitelisted IP addresses to allow to bypass ranges (optional)
-//			whitelist
-//		    # Custom message to return to the client when using "custom" middleware (optional)
-//		    message
-//			}
+//	defender <responder> {
+//		# IP ranges to block
+//		ranges
+//		# Whitelisted IP addresses to allow to bypass ranges (optional)
+//		whitelist
+//	    # Custom message to return to the client when using "custom" middleware (optional)
+//	    message
+//	    # Serve robots.txt banning everything (optional)
+//	    serve_ignore (no arguments)
+//	}
 func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	d.Next() // consume directive name
 
@@ -59,6 +61,8 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			for d.NextArg() {
 				m.Whitelist = append(m.Whitelist, d.Val())
 			}
+		case "serve_ignore":
+			m.ServeIgnore = true
 		default:
 			return d.Errf("unknown subdirective '%s'", d.Val())
 		}
