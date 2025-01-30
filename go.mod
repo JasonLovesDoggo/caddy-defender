@@ -5,7 +5,6 @@ go 1.23
 require (
 	github.com/caddyserver/caddy/v2 v2.9.1
 	github.com/gaissmai/bart v0.17.8
-	github.com/oschwald/maxminddb-golang v1.13.1
 	github.com/stretchr/testify v1.10.0
 	github.com/viccon/sturdyc v1.1.2
 	go.uber.org/zap v1.27.0
@@ -50,7 +49,7 @@ require (
 	github.com/go-logr/stdr v1.2.2 // indirect
 	github.com/go-sql-driver/mysql v1.7.1 // indirect
 	github.com/go-task/slim-sprig v0.0.0-20230315185526-52ccab3ef572 // indirect
-	github.com/golang/glog v1.2.2 // indirect
+	github.com/golang/glog v1.2.4 // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/golang/snappy v0.0.4 // indirect
 	github.com/google/cel-go v0.21.0 // indirect
