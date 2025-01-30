@@ -12,12 +12,28 @@ import (
 // serveIgnore is a helper function to serve a robots.txt file if the ServeIgnore option is enabled.
 // It returns true if the request was handled, false otherwise.
 func (m Defender) serveGitignore(w http.ResponseWriter, r *http.Request) bool {
-	if !m.ServeIgnore && r.URL.Path != "/robots.txt" && r.Method != http.MethodGet {
+	m.log.Debug("ServeIgnore", zap.Bool("serveIgnore", m.ServeIgnore), zap.String("path", r.URL.Path), zap.String("method", r.Method))
+	// Serve robots.txt only if ServeIgnore is enabled, the path is "/robots.txt", and the method is GET.
+	if !m.ServeIgnore || r.URL.Path != "/robots.txt" || r.Method != http.MethodGet {
 		return false
 	}
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("User-agent: *\nDisallow: /\n"))
+	// Build the robots.txt content to allow specific bots and block others.
+	robotsTxt := `
+User-agent: Googlebot
+Disallow:
+
+User-agent: Bingbot
+Disallow:
+
+User-agent: DuckDuckBot
+Disallow:
+
+User-agent: *
+Disallow: /
+`
+	w.Write([]byte(robotsTxt))
 	return true
 }
 

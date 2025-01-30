@@ -9,6 +9,7 @@
 
 	defender garbage {
 		ranges private
+    	serve_ignore
 	}
 	respond "This is what a human sees"
 }

@@ -77,6 +77,9 @@ type Defender struct {
 	// Required. Must be one of: "block", "garbage", "custom"
 	RawResponder string `json:"raw_responder,omitempty"`
 
+	// ServeIgnore specifies whether to serve a robots.txt file with a "Disallow: /" directive
+	// Default: false
+	ServeIgnore bool `json:"serve_ignore,omitempty"`
 	// responder is the internal implementation of the response strategy
 	responder responders.Responder
 	ipChecker *ip.IPChecker
