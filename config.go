@@ -63,6 +63,8 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			}
 		case "serve_ignore":
 			m.ServeIgnore = true
+		case "geoip":
+			// todo: parse the block here
 		default:
 			return d.Errf("unknown subdirective '%s'", d.Val())
 		}
@@ -94,6 +96,7 @@ func (m *Defender) UnmarshalJSON(b []byte) error {
 		}
 	case "ratelimit":
 		m.responder = &responders.RateLimitResponder{}
+
 	default:
 		return fmt.Errorf("unknown responder type: %s", rawConfig.RawResponder)
 	}
@@ -114,6 +117,8 @@ func (m *Defender) UnmarshalJSON(b []byte) error {
 			mField.Set(rawField)
 		}
 	}
+
+	// todo: ensure geoip is passed through
 
 	return nil
 }
@@ -138,10 +143,23 @@ func (m *Defender) Validate() error {
 		}
 	}
 
+	// check if we define both the exact key of "aws" and aws-* ranges at the same time (they are mutually exclusive)
+	if slices.Contains(m.Ranges, "aws") && slices.Contains(m.Ranges, "aws-") {
+		return fmt.Errorf("cannot define both the exact key of 'aws' and aws-* ranges at the same time, since aws-* ranges are already included in the 'aws' key")
+	}
+
 	// Check if the whitelist is valid
 	err := whitelist.Validate(m.Whitelist)
 	if err != nil {
 		return err
+	}
+
+	// Check if the GeoIP configuration is valid
+	if m.GeoIPConfig.Enabled() {
+		err := m.GeoIPConfig.Validate()
+		if err != nil {
+			return err
+		}
 	}
 
 	return nil

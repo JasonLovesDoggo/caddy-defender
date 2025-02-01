@@ -5,6 +5,7 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+	"github.com/jasonlovesdoggo/caddy-defender/matchers/geoip"
 	"github.com/jasonlovesdoggo/caddy-defender/matchers/ip"
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
 	"go.uber.org/zap"
@@ -77,13 +78,18 @@ type Defender struct {
 	// Required. Must be one of: "block", "garbage", "custom"
 	RawResponder string `json:"raw_responder,omitempty"`
 
+	// GeoIPConfig holds the initialization parameters for GeoIP
+	GeoIPConfig geoip.Config `json:"geoip,omitempty"`
+
 	// ServeIgnore specifies whether to serve a robots.txt file with a "Disallow: /" directive
 	// Default: false
 	ServeIgnore bool `json:"serve_ignore,omitempty"`
-	// responder is the internal implementation of the response strategy
-	responder responders.Responder
-	ipChecker *ip.IPChecker
-	log       *zap.Logger
+
+	// Internal only fields
+	responder    responders.Responder
+	ipChecker    *ip.IPChecker
+	log          *zap.Logger
+	geoipHandler *geoip.Handler
 }
 
 // Provision sets up the middleware and logger.
@@ -94,6 +100,14 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 		// set the default ranges to be all of the predefined ranges
 		m.log.Debug("no ranges specified, defaulting to default ranges", zap.Strings("ranges", DefaultRanges))
 		m.Ranges = DefaultRanges
+	}
+
+	if m.GeoIPConfig.Enabled() {
+		geoIP, err := m.GeoIPConfig.Provision()
+		if err != nil {
+			return err
+		}
+		m.geoipHandler = geoIP
 	}
 
 	// ensure to keep AFTER the ranges are checked (above)

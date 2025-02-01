@@ -199,6 +199,15 @@ func TestValidation(t *testing.T) {
 		require.ErrorContains(t, def.Validate(), "invalid IP address")
 	})
 
+	t.Run("AWS and aws-* ranges defined", func(t *testing.T) {
+		def := Defender{
+			RawResponder: "block",
+			Ranges:       []string{"aws", "aws-us-east-1"},
+			//responder:    &responders.BlockResponder{},
+		}
+		require.ErrorContains(t, def.Validate(), "cannot define both the exact key of 'aws' and aws-* ranges at the same time,")
+	})
+
 	t.Run("Missing ranges", func(t *testing.T) {
 		def := Defender{
 			RawResponder: "block",
