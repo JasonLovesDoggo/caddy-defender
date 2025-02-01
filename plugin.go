@@ -54,6 +54,7 @@ var (
 // - `block`: Immediately block requests with 403 Forbidden
 // - `garbage`: Respond with random garbage data
 // - `custom`: Return a custom message (requires `message` field)
+// - `redirect`: Redirect requests to a URL with 308 permanent redirect
 //
 // For a of predefined ranges, see the the [readme]
 // [readme]: https://github.com/JasonLovesDoggo/caddy-defender#embedded-ip-ranges
@@ -73,8 +74,12 @@ type Defender struct {
 	// Required only when using 'custom' responder.
 	Message string `json:"message,omitempty"`
 
+	// URL specifies the custom URL to redirect clients to for 'redirect' responder type.
+	// Required only when using 'redirect' responder.
+	URL string `json:"url,omitempty"`
+
 	// RawResponder defines the response strategy for blocked requests.
-	// Required. Must be one of: "block", "garbage", "custom"
+	// Required. Must be one of: "block", "garbage", "custom", "redirect"
 	RawResponder string `json:"raw_responder,omitempty"`
 
 	// ServeIgnore specifies whether to serve a robots.txt file with a "Disallow: /" directive

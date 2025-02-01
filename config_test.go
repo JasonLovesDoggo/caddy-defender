@@ -2,11 +2,12 @@ package caddydefender
 
 import (
 	"encoding/json"
+	"sort"
+	"testing"
+
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddytest"
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
-	"sort"
-	"testing"
 
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/stretchr/testify/require"
@@ -40,6 +41,18 @@ func TestUnmarshalCaddyfile(t *testing.T) {
 				RawResponder: "custom",
 				Ranges:       []string{"openai"},
 				Message:      "Not allowed",
+			},
+		},
+		{
+			name: "valid redirect responder with url",
+			input: `defender redirect {
+				ranges openai
+				url "https://example.com"
+			}`,
+			expected: Defender{
+				RawResponder: "redirect",
+				Ranges:       []string{"openai"},
+				URL:          "https://example.com",
 			},
 		},
 		{
@@ -125,6 +138,16 @@ func TestUnmarshalJSON(t *testing.T) {
 				Message:      "Go away",
 				Ranges:       []string{"openai"},
 				responder:    &responders.CustomResponder{Message: "Go away"},
+			},
+		},
+		{
+			name:  "valid redirect responder with url",
+			input: `{"raw_responder":"redirect","url":"https://example.com","ranges":["openai"]}`,
+			expected: Defender{
+				RawResponder: "redirect",
+				URL:          "https://example.com",
+				Ranges:       []string{"openai"},
+				responder:    &responders.RedirectResponder{URL: "https://example.com"},
 			},
 		},
 		{

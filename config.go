@@ -3,18 +3,19 @@ package caddydefender
 import (
 	"encoding/json"
 	"fmt"
+	"net"
+	"reflect"
+	"slices"
+
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/jasonlovesdoggo/caddy-defender/matchers/whitelist"
 	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
-	"net"
-	"reflect"
-	"slices"
 )
 
-var responderTypes = []string{"block", "garbage", "custom", "ratelimit"}
+var responderTypes = []string{"block", "garbage", "custom", "ratelimit", "redirect"}
 
 // UnmarshalCaddyfile sets up the handler from Caddyfile tokens. Syntax:
 //
@@ -25,6 +26,8 @@ var responderTypes = []string{"block", "garbage", "custom", "ratelimit"}
 //		whitelist
 //	    # Custom message to return to the client when using "custom" middleware (optional)
 //	    message
+//	    # Custom URL to redirect the client to when using "redirect" middleware (optional)
+//	    url
 //	    # Serve robots.txt banning everything (optional)
 //	    serve_ignore (no arguments)
 //	}
@@ -57,6 +60,12 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			}
 			Message := d.Val()
 			m.Message = Message
+		case "url":
+			if !d.NextArg() {
+				return d.ArgErr()
+			}
+			url := d.Val()
+			m.URL = url
 		case "whitelist":
 			for d.NextArg() {
 				m.Whitelist = append(m.Whitelist, d.Val())
@@ -94,6 +103,11 @@ func (m *Defender) UnmarshalJSON(b []byte) error {
 		}
 	case "ratelimit":
 		m.responder = &responders.RateLimitResponder{}
+	case "redirect":
+		m.URL = rawConfig.URL
+		m.responder = &responders.RedirectResponder{
+			URL: m.URL,
+		}
 	default:
 		return fmt.Errorf("unknown responder type: %s", rawConfig.RawResponder)
 	}

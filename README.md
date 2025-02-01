@@ -13,6 +13,7 @@ The **Caddy Defender** plugin is a middleware for Caddy that allows you to block
   - **Block**: Return a `403 Forbidden` response.
   - **Garbage**: Return garbage data to pollute AI training.
   - **Custom**: Return a custom message.
+  - **Redirect**: Return a `308 Permanent Redirect` response with a custom URL.
 
 ---
 
@@ -82,11 +83,11 @@ defender <responder> {
   - `block`: Returns a `403 Forbidden` response.
   - `garbage`: Returns garbage data to pollute AI training.
   - `custom`: Returns a custom message (requires `responder_args`).
+  - `redirect`: Returns a `308 Permanent Redirect` response (requires `responder_args`).
   - `ratelimit`: Marks requests for rate limiting (requires [Caddy-Ratelimit](https://github.com/mholt/caddy-ratelimit) to be installed as well ).
 - `<ip_ranges...>`: An optional list of CIDR ranges or predefined range keys to match against the client's IP. Defaults to [`aws azurepubliccloud deepseek gcloud githubcopilot openai`](./plugin.go).
 - `<custom message>`: A custom message to return when using the `custom` responder.
 ---
-
 
 ## For examples, check out [docs/examples.md](docs/examples.md)
 
@@ -122,6 +123,7 @@ This project is licensed under the **MIT License**. See the [LICENSE](LICENSE) f
 ---
 
 ## **Acknowledgments**
+
 - [The inspiration for this project](https://www.reddit.com/r/selfhosted/comments/1i154h7/comment/m73pj9t/).
 - [bart](https://github.com/gaissmai/bart) - [Karl Gaissmaier](https://github.com/gaissmai)'s efficient routing table implementation (Balanced ART adaptation) enabling our high-performance IP matching
 - Built with ❤️ using [Caddy](https://caddyserver.com).
