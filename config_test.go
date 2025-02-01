@@ -44,6 +44,16 @@ func TestUnmarshalCaddyfile(t *testing.T) {
 			},
 		},
 		{
+			name: "valid drop responder",
+			input: `defender drop {
+				ranges openai
+			}`,
+			expected: Defender{
+				RawResponder: "drop",
+				Ranges:       []string{"openai"},
+			},
+		},
+		{
 			name: "valid redirect responder with url",
 			input: `defender redirect {
 				ranges openai
@@ -138,6 +148,15 @@ func TestUnmarshalJSON(t *testing.T) {
 				Message:      "Go away",
 				Ranges:       []string{"openai"},
 				responder:    &responders.CustomResponder{Message: "Go away"},
+			},
+		},
+		{
+			name:  "valid drop responder",
+			input: `{"raw_responder":"drop","ranges":["openai"]}`,
+			expected: Defender{
+				RawResponder: "drop",
+				Ranges:       []string{"openai"},
+				responder:    &responders.DropResponder{},
 			},
 		},
 		{

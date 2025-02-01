@@ -52,8 +52,9 @@ var (
 //
 // Supported responder types:
 // - `block`: Immediately block requests with 403 Forbidden
-// - `garbage`: Respond with random garbage data
 // - `custom`: Return a custom message (requires `message` field)
+// - `drop`: Drops the connection
+// - `garbage`: Respond with random garbage data
 // - `redirect`: Redirect requests to a URL with 308 permanent redirect
 //
 // For a of predefined ranges, see the the [readme]

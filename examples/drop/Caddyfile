@@ -1,0 +1,13 @@
+{
+	auto_https off
+	order defender after header
+	debug
+}
+
+:80 {
+	bind 127.0.0.1 ::1
+
+	defender drop {
+		ranges private
+	}
+}

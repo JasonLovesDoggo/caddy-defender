@@ -16,7 +16,7 @@ import (
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
 )
 
-var responderTypes = []string{"block", "garbage", "custom", "ratelimit", "redirect"}
+var responderTypes = []string{"block", "custom", "drop", "garbage", "ratelimit", "redirect"}
 
 // UnmarshalCaddyfile sets up the handler from Caddyfile tokens. Syntax:
 //
@@ -94,14 +94,16 @@ func (m *Defender) UnmarshalJSON(b []byte) error {
 	switch rawConfig.RawResponder {
 	case "block":
 		m.responder = &responders.BlockResponder{}
-	case "garbage":
-		m.responder = &responders.GarbageResponder{}
 	case "custom":
 		// Get the custom message
 		m.Message = rawConfig.Message
 		m.responder = &responders.CustomResponder{
 			Message: m.Message,
 		}
+	case "drop":
+		m.responder = &responders.DropResponder{}
+	case "garbage":
+		m.responder = &responders.GarbageResponder{}
 	case "ratelimit":
 		m.responder = &responders.RateLimitResponder{}
 	case "redirect":

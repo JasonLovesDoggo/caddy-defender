@@ -11,8 +11,9 @@ The **Caddy Defender** plugin is a middleware for Caddy that allows you to block
 - **Custom IP Ranges**: Add your own IP ranges via Caddyfile configuration.
 - **Multiple Responder Backends**:
   - **Block**: Return a `403 Forbidden` response.
-  - **Garbage**: Return garbage data to pollute AI training.
   - **Custom**: Return a custom message.
+  - **Drop**: Drops the connection.
+  - **Garbage**: Return garbage data to pollute AI training.
   - **Redirect**: Return a `308 Permanent Redirect` response with a custom URL.
 
 ---
@@ -82,8 +83,9 @@ defender <responder> {
 
 - `<responder>`: The responder backend to use. Supported values are:
   - `block`: Returns a `403 Forbidden` response.
-  - `garbage`: Returns garbage data to pollute AI training.
   - `custom`: Returns a custom message (requires `message`).
+  - `drop`: Drops the connection.
+  - `garbage`: Returns garbage data to pollute AI training.
   - `redirect`: Returns a `308 Permanent Redirect` response (requires `url`).
   - `ratelimit`: Marks requests for rate limiting (requires [Caddy-Ratelimit](https://github.com/mholt/caddy-ratelimit) to be installed as well ).
 - `<ip_ranges...>`: An optional list of CIDR ranges or predefined range keys to match against the client's IP. Defaults to [`aws azurepubliccloud deepseek gcloud githubcopilot openai`](./plugin.go).

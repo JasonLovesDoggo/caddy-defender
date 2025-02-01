@@ -5,8 +5,9 @@ Caddy Defender supports multiple response strategies:
 | Responder   | Description                                                               | Configuration Required       |
 |-------------|---------------------------------------------------------------------------|------------------------------|
 | `block`     | Immediately blocks requests with 403 Forbidden                            | No                           |
-| `garbage`   | Returns random garbage data to confuse scrapers/AI                        | No                           |
 | `custom`    | Returns a custom text response                                            | `message` field required     |
+| `drop`      | Drops the connection                                                      | No                           |
+| `garbage`   | Returns random garbage data to confuse scrapers/AI                        | No                           |
 | `ratelimit` | Marks requests for rate limiting (requires `caddy-ratelimit` integration) | Additional rate limit config |
 | `redirect` | Returns `308 Permanent Redirect` response                                  | `url` field required |
 
@@ -34,28 +35,6 @@ localhost:8080 {
 
 ---
 
-#### **Return Garbage Data**
-
-Return meaningless content for AI/scrapers:
-
-```caddyfile
-localhost:8080 {
-    defender garbage {
-        ranges 192.168.0.0/24
-    }
-    respond "Legitimate content"
-}
-
-# JSON equivalent
-{
-    "handler": "defender",
-    "raw_responder": "garbage",
-    "ranges": ["192.168.0.0/24"]
-}
-```
-
----
-
 #### **Custom Response**
 
 Return tailored messages for blocked requests:
@@ -75,6 +54,49 @@ localhost:8080 {
     "raw_responder": "custom",
     "ranges": ["10.0.0.0/8"],
     "message": "Access restricted for your network"
+}
+```
+
+---
+
+#### **Drop connections**
+
+Drop connections rather than send a response:
+
+```caddyfile
+localhost:8080 {
+    defender drop {
+        ranges 203.0.113.0/24 openai 198.51.100.0/24
+    }
+}
+
+# JSON equivalent
+{
+    "handler": "defender",
+    "raw_responder": "drop",
+    "ranges": ["203.0.113.0/24", "openai"]
+}
+```
+
+---
+
+#### **Return Garbage Data**
+
+Return meaningless content for AI/scrapers:
+
+```caddyfile
+localhost:8080 {
+    defender garbage {
+        ranges 192.168.0.0/24
+    }
+    respond "Legitimate content"
+}
+
+# JSON equivalent
+{
+    "handler": "defender",
+    "raw_responder": "garbage",
+    "ranges": ["192.168.0.0/24"]
 }
 ```
 
