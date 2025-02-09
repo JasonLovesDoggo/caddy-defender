@@ -1,0 +1,21 @@
+{
+	auto_https off
+	order defender after header
+	debug
+}
+
+:80 {
+	bind 127.0.0.1 ::1
+
+	defender tarpit {
+		ranges private
+        message "Got eem"
+        tarpit_config {
+            headers {
+                X-You-Got Played
+            }
+            delay 10s
+            response_code 429
+        }
+	}
+}

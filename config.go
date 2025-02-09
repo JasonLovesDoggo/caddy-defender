@@ -5,8 +5,11 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/http"
 	"reflect"
 	"slices"
+	"strconv"
+	"time"
 
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
@@ -16,7 +19,7 @@ import (
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
 )
 
-var responderTypes = []string{"block", "custom", "drop", "garbage", "ratelimit", "redirect"}
+var responderTypes = []string{"block", "custom", "drop", "garbage", "ratelimit", "redirect", "tarpit"}
 
 // UnmarshalCaddyfile sets up the handler from Caddyfile tokens. Syntax:
 //
@@ -73,6 +76,63 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			}
 		case "serve_ignore":
 			m.ServeIgnore = true
+		case "tarpit_config":
+			defaultMessage := "Access Denied"
+			if m.Message == "" {
+				m.Message = defaultMessage
+			}
+			m.TarpitConfig = responders.TarpitResponder{
+				Message: m.Message,
+			}
+			for nesting := d.Nesting(); d.NextBlock(nesting); {
+				switch d.Val() {
+				case "headers":
+					headers := map[string]string{}
+					for nesting := d.Nesting(); d.NextBlock(nesting); {
+						k := d.Val()
+						if !d.NextArg() {
+							return d.ArgErr()
+						}
+						headers[k] = d.Val()
+					}
+					m.TarpitConfig.Headers = headers
+				case "delay":
+					defaultDelay := time.Second * 10
+
+					if !d.NextArg() {
+						return d.ArgErr()
+					}
+
+					delay, err := time.ParseDuration(d.Val())
+					if err != nil {
+						return fmt.Errorf("invalid delay value: '%s'", delay)
+					}
+					if delay == 0 {
+						delay = defaultDelay
+					}
+
+					m.TarpitConfig.Delay = delay
+				case "response_code":
+					defaultResponseCode := http.StatusForbidden
+
+					if !d.NextArg() {
+						return d.ArgErr()
+					}
+
+					responseCode, err := strconv.Atoi(d.Val())
+					if err != nil {
+						return err
+					}
+
+					if responseCode == 0 {
+						responseCode = defaultResponseCode
+					}
+
+					m.TarpitConfig.ResponseCode = responseCode
+				default:
+					return d.Errf("unknown nested config key: %s", d.Val())
+				}
+			}
 		default:
 			return d.Errf("unknown subdirective '%s'", d.Val())
 		}
@@ -110,6 +170,15 @@ func (m *Defender) UnmarshalJSON(b []byte) error {
 		m.URL = rawConfig.URL
 		m.responder = &responders.RedirectResponder{
 			URL: m.URL,
+		}
+	case "tarpit":
+		// Reuse custom message
+		m.Message = rawConfig.Message
+		m.responder = &responders.TarpitResponder{
+			Headers:      rawConfig.TarpitConfig.Headers,
+			Message:      m.Message,
+			Delay:        rawConfig.TarpitConfig.Delay,
+			ResponseCode: rawConfig.TarpitConfig.ResponseCode,
 		}
 	default:
 		return fmt.Errorf("unknown responder type: %s", rawConfig.RawResponder)

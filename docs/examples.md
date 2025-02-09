@@ -2,14 +2,15 @@
 
 Caddy Defender supports multiple response strategies:
 
-| Responder   | Description                                                               | Configuration Required       |
-|-------------|---------------------------------------------------------------------------|------------------------------|
-| `block`     | Immediately blocks requests with 403 Forbidden                            | No                           |
-| `custom`    | Returns a custom text response                                            | `message` field required     |
-| `drop`      | Drops the connection                                                      | No                           |
-| `garbage`   | Returns random garbage data to confuse scrapers/AI                        | No                           |
-| `ratelimit` | Marks requests for rate limiting (requires `caddy-ratelimit` integration) | Additional rate limit config |
-| `redirect` | Returns `308 Permanent Redirect` response                                  | `url` field required |
+| Responder   | Description                                                                 | Configuration Required       |
+|-------------|-----------------------------------------------------------------------------|------------------------------|
+| `block`     | Immediately blocks requests with 403 Forbidden                              | No                           |
+| `custom`    | Returns a custom text response                                              | `message` field required     |
+| `drop`      | Drops the connection                                                        | No                           |
+| `garbage`   | Returns random garbage data to confuse scrapers/AI                          | No                           |
+| `ratelimit` | Marks requests for rate limiting (requires `caddy-ratelimit` integration)   | Additional rate limit config |
+| `redirect`  | Returns `308 Permanent Redirect` response                                   | `url` field required         |
+| `tarpit`    | Stalls connections for `10s` before responding with `403`, but configurable | Additional `tarpit_config`   |
 
 ---
 
@@ -160,6 +161,42 @@ localhost:8080 {
     "raw_responder": "redirect",
     "ranges": ["10.0.0.0/8"],
     "url": "https://example.com"
+}
+```
+
+---
+
+#### **Tarpit**
+
+Stall requests for `10s` before responding with `403`
+
+```caddyfile
+localhost:8080 {
+    defender tarpit {
+		ranges private
+        message "Got eem"
+        tarpit_config {
+            headers {
+                X-You-Got Played
+            }
+            delay 10s
+            response_code 429
+        }
+	}
+}
+
+# JSON equivalent
+{
+    "handler": "defender",
+    "raw_responder": "tarpit",
+    "ranges": ["10.0.0.0/8"],
+    "tarpit_config": {
+        "headers": {
+             "X-You-Got" "Played"
+        },
+        "delay": "10s",
+        "response_code": 429
+    }
 }
 ```
 
