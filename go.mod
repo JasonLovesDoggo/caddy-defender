@@ -4,8 +4,7 @@ go 1.23
 
 require (
 	github.com/caddyserver/caddy/v2 v2.9.1
-	github.com/gaissmai/bart v0.17.8
-	github.com/oschwald/maxminddb-golang v1.13.1
+	github.com/gaissmai/bart v0.17.10
 	github.com/stretchr/testify v1.10.0
 	github.com/viccon/sturdyc v1.1.2
 	go.uber.org/zap v1.27.0
