@@ -55,6 +55,7 @@ var (
 // - `drop`: Drops the connection
 // - `garbage`: Respond with random garbage data
 // - `redirect`: Redirect requests to a URL with 308 permanent redirect
+// - `tarpit`: Waste attackers' time by stalling requests
 //
 // For a of predefined ranges, see the the [readme]
 // [readme]: https://github.com/JasonLovesDoggo/caddy-defender#embedded-ip-ranges
@@ -72,7 +73,7 @@ type Defender struct {
 	URL string `json:"url,omitempty"`
 
 	// RawResponder defines the response strategy for blocked requests.
-	// Required. Must be one of: "block", "garbage", "custom", "redirect"
+	// Required. Must be one of: "block", "custom", "drop", "garbage", "redirect", "tarpit"
 	RawResponder string `json:"raw_responder,omitempty"`
 
 	// Ranges specifies IP ranges to block, which can be either:
@@ -80,10 +81,15 @@ type Defender struct {
 	// - Predefined service keys (e.g., "openai", "aws")
 	// Default:
 	Ranges []string `json:"ranges,omitempty"`
+
 	// An optional whitelist of IP addresses to exclude from blocking. If empty, no IPs are whitelisted.
 	// NOTE: this only supports IP addresses, not ranges.
 	// Default: []
 	Whitelist []string `json:"whitelist,omitempty"`
+
+	// An optional configuration for the 'tarpit' responder
+	// Default: {Headers: {}, Message: "Access Denied", Delay: 10s, ResponseCode: 403}
+	TarpitConfig responders.TarpitResponder `json:"tarpit_config,omitempty"`
 
 	// ServeIgnore specifies whether to serve a robots.txt file with a "Disallow: /" directive
 	// Default: false
