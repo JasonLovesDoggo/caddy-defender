@@ -59,7 +59,8 @@ func (r *Responder) ConfigureContentReader() error {
 			return err
 		}
 	default:
-		return fmt.Errorf("unsupported tarpit Content protocol '%s'", r.Config.Content.Protocol)
+		return fmt.Errorf("unsupported tarpit Content protocol '%s'",
+			r.Config.Content.Protocol) // todo: return list of supported protocols.
 	}
 
 	return nil
