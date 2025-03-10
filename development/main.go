@@ -34,7 +34,7 @@ import (
 	// plug in Caddy modules here
 	_ "github.com/caddyserver/caddy/v2/modules/standard"
 	_ "github.com/jasonlovesdoggo/caddy-defender"
-	//_ "github.com/mholt/caddy-ratelimit" // Please uncomment if you wish to build with rate limiting
+	// _ "github.com/mholt/caddy-ratelimit" // Please uncomment if you wish to build with rate limiting
 )
 
 func main() {

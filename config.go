@@ -46,9 +46,9 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	// validate responder type
 	if !slices.Contains(responderTypes, d.Val()) {
 		return d.Errf("invalid responder type: %s", d.Val())
-	} else {
-		m.RawResponder = d.Val()
 	}
+
+	m.RawResponder = d.Val()
 
 	// Parse the block if it exists
 	var ranges []string

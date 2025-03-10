@@ -49,7 +49,11 @@ func (f GithubCopilotFetcher) FetchIPRanges() ([]string, error) {
 	}
 
 	// Convert []interface{} to []string
-	var copilotRanges []string
+	// pre-allocate to at least the current length of the slice.
+	// assume it will grow to 1.3 times the current length, so pre-allocate to that size.
+	var copilotRanges = make([]string, 0,
+		int(float32(len(copilotRangesInterface))*1.3))
+
 	for _, v := range copilotRangesInterface {
 		ipRange, ok := v.(string)
 		if !ok {

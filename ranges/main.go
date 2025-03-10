@@ -96,10 +96,15 @@ func writeJSON(ipRanges map[string][]string, outputFile string) {
 	if err != nil {
 		log.Fatalf("Failed to marshal IP ranges to JSON: %v", err)
 	}
-
-	err = os.WriteFile(outputFile, jsonData, 0644)
+	file, err := os.Create(outputFile)
 	if err != nil {
-		log.Fatalf("Failed to write JSON to file: %v", err)
+		log.Fatalf("Failed to create file: %v", err)
+	}
+	defer file.Close()
+
+	_, err = file.Write(jsonData)
+	if err != nil {
+		log.Panicf("Failed to write JSON to file: %v", err)
 	}
 }
 
@@ -132,6 +137,6 @@ var IPRanges = map[string][]string{
 	t := template.Must(template.New("code").Parse(goTemplate))
 	err = t.Execute(file, ipRanges)
 	if err != nil {
-		log.Fatalf("Failed to execute template: %v", err)
+		log.Panicf("Failed to execute template: %v", err)
 	}
 }

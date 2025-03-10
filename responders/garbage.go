@@ -1,8 +1,9 @@
+//nolint:gosec
 package responders
 
 import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
-	"math/rand"
+	"math/rand/v2"
 	"net/http"
 	"strings"
 )
@@ -10,7 +11,7 @@ import (
 // GarbageResponder returns garbage data to the client.
 type GarbageResponder struct{}
 
-func (g GarbageResponder) ServeHTTP(w http.ResponseWriter, r *http.Request, _ caddyhttp.Handler) error {
+func (g GarbageResponder) ServeHTTP(w http.ResponseWriter, _ *http.Request, _ caddyhttp.Handler) error {
 	garbage := generateTerribleText(100)
 	w.Header().Set("Content-Type", "text/plain")
 	w.WriteHeader(http.StatusOK)
@@ -31,14 +32,14 @@ func generateTerribleText(lines int) string {
 
 	for i := 0; i < lines; i++ {
 		// Randomly decide whether to generate a nonsense word or random characters
-		if rand.Intn(2) == 0 {
+		if rand.IntN(2) == 0 {
 			sb.WriteString(generateNonsenseWord())
 		} else {
-			sb.WriteString(generateRandomCharacters(rand.Intn(50) + 10)) // Random length between 10 and 60
+			sb.WriteString(generateRandomCharacters(rand.IntN(50) + 10)) // Random length between 10 and 60
 		}
 
 		// Add random punctuation or symbols
-		sb.WriteRune(characters[rand.Intn(len(characters))])
+		sb.WriteRune(characters[rand.IntN(len(characters))])
 		sb.WriteString("\n") // Newline after each "line"
 	}
 
@@ -47,14 +48,14 @@ func generateTerribleText(lines int) string {
 
 // generateNonsenseWord generates a random nonsense word
 func generateNonsenseWord() string {
-	return nonsenseWords[rand.Intn(len(nonsenseWords))]
+	return nonsenseWords[rand.IntN(len(nonsenseWords))]
 }
 
 // generateRandomCharacters generates a string of random characters and symbols
 func generateRandomCharacters(length int) string {
 	var sb strings.Builder
 	for i := 0; i < length; i++ {
-		sb.WriteRune(characters[rand.Intn(len(characters))])
+		sb.WriteRune(characters[rand.IntN(len(characters))])
 	}
 	return sb.String()
 }

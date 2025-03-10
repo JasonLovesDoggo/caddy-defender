@@ -14,6 +14,11 @@ Caddy Defender supports multiple response strategies:
 
 ---
 
+# FOR FULL COMPLETE EXAMPLES, PLEASE CHECK OUT 
+<a href="../examples"/>The Examples Folder
+
+
+
 #### **Block Requests**
 
 Block requests from specific IP ranges with 403 Forbidden:

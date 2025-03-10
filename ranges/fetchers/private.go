@@ -10,7 +10,6 @@ func (f PrivateFetcher) Description() string {
 	return "Hardcoded IP ranges for private network ranges. Used in testing."
 }
 func (f PrivateFetcher) FetchIPRanges() ([]string, error) {
-
 	return []string{
 		"127.0.0.0/8",
 		"::1/128",

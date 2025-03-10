@@ -43,7 +43,7 @@ func (f AzurePublicCloudFetcher) FetchIPRanges() ([]string, error) {
 	jsonDownloadURL := matches[0]
 
 	// Step 3: Fetch the JSON file from the extracted URL
-	resp, err = http.Get(jsonDownloadURL)
+	resp, err = http.Get(jsonDownloadURL) //nolint:gosec
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch Azure Public Cloud IP ranges: %v", err)
 	}
@@ -74,7 +74,8 @@ func (f AzurePublicCloudFetcher) FetchIPRanges() ([]string, error) {
 	// Step 5: Filter out the "Public" cloud IPs
 	var publicIPs []string
 	for _, value := range ipRanges.Values {
-		if strings.EqualFold(value.Properties.Platform, "Azure") && strings.EqualFold(value.Properties.SystemService, "ActionGroup") {
+		if strings.EqualFold(value.Properties.Platform, "Azure") &&
+			strings.EqualFold(value.Properties.SystemService, "ActionGroup") {
 			publicIPs = append(publicIPs, value.Properties.AddressPrefixes...)
 		}
 	}

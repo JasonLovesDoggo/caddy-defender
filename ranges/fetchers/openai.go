@@ -44,7 +44,7 @@ type OpenAIIPRanges struct {
 }
 
 func fetchOpenAIIPRanges(url string) ([]string, error) {
-	resp, err := http.Get(url)
+	resp, err := http.Get(url) //nolint:gosec
 	if err != nil {
 		return nil, fmt.Errorf("failed to fetch IP ranges from %s: %v", url, err)
 	}

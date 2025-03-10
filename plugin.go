@@ -20,7 +20,6 @@ func init() {
 	caddy.RegisterModule(Defender{})
 	httpcaddyfile.RegisterHandlerDirective("defender", parseCaddyfile)
 	httpcaddyfile.RegisterDirectiveOrder("defender", "after", "header")
-
 }
 
 var (
