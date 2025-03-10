@@ -113,17 +113,17 @@ func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyh
 	for {
 		select {
 		case <-ticker.C:
-			n, err := reader.Read(chunk)
-			if err == io.EOF {
+			n, ReadErr := reader.Read(chunk)
+			if ReadErr == io.EOF {
 				// Graceful exit as we've reached the end of the file
 				return nil
-			} else if err != nil {
-				return err
+			} else if ReadErr != nil {
+				return ReadErr
 			}
 			if n > 0 {
-				_, err = w.Write(chunk[:n])
-				if err != nil {
-					return err
+				_, ReadErr = w.Write(chunk[:n])
+				if ReadErr != nil {
+					return ReadErr
 				}
 				w.(http.Flusher).Flush()
 			}
