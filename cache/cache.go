@@ -55,7 +55,6 @@ func (c *Cache) Set(key string, i io.ReadCloser) error {
 	}
 
 	cacheKey := generateCacheKey(key)
-	filepath.Join(c.directory, cacheKey)
 
 	out, err := os.Create(filepath.Join(c.directory, cacheKey))
 	if err != nil {
