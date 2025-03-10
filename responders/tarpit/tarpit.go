@@ -79,7 +79,9 @@ func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyh
 		http.Error(w, "Failed to read Content", http.StatusInternalServerError)
 		return nil
 	}
-	defer reader.Close()
+	defer func(reader io.ReadCloser) {
+		_ = reader.Close() // Ensure cleanup, log errors if needed
+	}(reader)
 
 	// Read the first 512 bytes to detect content type
 	buffer := make([]byte, 512)
@@ -99,17 +101,20 @@ func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyh
 
 	// Write the first chunk before starting the ticker
 	if n > 0 {
-		_, _ = w.Write(buffer[:n])
-		w.(http.Flusher).Flush()
+		if _, err := w.Write(buffer[:n]); err != nil {
+			return nil // Client likely disconnected
+		}
+		if f, ok := w.(http.Flusher); ok {
+			f.Flush()
+		}
 	}
 
 	chunk := make([]byte, r.Config.BytesPerSecond/10)
-
-	// Write data every 100ms
 	ticker := time.NewTicker(time.Millisecond * 100)
 	defer ticker.Stop()
 
 	timeout := time.After(r.Config.Timeout)
+	clientGone := req.Context().Done()
 
 	for {
 		select {
@@ -119,17 +124,23 @@ func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyh
 				// Graceful exit as we've reached the end of the file
 				return nil
 			} else if ReadErr != nil {
-				return ReadErr
+				// Log or handle read error
+				return nil
 			}
 			if n > 0 {
-				_, ReadErr = w.Write(chunk[:n])
-				if ReadErr != nil {
-					return ReadErr
+				if _, WriteErr := w.Write(chunk[:n]); WriteErr != nil {
+					// Client likely disconnected
+					return nil
 				}
-				w.(http.Flusher).Flush()
+				if f, ok := w.(http.Flusher); ok {
+					f.Flush()
+				}
 			}
 		case <-timeout:
 			// Forcefully close response after duration expires
+			return nil
+		case <-clientGone:
+			// Handle client disconnection
 			return nil
 		}
 	}
