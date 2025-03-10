@@ -198,7 +198,7 @@ localhost:8080 {
     "ranges": ["10.0.0.0/8"],
     "tarpit_config": {
         "headers": {
-             "X-You-Got" "Played"
+             "X-You-Got": "Played"
         },
         "content": "file://some-file.txt",
         "timeout": "30s",
