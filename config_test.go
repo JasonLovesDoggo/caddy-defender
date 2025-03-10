@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"sort"
 	"testing"
+	"time"
 
 	"github.com/caddyserver/caddy/v2"
 	"github.com/caddyserver/caddy/v2/caddytest"
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
+	"github.com/jasonlovesdoggo/caddy-defender/responders/tarpit"
 
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/stretchr/testify/require"
@@ -66,6 +68,36 @@ func TestUnmarshalCaddyfile(t *testing.T) {
 			},
 		},
 		{
+			name: "valid tarpit responder with config",
+			input: `defender tarpit {
+				ranges openai
+				tarpit_config {
+					headers {
+						X-You-Got Played
+					}
+					content file://test.txt
+					timeout 30s
+					bytes_per_second 24
+					response_code 404
+				}
+			}`,
+			expected: Defender{
+				RawResponder: "tarpit",
+				Ranges:       []string{"openai"},
+				TarpitConfig: tarpit.Config{
+					Headers: map[string]string{
+						"X-You-Got": "Played",
+					},
+					Content: &tarpit.Content{
+						Protocol: "file",
+						Path:     "test.txt",
+					},
+					Timeout:      time.Second * 30,
+					ResponseCode: 404,
+				},
+			},
+		},
+		{
 			name: "valid predefined range key",
 			input: `defender garbage {
 				ranges cloudflare
@@ -97,6 +129,46 @@ func TestUnmarshalCaddyfile(t *testing.T) {
 				invalid 123
 			}`,
 			errContains: "unknown subdirective",
+			expectError: true,
+		},
+		{
+			name: "invalid tarpit_config content",
+			input: `defender tarpit {
+				tarpit_config {
+					content file:test.txt
+				}
+			}`,
+			errContains: "invalid content format",
+			expectError: true,
+		},
+		{
+			name: "invalid tarpit_config timeout",
+			input: `defender tarpit {
+				tarpit_config {
+					timeout invalid
+				}
+			}`,
+			errContains: "invalid timeout value",
+			expectError: true,
+		},
+		{
+			name: "invalid tarpit_config bytes_per_second",
+			input: `defender tarpit {
+				tarpit_config {
+					bytes_per_second invalid
+				}
+			}`,
+			errContains: "invalid bytes_per_second value",
+			expectError: true,
+		},
+		{
+			name: "invalid tarpit_config response_code",
+			input: `defender tarpit {
+				tarpit_config {
+					response_code invalid
+				}
+			}`,
+			errContains: "invalid response_code value",
 			expectError: true,
 		},
 	}
@@ -167,6 +239,48 @@ func TestUnmarshalJSON(t *testing.T) {
 				URL:          "https://example.com",
 				Ranges:       []string{"openai"},
 				responder:    &responders.RedirectResponder{URL: "https://example.com"},
+			},
+		},
+		{
+			name: "valid tarpit responder with tarpit_config",
+			input: `
+			{
+				"raw_responder": "tarpit",
+				"tarpit_config": {
+					"headers": {
+					"X-You-Got": "Played"
+					},
+					"timeout": 30,
+					"bytes_per_second": 24,
+					"response_code": 404
+				},
+				"ranges": [
+					"openai"
+				]
+			}`,
+			expected: Defender{
+				RawResponder: "tarpit",
+				TarpitConfig: tarpit.Config{
+					Headers: map[string]string{
+						"X-You-Got": "Played",
+					},
+					Timeout:      time.Second * 30,
+					ResponseCode: 404,
+				},
+				Ranges: []string{"openai"},
+				responder: &tarpit.Responder{
+					Config: &tarpit.Config{
+						Headers: map[string]string{
+							"X-You-Got": "Played",
+						},
+						Content: &tarpit.Content{
+							Protocol: "file",
+							Path:     "test.txt",
+						},
+						Timeout:      time.Second * 30,
+						ResponseCode: 404,
+					},
+				},
 			},
 		},
 		{

@@ -1,0 +1,27 @@
+{
+	auto_https off
+	order defender after header
+	debug
+}
+
+:80 {
+	bind 127.0.0.1 ::1
+
+	defender tarpit {
+		ranges private
+        tarpit_config {
+            # Optional headers
+            headers {
+                X-You-Got Played
+            }
+            # Optional. Use content from local file to stream slowly. Can also use source from http/https which is cached locally.
+            content file://some-file.txt
+            # Optional. Complete request at this duration if content EOF is not reached. Default 30s
+            timeout 30s
+            # Optional. Rate of data stream. Default 24
+            bytes_per_second 24
+            # Optional. HTTP Response Code Default 200
+            response_code 200
+        }
+    }
+}

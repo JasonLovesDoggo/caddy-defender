@@ -2,14 +2,15 @@
 
 Caddy Defender supports multiple response strategies:
 
-| Responder   | Description                                                               | Configuration Required       |
-|-------------|---------------------------------------------------------------------------|------------------------------|
-| `block`     | Immediately blocks requests with 403 Forbidden                            | No                           |
-| `custom`    | Returns a custom text response                                            | `message` field required     |
-| `drop`      | Drops the connection                                                      | No                           |
-| `garbage`   | Returns random garbage data to confuse scrapers/AI                        | No                           |
-| `ratelimit` | Marks requests for rate limiting (requires `caddy-ratelimit` integration) | Additional rate limit config |
-| `redirect` | Returns `308 Permanent Redirect` response                                  | `url` field required |
+| Responder   | Description                                                                         | Configuration Required         |
+|-------------|-------------------------------------------------------------------------------------|--------------------------------|
+| `block`     | Immediately blocks requests with 403 Forbidden                                      | No                             |
+| `custom`    | Returns a custom text response                                                      | `message` field required       |
+| `drop`      | Drops the connection                                                                | No                             |
+| `garbage`   | Returns random garbage data to confuse scrapers/AI                                  | No                             |
+| `ratelimit` | Marks requests for rate limiting (requires `caddy-ratelimit` integration)           | Additional rate limit config   |
+| `redirect`  | Returns `308 Permanent Redirect` response                                           | `url` field required           |
+| `tarpit`    | Stream data at a slow, but configurable rate to stall bots and pollute AI training. | `tarpit_config` block required |
 
 ---
 
@@ -160,6 +161,50 @@ localhost:8080 {
     "raw_responder": "redirect",
     "ranges": ["10.0.0.0/8"],
     "url": "https://example.com"
+}
+```
+
+---
+
+#### **Tarpit**
+
+Stream data at a slow, but configurable rate to stall bots and pollute AI training.
+
+```caddyfile
+localhost:8080 {
+    defender tarpit {
+		 ranges private
+         tarpit_config {
+            # Optional headers
+            headers {
+                X-You-Got Played
+            }
+            # Optional. Use content from local file to stream slowly. Can also use source from http/https which is cached locally.
+            content file://some-file.txt
+            # Optional. Complete request at this duration if content EOF is not reached. Default 30s
+            timeout 30s
+            # Optional. Rate of data stream. Default 24
+            bytes_per_second 24
+            # Optional. HTTP Response Code Default 200
+            response_code 200
+        }
+    }
+}
+
+# JSON equivalent
+{
+    "handler": "defender",
+    "raw_responder": "tarpit",
+    "ranges": ["10.0.0.0/8"],
+    "tarpit_config": {
+        "headers": {
+             "X-You-Got": "Played"
+        },
+        "content": "file://some-file.txt",
+        "timeout": "30s",
+        "bytes_per_second": 24,
+        "response_code": 200
+    }
 }
 ```
 

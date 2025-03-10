@@ -7,6 +7,9 @@ import (
 	"net"
 	"reflect"
 	"slices"
+	"strconv"
+	"strings"
+	"time"
 
 	"github.com/caddyserver/caddy/v2/caddyconfig/caddyfile"
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
@@ -14,9 +17,10 @@ import (
 	"github.com/jasonlovesdoggo/caddy-defender/matchers/whitelist"
 	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
+	"github.com/jasonlovesdoggo/caddy-defender/responders/tarpit"
 )
 
-var responderTypes = []string{"block", "custom", "drop", "garbage", "ratelimit", "redirect"}
+var responderTypes = []string{"block", "custom", "drop", "garbage", "ratelimit", "redirect", "tarpit"}
 
 // UnmarshalCaddyfile sets up the handler from Caddyfile tokens. Syntax:
 //
@@ -73,6 +77,70 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			}
 		case "serve_ignore":
 			m.ServeIgnore = true
+		case "tarpit_config":
+			for nesting := d.Nesting(); d.NextBlock(nesting); {
+				switch d.Val() {
+				case "headers":
+					headers := map[string]string{}
+					for nesting := d.Nesting(); d.NextBlock(nesting); {
+						k := d.Val()
+						if !d.NextArg() {
+							return d.ArgErr()
+						}
+						headers[k] = d.Val()
+					}
+					m.TarpitConfig.Headers = headers
+				case "content":
+					if !d.NextArg() {
+						return d.ArgErr()
+					}
+
+					content := strings.Split(d.Val(), "://")
+					if len(content) != 2 {
+						return errors.New("invalid content format. expected <content protocol>://<content path>")
+					}
+
+					m.TarpitConfig.Content = &tarpit.Content{
+						Protocol: content[0],
+						Path:     content[1],
+					}
+				case "timeout":
+					if !d.NextArg() {
+						return d.ArgErr()
+					}
+
+					timeout, err := time.ParseDuration(d.Val())
+					if err != nil {
+						return fmt.Errorf("invalid timeout value: '%s'", d.Val())
+					}
+
+					m.TarpitConfig.Timeout = timeout
+				case "bytes_per_second":
+					if !d.NextArg() {
+						return d.ArgErr()
+					}
+
+					bps, err := strconv.Atoi(d.Val())
+					if err != nil {
+						return fmt.Errorf("invalid bytes_per_second value: '%s'", d.Val())
+					}
+
+					m.TarpitConfig.BytesPerSecond = bps
+				case "response_code":
+					if !d.NextArg() {
+						return d.ArgErr()
+					}
+
+					responseCode, err := strconv.Atoi(d.Val())
+					if err != nil {
+						return fmt.Errorf("invalid response_code value: '%s'", d.Val())
+					}
+
+					m.TarpitConfig.ResponseCode = responseCode
+				default:
+					return d.Errf("unknown nested config key: %s", d.Val())
+				}
+			}
 		default:
 			return d.Errf("unknown subdirective '%s'", d.Val())
 		}
@@ -111,6 +179,11 @@ func (m *Defender) UnmarshalJSON(b []byte) error {
 		m.responder = &responders.RedirectResponder{
 			URL: m.URL,
 		}
+	case "tarpit":
+		m.responder = &tarpit.Responder{
+			Config: &m.TarpitConfig,
+		}
+
 	default:
 		return fmt.Errorf("unknown responder type: %s", rawConfig.RawResponder)
 	}

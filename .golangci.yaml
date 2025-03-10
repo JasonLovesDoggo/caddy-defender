@@ -55,3 +55,6 @@ issues:
       linters:
         - dupl
         - gosec
+    - path: config.go
+      linters:
+        - gocyclo

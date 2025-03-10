@@ -15,6 +15,7 @@ The **Caddy Defender** plugin is a middleware for Caddy that allows you to block
   - **Drop**: Drops the connection.
   - **Garbage**: Return garbage data to pollute AI training.
   - **Redirect**: Return a `308 Permanent Redirect` response with a custom URL.
+  - **Tarpit**: Stream data at a slow, but configurable rate to stall bots and pollute AI training.
 
 ---
 
@@ -88,6 +89,7 @@ defender <responder> {
   - `garbage`: Returns garbage data to pollute AI training.
   - `redirect`: Returns a `308 Permanent Redirect` response (requires `url`).
   - `ratelimit`: Marks requests for rate limiting (requires [Caddy-Ratelimit](https://github.com/mholt/caddy-ratelimit) to be installed as well ).
+  - `tarpit`: Stream data at a slow, but configurable rate to stall bots and pollute AI training.
 - `<ip_ranges...>`: An optional list of CIDR ranges or predefined range keys to match against the client's IP. Defaults to [`aws azurepubliccloud deepseek gcloud githubcopilot openai`](./plugin.go).
 - `<custom message>`: A custom message to return when using the `custom` responder.
 - `<url>`: The URI that the `redirect` responder would redirect to.
