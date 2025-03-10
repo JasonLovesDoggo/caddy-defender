@@ -27,7 +27,7 @@ type Config struct {
 	Headers        map[string]string `json:"headers"`
 	Content        *Content
 	Timeout        time.Duration `json:"timeout"`
-	BytesPerSecond int           `json:"bytes_per_second"`
+	BytesPerSecond int           `json:"bytes_per_second"` // todo: make this value vary.
 	ResponseCode   int           `json:"code"`
 }
 
@@ -37,7 +37,7 @@ func (r *Responder) ConfigureContentReader() error {
 	switch r.Config.Content.Protocol {
 	// If no content to provide, we'll just hold the connection open
 	case "":
-		r.ContentReader = TimeoutReader{}
+		r.ContentReader = TimeoutReader{} // todo: add a text:// protocol
 	case "file":
 		r.ContentReader = FileReader{
 			Path: r.Config.Content.Path,
@@ -47,12 +47,12 @@ func (r *Responder) ConfigureContentReader() error {
 			return err
 		}
 	case "http", "https":
-		cache := cache.New(&cache.Config{
+		tCache := cache.New(&cache.Config{
 			Directory: "tarpit",
 		})
 		r.ContentReader = HTTPReader{
 			URL:   r.Config.Content.Protocol + "://" + r.Config.Content.Path,
-			Cache: cache,
+			Cache: tCache,
 		}
 		err := r.ContentReader.Validate()
 		if err != nil {

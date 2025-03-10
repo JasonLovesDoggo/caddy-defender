@@ -15,7 +15,8 @@
                 X-You-Got "Played"
             }
             # Optional. Use content from local file to stream slowly. Can also use source from http/https which is cached locally.
-            content file://some-file.txt
+            # content file://some-file.txt
+            content https://www.google.com/robots.txt
             # Optional. Complete request at this duration if content EOF is not reached. Default 30s
             timeout 30s
             # Optional. Rate of data stream. Default 24
