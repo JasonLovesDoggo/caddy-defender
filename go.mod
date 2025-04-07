@@ -1,10 +1,11 @@
 module github.com/jasonlovesdoggo/caddy-defender
 
 go 1.23.6
+toolchain go1.24.1
 
 require (
 	github.com/caddyserver/caddy/v2 v2.9.1
-	github.com/gaissmai/bart v0.20.1
+	github.com/gaissmai/bart v0.20.3
 	github.com/stretchr/testify v1.10.0
 	github.com/viccon/sturdyc v1.1.5
 	go.uber.org/zap v1.27.0
