@@ -27,12 +27,14 @@ The **Caddy Defender** plugin is a middleware for Caddy that allows you to block
 The easiest way to use the Caddy Defender plugin is by using the pre-built Docker image.
 
 1. **Pull the Docker Image**:
+
    ```bash
    docker pull ghcr.io/jasonlovesdoggo/caddy-defender:latest
    ```
 
 2. **Run the Container**:
    Use the following command to run the container with your `Caddyfile`:
+
    ```bash
    docker run -d \
      --name caddy \
@@ -42,30 +44,8 @@ The easiest way to use the Caddy Defender plugin is by using the pre-built Docke
    ```
 
    Replace `/path/to/Caddyfile` with the path to your `Caddyfile`.
----
 
-### **Using `xcaddy`**
-
-You can also build Caddy with the Caddy Defender plugin using [`xcaddy`](https://github.com/caddyserver/xcaddy), a tool for building custom Caddy binaries.
-
-1. **Install `xcaddy`**:
-   ```bash
-   go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
-   ```
-
-2. **Build Caddy with the Plugin**:
-   Run the following command to build Caddy with the Caddy Defender plugin:
-   ```bash
-   xcaddy build --with github.com/jasonlovesdoggo/caddy-defender
-   ```
-
-   This will produce a `caddy` binary in the current directory.
-
-3. **Run Caddy**:
-   Use the built binary to run Caddy with your configuration:
-   ```bash
-   ./caddy run --config Caddyfile
-   ```
+Please see the [online documentation](https://JasonLovesDoggo.github.io/caddy-defender/installation/) for other methods of installation.
 
 ---
 
@@ -84,16 +64,27 @@ defender <responder> {
 ```
 
 - `<responder>`: The responder backend to use. Supported values are:
-    - `block`: Returns a `403 Forbidden` response.
-    - `custom`: Returns a custom message (requires `message`).
-    - `drop`: Drops the connection.
-    - `garbage`: Returns garbage data to pollute AI training.
-    - `redirect`: Returns a `308 Permanent Redirect` response (requires `url`).
-    - `ratelimit`: Marks requests for rate limiting (requires [Caddy-Ratelimit](https://github.com/mholt/caddy-ratelimit) to be installed as well ).
-    - `tarpit`: Stream data at a slow, but configurable rate to stall bots and pollute AI training.
+  - `block`: Returns a `403 Forbidden` response.
+  - `custom`: Returns a custom message (requires `message`).
+  - `drop`: Drops the connection.
+  - `garbage`: Returns garbage data to pollute AI training.
+  - `redirect`: Returns a `308 Permanent Redirect` response (requires `url`).
+  - `ratelimit`: Marks requests for rate limiting (requires [Caddy-Ratelimit](https://github.com/mholt/caddy-ratelimit) to be installed as well ).
+  - `tarpit`: Stream data at a slow, but configurable rate to stall bots and pollute AI training.
 - `<ip_ranges...>`: An optional list of CIDR ranges or predefined range keys to match against the client's IP. Defaults to [`aws azurepubliccloud deepseek gcloud githubcopilot openai`](./plugin.go).
 - `<custom message>`: A custom message to return when using the `custom` responder.
 - `<url>`: The URI that the `redirect` responder would redirect to.
+
+For more information about the configuration, refer to the [configuration page](https://JasonLovesDoggo.github.io/caddy-defender/config/) on the website.
+
+---
+
+## **Quick Start**
+
+The [documentation website](https://JasonLovesDoggo.github.io/caddy-defender/) has info that includes the configurations of the plugin, code examples, and more.
+
+For a quick start, follow the [Getting Started](https://JasonLovesDoggo.github.io/caddy-defender/intro/) guide to protect your server using the _Caddy Defender Plugin_.
+
 ---
 
 ## For examples, check out [docs/examples.md](docs/examples.md)
@@ -105,15 +96,15 @@ defender <responder> {
 The plugin includes predefined IP ranges for popular AI services. These ranges are embedded in the binary and can be used without additional configuration.
 
 |                               Service                                |                     Key                     |                     IP Ranges                      |
-|:--------------------------------------------------------------------:|:-------------------------------------------:|:--------------------------------------------------:|
-|                              Alibaba Cloud                          |                    aliyun                   |       [aliyun.go](ranges/fetchers/aliyun.go)       |
+| :------------------------------------------------------------------: | :-----------------------------------------: | :------------------------------------------------: |
+|                            Alibaba Cloud                             |                   aliyun                    |       [aliyun.go](ranges/fetchers/aliyun.go)       |
 |                                 VPNs                                 |                     vpn                     |          [vpn.go](ranges/fetchers/vpn.go)          |
 |                                 AWS                                  |                     aws                     |        [aws.go](ranges/fetchers/aws/aws.go)        |
 |                              AWS Region                              | aws-us-east-1, aws-us-west-1, aws-eu-west-1 | [aws_region.go](ranges/fetchers/aws/aws_region.go) |
 |                               DeepSeek                               |                  deepseek                   |     [deepseek.go](ranges/fetchers/deepseek.go)     |
 |                            GitHub Copilot                            |                githubcopilot                |       [github.go](ranges/fetchers/github.go)       |
 |                        Google Cloud Platform                         |                   gcloud                    |       [gcloud.go](ranges/fetchers/gcloud.go)       |
-|                     Oracle Cloud  Infrastructure                     |                     oci                     |       [oracle.go](ranges/fetchers/oracle.go)       |
+|                     Oracle Cloud Infrastructure                      |                     oci                     |       [oracle.go](ranges/fetchers/oracle.go)       |
 |                           Microsoft Azure                            |              azurepubliccloud               |        [azure.go](ranges/fetchers/azure.go)        |
 |                                OpenAI                                |                   openai                    |       [openai.go](ranges/fetchers/openai.go)       |
 |                               Mistral                                |                   mistral                   |      [mistral.go](ranges/fetchers/mistral.go)      |
@@ -126,10 +117,10 @@ The plugin includes predefined IP ranges for popular AI services. These ranges a
 
 ## Disabled by default (require manual inclusion at build time)
 
-|                               Service                                |                     Key                     |                     IP Ranges                      |
-|:--------------------------------------------------------------------:|:-------------------------------------------:|:--------------------------------------------------:|
-|                            Tor Exit Nodes                            |                     tor                     |         [tor.go](ranges/fetchers/tor.go)           |
-|                   ASN (Autonomous System Numbers)                    |                     asn                     |         [asn.go](ranges/fetchers/asn.go)           |
+|             Service             | Key |            IP Ranges             |
+| :-----------------------------: | :-: | :------------------------------: |
+|         Tor Exit Nodes          | tor | [tor.go](ranges/fetchers/tor.go) |
+| ASN (Autonomous System Numbers) | asn | [asn.go](ranges/fetchers/asn.go) |
 
 More are welcome! for a precompiled list, see the [embedded results](ranges/data/generated.go)
 
