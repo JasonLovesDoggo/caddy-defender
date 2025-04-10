@@ -1,10 +1,10 @@
-### **Technical Introduction to Caddy Defender Plugin**
+# **Getting Started with the Caddy Defender Plugin**
 
 The **Caddy Defender Plugin** is a powerful middleware for the Caddy web server that allows you to control and manipulate traffic based on the client's IP address. Whether you're looking to block unwanted requests, pollute AI training data, or return custom responses, this plugin provides a flexible and easy-to-use solution.
 
 ---
 
-### **Demo: Protecting Your Server with Caddy Defender**
+## **How to Protect Your Server with Caddy Defender**
 
 Let’s walk through a quick demo to see how the Caddy Defender plugin works in action.
 
@@ -47,6 +47,7 @@ localhost:8080 {
 ```
 
 This configuration:
+
 - Blocks requests from the predefined `openai` IP range with a `403 Forbidden` response.
 - Returns garbage data for requests from the `192.168.0.0/24` range.
 - Returns a custom message `Access denied!` for requests from the `10.0.0.0/8` range.
@@ -66,18 +67,22 @@ docker run -d \
 
 #### **Step 4: Test the Configuration**
 
-1. **Allowed Client**:
-   - Access `http://localhost:8080` from an allowed IP.
-   - You’ll see the response: `Welcome to our website!`
+1\. **Allowed Client**:
 
-2. **Blocked Client (OpenAI Range)**:
-   - Access `http://localhost:8080` from an IP in the `openai` range. (ask chatgpt to read your website)
-   - You’ll receive a `403 Forbidden` response.
+- Access `http://localhost:8080` from an allowed IP.
+- You’ll see the response: `Welcome to our website!`
 
-3. **Garbage Response Client**:
-   - Access `http://localhost:8080` from an IP in the `192.168.0.0/24` range.
-   - You’ll receive a garbage response, such as random bytes or nonsensical text.
+2\. **Blocked Client (OpenAI Range)**:
 
-4. **Custom Message Client**:
-   - Access `http://localhost:8080` from an IP in the `10.0.0.0/8` range.
-   - You’ll receive the custom response: `Access denied!`
+- Access `http://localhost:8080` from an IP in the `openai` range. (ask chatgpt to read your website)
+- You’ll receive a `403 Forbidden` response.
+
+3\. **Garbage Response Client**:
+
+- Access `http://localhost:8080` from an IP in the `192.168.0.0/24` range.
+- You’ll receive a garbage response, such as random bytes or nonsensical text.
+
+4\. **Custom Message Client**:
+
+- Access `http://localhost:8080` from an IP in the `10.0.0.0/8` range.
+- You’ll receive the custom response: `Access denied!`

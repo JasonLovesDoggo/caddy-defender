@@ -1,0 +1,11 @@
+site_name: Caddy Defender Docs
+theme:
+  name: mkdocs
+nav:
+  - Home: index.md
+  - Getting Started: intro.md
+  - Installation: installation.md
+  - Configuration: config.md
+  - Examples: examples.md
+  - Fetchers: fetchers.md
+  - Contributing: CONTRIBUTING.md
