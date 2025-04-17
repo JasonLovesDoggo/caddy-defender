@@ -1,9 +1,13 @@
-#### **Responder Types**
+# **Examples**
+
+This part of the documentation contains usable examples which you can refer to when writing your caddyfile(s).
+
+## **Responder Types**
 
 Caddy Defender supports multiple response strategies:
 
 | Responder   | Description                                                                         | Configuration Required         |
-|-------------|-------------------------------------------------------------------------------------|--------------------------------|
+| ----------- | ----------------------------------------------------------------------------------- | ------------------------------ |
 | `block`     | Immediately blocks requests with 403 Forbidden                                      | No                             |
 | `custom`    | Returns a custom text response                                                      | `message` field required       |
 | `drop`      | Drops the connection                                                                | No                             |
@@ -14,14 +18,11 @@ Caddy Defender supports multiple response strategies:
 
 ---
 
-# FOR FULL COMPLETE EXAMPLES, PLEASE CHECK OUT 
-<a href="../examples"/>The Examples Folder
-
-
-
-#### **Block Requests**
+## **Block Requests**
 
 Block requests from specific IP ranges with 403 Forbidden:
+
+### **Example 1**
 
 ```caddyfile
 localhost:8080 {
@@ -39,11 +40,37 @@ localhost:8080 {
 }
 ```
 
+### **Example 2**
+
+```caddyfile
+{
+	auto_https off
+	order defender after header
+	debug
+}
+
+:80 {
+	bind 127.0.0.1 ::1
+
+	defender block {
+		ranges private
+	}
+	respond "This is what a human sees"
+}
+
+:83 {
+	bind 127.0.0.1 ::1
+	respond "Clear text HTTP"
+}
+```
+
 ---
 
-#### **Custom Response**
+## **Custom Response**
 
 Return tailored messages for blocked requests:
+
+### **Example 1**
 
 ```caddyfile
 localhost:8080 {
@@ -63,11 +90,39 @@ localhost:8080 {
 }
 ```
 
+### **Example 2**
+
+```caddyfile
+{
+	auto_https off
+	order defender after header
+	debug
+}
+
+:80 {
+	bind 127.0.0.1 ::1
+
+	defender custom {
+		ranges private
+		message "You are not welcome here"
+	}
+	respond "This is what a human sees"
+}
+
+:83 {
+	bind 127.0.0.1 ::1
+
+	respond "Clear text HTTP"
+}
+```
+
 ---
 
-#### **Drop connections**
+## **Drop connections**
 
 Drop connections rather than send a response:
+
+### **Example 1**
 
 ```caddyfile
 localhost:8080 {
@@ -84,11 +139,31 @@ localhost:8080 {
 }
 ```
 
+### **Example 2**
+
+```caddyfile
+{
+	auto_https off
+	order defender after header
+	debug
+}
+
+:80 {
+	bind 127.0.0.1 ::1
+
+	defender drop {
+		ranges private
+	}
+}
+```
+
 ---
 
-#### **Return Garbage Data**
+## **Return Garbage Data**
 
 Return meaningless content for AI/scrapers:
+
+### **Example 1**
 
 ```caddyfile
 localhost:8080 {
@@ -106,9 +181,35 @@ localhost:8080 {
 }
 ```
 
+### **Example 2**
+
+```caddyfile
+{
+	auto_https off
+	order defender after header
+	debug
+}
+
+:80 {
+	bind 127.0.0.1 ::1
+
+	defender garbage {
+		ranges private
+    	serve_ignore
+	}
+	respond "This is what a human sees"
+}
+
+:83 {
+	bind 127.0.0.1 ::1
+
+	respond "Clear text HTTP"
+}
+```
+
 ---
 
-#### **Rate Limiting**
+## **Rate Limiting**
 
 Integrate with [caddy-ratelimit](https://github.com/mholt/caddy-ratelimit):
 
@@ -139,13 +240,15 @@ Integrate with [caddy-ratelimit](https://github.com/mholt/caddy-ratelimit):
 ```
 
 For complete rate limiting documentation,
-see [RATELIMIT.md](./ratelimit.md) and [caddy-ratelimit](https://github.com/mholt/caddy-ratelimit).
+see [Rate Limiting Configuration](config.md#rate-limiting-configuration) and [caddy-ratelimit](https://github.com/mholt/caddy-ratelimit).
 
 ---
 
-#### **Redirect Response**
+## **Redirect Response**
 
 Redirect requests:
+
+### **Example 1**
 
 ```caddyfile
 localhost:8080 {
@@ -164,11 +267,32 @@ localhost:8080 {
 }
 ```
 
+### **Example 2**
+
+```caddyfile
+{
+	auto_https off
+	order defender after header
+	debug
+}
+
+:80 {
+	bind 127.0.0.1 ::1
+
+	defender redirect {
+		ranges private
+		url "https://example.com"
+	}
+}
+```
+
 ---
 
-#### **Tarpit**
+## **Tarpit**
 
 Stream data at a slow, but configurable rate to stall bots and pollute AI training.
+
+### **Example 1**
 
 ```caddyfile
 localhost:8080 {
@@ -208,25 +332,116 @@ localhost:8080 {
 }
 ```
 
+### **Example 2**
+
+```caddyfile
+{
+	auto_https off
+	order defender after header
+	debug
+}
+
+:80 {
+	bind 127.0.0.1 ::1
+
+	defender tarpit {
+		ranges private
+        tarpit_config {
+            # Optional headers
+            headers {
+                X-You-Got "Played"
+            }
+            # Optional. Use content from local file to stream slowly. Can also use source from http/https which is cached locally.
+            # content file://some-file.txt
+            content https://www.cloudflare.com/robots.txt
+            # Optional. Complete request at this duration if content EOF is not reached. Default 30s
+            timeout 30s
+            # Optional. Rate of data stream. Default 24
+            bytes_per_second 24
+            # Optional. HTTP Response Code Default 200
+            response_code 200
+        }
+    }
+}
+```
+
 ---
 
-#### **Combination Example**
+## **Combination Example**
 
 Mix multiple response strategies:
+
 ```caddyfile
 example.com {
     defender block {
         ranges known-bad-actors
     }
-    
+
     defender ratelimit {
         ranges aws
     }
-    
+
     defender garbage {
         ranges scrapers
     }
-    
+
     respond "Main Website Content"
+}
+```
+
+---
+
+## **Whitelisting**
+
+Whitelist certain IP(s) from blocked ranges:
+
+```caddyfile
+{
+	auto_https off
+	order defender after header
+	debug
+}
+
+:80 {
+	bind 127.0.0.1 ::1
+	# Everything in AWS besides my EC2 instance is blocked from accessing this site.
+	defender block {
+		ranges aws
+		whitelist 169.254.169.254 # my ec2's public IP.
+	}
+	respond "This is what a human sees"
+}
+
+:81 {
+	bind 127.0.0.1 ::1
+	# My localhost ipv6 is blocked but not my ipv4
+	defender block {
+		ranges private
+		whitelist 127.0.0.1
+	}
+	respond "This is what a ipv4 human sees"
+}
+```
+
+---
+
+## **geoip**
+
+> _See issue [#27](https://github.com/JasonLovesDoggo/caddy-defender/issues/27)._
+
+From [caddy-maxmind-geolocation](https://github.com/porech/caddy-maxmind-geolocation):
+
+```caddyfile
+localhost:8080 {
+  @mygeofilter {
+    maxmind_geolocation {
+      db_path "/usr/share/GeoIP/GeoLite2-Country.mmdb"
+      allow_countries IT FR # Allow access to the website only from Italy and France
+    }
+  }
+
+   file_server @mygeofilter {
+     root /var/www/html
+   }
 }
 ```

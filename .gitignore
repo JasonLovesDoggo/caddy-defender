@@ -29,3 +29,6 @@ go.work.sum
 
 # compiled caddy binary
 caddy
+
+# mkdocs bulit site directory
+site/
