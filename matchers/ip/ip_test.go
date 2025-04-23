@@ -2,13 +2,13 @@ package ip
 
 import (
 	"context"
+	"github.com/jasonlovesdoggo/skyfence/data"
 	"net"
 	"testing"
 	"time"
 
 	"go.uber.org/zap/zapcore"
 
-	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/zap"
 )
