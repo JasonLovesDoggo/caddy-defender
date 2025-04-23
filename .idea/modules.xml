@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/caddy-defender.iml" filepath="$PROJECT_DIR$/.idea/caddy-defender.iml" />
+      <module fileurl="file://$PROJECT_DIR$/../skyfence/.idea/skyfence.iml" filepath="$PROJECT_DIR$/../skyfence/.idea/skyfence.iml" />
     </modules>
   </component>
 </project>

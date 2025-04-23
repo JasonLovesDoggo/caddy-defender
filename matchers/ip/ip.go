@@ -4,12 +4,12 @@ import (
 	"context"
 	"fmt"
 	Whitelist "github.com/jasonlovesdoggo/caddy-defender/matchers/whitelist"
+	"github.com/jasonlovesdoggo/skyfence/data"
 	"net"
 	"net/netip"
 	"time"
 
 	"github.com/gaissmai/bart"
-	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
 	"github.com/viccon/sturdyc"
 	"go.uber.org/zap"
 )

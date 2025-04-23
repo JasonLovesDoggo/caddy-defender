@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/jasonlovesdoggo/skyfence/data"
 	"net"
 	"reflect"
 	"slices"
@@ -15,7 +16,6 @@ import (
 	"github.com/caddyserver/caddy/v2/caddyconfig/httpcaddyfile"
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/jasonlovesdoggo/caddy-defender/matchers/whitelist"
-	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
 	"github.com/jasonlovesdoggo/caddy-defender/responders"
 	"github.com/jasonlovesdoggo/caddy-defender/responders/tarpit"
 )
