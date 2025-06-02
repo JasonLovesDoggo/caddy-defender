@@ -156,7 +156,7 @@ func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyh
 			flusher.Flush()
 		} else {
 			// This should not happen since we got a flushable writer,
-			slog.Warn("Could not flush the response writer")
+			slog.Warn("could not flush the response writer")
 		}
 	}
 
