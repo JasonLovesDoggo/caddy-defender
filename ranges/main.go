@@ -18,12 +18,16 @@ import (
 var (
 	outputFormat string
 	outputFile   string
+	asnList      string
+	fetchTor     bool
 )
 
 func main() {
 	// Define flags
-	flag.StringVar(&outputFormat, "format", "json", "Output format: json or go")
-	flag.StringVar(&outputFile, "output", "output.json", "Output file path")
+	flag.StringVar(&outputFormat, "format", "go", "Output format: json or go")
+	flag.StringVar(&outputFile, "output", "ranges/data/generated.go", "Output file path")
+	flag.StringVar(&asnList, "asn", "", "Comma-separated list of ASNs to fetch (e.g., AS15169,AS32934)")
+	flag.BoolVar(&fetchTor, "fetch-tor", false, "Enable fetching of Tor exit nodes")
 	flag.Parse()
 
 	// Create an array of all IP range fetchers
@@ -47,13 +51,18 @@ func main() {
 		fetchers.VultrFetcher{},      // Vultr Cloud IP ranges
 		fetchers.CloudflareFetcher{}, // Cloudflare IP ranges
 		fetchers.AliyunFetcher{},     // Aliyun IP ranges
+	}
+
+	if fetchTor {
 		// the issue with the tor fetcher is that TOR is a network of individual nodes,
 		// so it's not possible to get a list of all IP ranges. The current solution
 		// converts individual nodes to IP ranges.
-		// fetchers.TorFetcher{}, // Tor exit nodes
+		fetchersList = append(fetchersList, fetchers.TorFetcher{}) // Tor exit nodes
+	}
+
+	if asnList != "" {
 		// ASN fetcher with common cloud providers and AI companies
-		/* todo: figure some way to implement this where the user specifies the ranges to fetch */
-		// fetchers.NewASNFetcher([]string{
+		// example: fetchers.NewASNFetcher([]string{
 		//	"AS13335", // Cloudflare
 		//	"AS16509", // Amazon AWS
 		//	"AS8075",  // Microsoft
@@ -64,6 +73,8 @@ func main() {
 		//	"AS63949", // Linode
 		//	"AS14618", // Amazon
 		// }),
+		asns := strings.Split(asnList, ",")
+		fetchersList = append(fetchersList, fetchers.NewASNFetcher(asns))
 	}
 
 	// Load the existing IP ranges from the data package

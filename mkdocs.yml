@@ -9,6 +9,7 @@ nav:
   - Getting Started: intro.md
   - Installation: installation.md
   - Configuration: config.md
+  - Advanced Usage: advanced.md
   - Examples: examples.md
   - Fetchers: fetchers.md
   - Contributing: CONTRIBUTING.md
