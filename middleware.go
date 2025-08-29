@@ -61,14 +61,15 @@ func (m Defender) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyht
 		return caddyhttp.Error(http.StatusForbidden, fmt.Errorf("invalid client IP"))
 	}
 	m.log.Debug("Ranges", zap.Strings("ranges", m.Ranges))
-	// Check if the client IP is in any of the ranges using the optimized checker
+
+	// Check if the client IP should be allowed (considering whitelist and blocked ranges)
 	if m.ipChecker.ReqAllowed(r.Context(), clientIP) {
-		m.log.Debug("IP is not in ranges", zap.String("ip", clientIP.String()))
+		m.log.Debug("Request allowed (IP whitelisted or not in blocked ranges)", zap.String("ip", clientIP.String()))
+		// Request is allowed, proceed to the next handler
+		return next.ServeHTTP(w, r)
 	} else {
-		m.log.Debug("IP is in ranges", zap.String("ip", clientIP.String()))
+		m.log.Debug("Request blocked (IP in blocked ranges and not whitelisted)", zap.String("ip", clientIP.String()))
+		// Request should be blocked
 		return m.responder.ServeHTTP(w, r, next)
 	}
-
-	// IP is not in any of the ranges, proceed to the next handler
-	return next.ServeHTTP(w, r)
 }
