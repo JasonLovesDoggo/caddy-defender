@@ -513,6 +513,153 @@ Your `blocklist.txt`:
 
 ---
 
+## **Admin API - Dynamic Blocklist Management**
+
+Manage IP blocklists dynamically via Caddy's admin API without restarting.
+
+### **Available Endpoints**
+
+| Endpoint | Method | Description |
+|----------|--------|-------------|
+| `/defender/blocklist` | GET | List all dynamically blocked IPs |
+| `/defender/blocklist` | POST | Add IP(s) to blocklist |
+| `/defender/blocklist/{ip}` | DELETE | Remove IP from blocklist |
+| `/defender/stats` | GET | Get defender statistics |
+
+### **Example 1 - Add IPs to Blocklist**
+
+```bash
+# Add single IP
+curl -X POST http://localhost:2019/defender/blocklist \
+  -H "Content-Type: application/json" \
+  -d '{"ips": ["192.168.1.100/32"]}'
+
+# Response:
+# {"added":["192.168.1.100/32"],"count":1}
+```
+
+```bash
+# Add multiple IPs
+curl -X POST http://localhost:2019/defender/blocklist \
+  -H "Content-Type: application/json" \
+  -d '{"ips": ["192.168.1.100/32", "10.0.0.0/8", "203.0.113.0/24"]}'
+
+# Response:
+# {"added":["192.168.1.100/32","10.0.0.0/8","203.0.113.0/24"],"count":3}
+```
+
+### **Example 2 - List Blocked IPs**
+
+```bash
+curl http://localhost:2019/defender/blocklist
+
+# Response:
+# {
+#   "count": 3,
+#   "ips": [
+#     "192.168.1.100/32",
+#     "10.0.0.0/8",
+#     "203.0.113.0/24"
+#   ]
+# }
+```
+
+### **Example 3 - Remove IP from Blocklist**
+
+```bash
+curl -X DELETE http://localhost:2019/defender/blocklist/192.168.1.100/32
+
+# Response:
+# {"removed":"192.168.1.100/32"}
+```
+
+### **Example 4 - Get Statistics**
+
+```bash
+curl http://localhost:2019/defender/stats
+
+# Response:
+# {
+#   "configured_ranges": ["openai", "aws"],
+#   "blocklist_file": "/etc/caddy/blocklist.txt",
+#   "counts": {
+#     "configured_ranges": 2,
+#     "file_ranges": 5,
+#     "dynamic_ranges": 3,
+#     "total": 10
+#   },
+#   "responder": "block"
+# }
+```
+
+### **Example 5 - Integration with Automation**
+
+```bash
+#!/bin/bash
+# Auto-block IP that exceeded rate limit
+
+ATTACKER_IP="203.0.113.45"
+
+# Add to blocklist via API
+curl -X POST http://localhost:2019/defender/blocklist \
+  -H "Content-Type: application/json" \
+  -d "{\"ips\": [\"${ATTACKER_IP}/32\"]}"
+
+echo "Blocked ${ATTACKER_IP}"
+```
+
+### **Example 6 - Python Script**
+
+```python
+import requests
+
+CADDY_ADMIN = "http://localhost:2019"
+
+# Add IPs
+def block_ips(ips):
+    response = requests.post(
+        f"{CADDY_ADMIN}/defender/blocklist",
+        json={"ips": ips}
+    )
+    return response.json()
+
+# Remove IP
+def unblock_ip(ip):
+    response = requests.delete(
+        f"{CADDY_ADMIN}/defender/blocklist/{ip}"
+    )
+    return response.json()
+
+# Get stats
+def get_stats():
+    response = requests.get(f"{CADDY_ADMIN}/defender/stats")
+    return response.json()
+
+# Usage
+result = block_ips(["192.168.1.100/32", "10.0.0.0/8"])
+print(f"Blocked {result['count']} IPs")
+
+stats = get_stats()
+print(f"Total blocked: {stats['counts']['total']}")
+```
+
+**Features:**
+- No restart required - changes take effect immediately
+- Thread-safe concurrent API access
+- Combines with file-based and configured ranges
+- Perfect for integration with fail2ban, rate limiters, or custom security tools
+- IPs must be in CIDR format (use `/32` for single IPs)
+
+**Note:** The admin API is only accessible from localhost by default. To expose it remotely, configure the `admin` directive in your Caddyfile's global options:
+
+```caddyfile
+{
+    admin 0.0.0.0:2019  # WARNING: Secure this properly!
+}
+```
+
+---
+
 ## **geoip**
 
 > _See issue [#27](https://github.com/JasonLovesDoggo/caddy-defender/issues/27)._

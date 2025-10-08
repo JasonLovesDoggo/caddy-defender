@@ -10,6 +10,7 @@ The **Caddy Defender** plugin is a middleware for Caddy that allows you to block
 - **Embedded IP Ranges**: Predefined IP ranges for popular AI services (e.g., OpenAI, DeepSeek, GitHub Copilot).
 - **Custom IP Ranges**: Add your own IP ranges via Caddyfile configuration.
 - **File-Based Blocklists**: Load IP addresses from a file with automatic reload on changes (perfect for Docker volume mounts).
+- **Admin API**: Dynamically manage blocklists via RESTful API endpoints without restarting Caddy.
 - **Multiple Responder Backends**:
   - **Block**: Return a `403 Forbidden` response.
   - **Custom**: Return a custom message.

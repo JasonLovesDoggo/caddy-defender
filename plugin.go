@@ -116,6 +116,9 @@ type Defender struct {
 
 	// fileFetcher is the internal file watcher for dynamic IP loading
 	fileFetcher interface{ Close() error }
+
+	// dynamicBlocklist manages IPs added via the admin API
+	dynamicBlocklist *dynamicBlocklist
 }
 
 // Provision sets up the middleware, logger, and responder configurations.
@@ -127,6 +130,9 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 		m.log.Debug("no ranges specified, defaulting to default ranges", zap.Strings("ranges", DefaultRanges))
 		m.Ranges = DefaultRanges
 	}
+
+	// Initialize dynamic blocklist for API management
+	m.dynamicBlocklist = newDynamicBlocklist(m.log)
 
 	// ensure to keep AFTER the ranges are checked (above)
 	m.ipChecker = ip.NewIPChecker(m.Ranges, m.Whitelist, m.log)
@@ -211,4 +217,5 @@ var (
 	_ caddy.CleanerUpper          = (*Defender)(nil)
 	_ caddyhttp.MiddlewareHandler = (*Defender)(nil)
 	_ caddyfile.Unmarshaler       = (*Defender)(nil)
+	_ caddy.AdminRouter           = (*Defender)(nil)
 )
