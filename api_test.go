@@ -19,7 +19,8 @@ func TestDynamicBlocklist(t *testing.T) {
 	t.Run("Add and List", func(t *testing.T) {
 		bl := newDynamicBlocklist(testLog)
 
-		bl.Add("192.168.1.1/32", "10.0.0.0/8")
+		err := bl.Add("192.168.1.1/32", "10.0.0.0/8")
+		require.NoError(t, err)
 
 		ips := bl.List()
 		assert.Len(t, ips, 2)
@@ -30,7 +31,8 @@ func TestDynamicBlocklist(t *testing.T) {
 	t.Run("Contains", func(t *testing.T) {
 		bl := newDynamicBlocklist(testLog)
 
-		bl.Add("192.168.1.1/32")
+		err := bl.Add("192.168.1.1/32")
+		require.NoError(t, err)
 
 		assert.True(t, bl.Contains("192.168.1.1/32"))
 		assert.False(t, bl.Contains("10.0.0.1/32"))
@@ -39,13 +41,16 @@ func TestDynamicBlocklist(t *testing.T) {
 	t.Run("Remove", func(t *testing.T) {
 		bl := newDynamicBlocklist(testLog)
 
-		bl.Add("192.168.1.1/32", "10.0.0.0/8")
+		err := bl.Add("192.168.1.1/32", "10.0.0.0/8")
+		require.NoError(t, err)
 
-		removed := bl.Remove("192.168.1.1/32")
+		removed, err := bl.Remove("192.168.1.1/32")
+		require.NoError(t, err)
 		assert.True(t, removed)
 		assert.False(t, bl.Contains("192.168.1.1/32"))
 
-		removed = bl.Remove("nonexistent/32")
+		removed, err = bl.Remove("nonexistent/32")
+		require.NoError(t, err)
 		assert.False(t, removed)
 	})
 
@@ -57,7 +62,7 @@ func TestDynamicBlocklist(t *testing.T) {
 		// Concurrent adds
 		for i := 0; i < 10; i++ {
 			go func(n int) {
-				bl.Add("192.168.1.1/32")
+				_ = bl.Add("192.168.1.1/32")
 				done <- true
 			}(i)
 		}

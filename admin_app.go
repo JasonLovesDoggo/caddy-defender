@@ -231,7 +231,12 @@ func (d *DefenderAdmin) handleAddToBlocklist(w http.ResponseWriter, r *http.Requ
 		}
 	}
 
-	m.dynamicBlocklist.Add(req.IPs...)
+	if err := m.dynamicBlocklist.Add(req.IPs...); err != nil {
+		return caddy.APIError{
+			HTTPStatus: http.StatusInternalServerError,
+			Message:    fmt.Sprintf("failed to add IPs to blocklist: %v", err),
+		}
+	}
 
 	// Update IPChecker with new ranges
 	allRanges := append([]string{}, m.Ranges...)
@@ -291,7 +296,13 @@ func (d *DefenderAdmin) handleBlocklistItem(w http.ResponseWriter, r *http.Reque
 		}
 	}
 
-	removed := defender.dynamicBlocklist.Remove(ip)
+	removed, err := defender.dynamicBlocklist.Remove(ip)
+	if err != nil {
+		return caddy.APIError{
+			HTTPStatus: http.StatusInternalServerError,
+			Message:    fmt.Sprintf("failed to remove IP from blocklist: %v", err),
+		}
+	}
 	if !removed {
 		return caddy.APIError{
 			HTTPStatus: http.StatusNotFound,

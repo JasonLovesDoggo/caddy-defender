@@ -10,7 +10,8 @@
       "Bash(docker build:*)",
       "Bash(docker push:*)",
       "Bash(git commit:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git fetch:*)"
     ],
     "deny": [],
     "ask": []

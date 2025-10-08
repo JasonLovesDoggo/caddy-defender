@@ -152,10 +152,16 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 
 	// Set up file-based IP range loading if a blocklist file is specified
 	if m.BlocklistFile != "" {
+		// Enable file persistence for dynamic blocklist
+		if err := m.dynamicBlocklist.EnableFilePersistence(m.BlocklistFile); err != nil {
+			return fmt.Errorf("failed to enable dynamic blocklist persistence: %w", err)
+		}
+
 		fileFetcher, err := fetchers.NewFileFetcher(m.BlocklistFile, m.log, func(newRanges []string) {
-			// Callback when file changes - merge with existing ranges
+			// Callback when file changes - merge with existing ranges and dynamic blocklist
 			allRanges := append([]string{}, m.Ranges...)
 			allRanges = append(allRanges, newRanges...)
+			allRanges = append(allRanges, m.dynamicBlocklist.List()...)
 			m.ipChecker.UpdateRanges(allRanges)
 		})
 		if err != nil {
@@ -170,9 +176,10 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 			return fmt.Errorf("failed to load initial blocklist file: %w", err)
 		}
 
-		// Merge file ranges with configured ranges
+		// Merge file ranges with configured ranges and dynamic blocklist
 		allRanges := append([]string{}, m.Ranges...)
 		allRanges = append(allRanges, fileRanges...)
+		allRanges = append(allRanges, m.dynamicBlocklist.List()...)
 		m.ipChecker.UpdateRanges(allRanges)
 
 		m.log.Info("Blocklist file monitoring enabled",
