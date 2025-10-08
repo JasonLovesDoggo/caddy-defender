@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker run:*)",
+      "Bash(MSYS_NO_PATHCONV=1 docker run --rm -v /c/_cloned/caddy-defender:/app -w /app golang:1.25rc1 go test ./matchers/ip/... -v -run TestIPChecker_UpdateRanges)",
+      "Bash(MSYS_NO_PATHCONV=1 docker run --rm -v /c/_cloned/caddy-defender:/app -w /app golang:1.25rc1 go test ./... -short)",
+      "Bash(git add:*)",
+      "Bash(MSYS_NO_PATHCONV=1 docker run --rm -v /c/_cloned/caddy-defender:/app -w /app golang:1.25rc1 go test ./... -v -run \"TestDynamic|TestAPI\")",
+      "Bash(MSYS_NO_PATHCONV=1 docker run --rm -v /c/_cloned/caddy-defender:/app -w /app golang:1.25rc1 go build -o /dev/null .)",
+      "Bash(docker build:*)",
+      "Bash(docker push:*)",
+      "Bash(git commit:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

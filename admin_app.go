@@ -11,6 +11,12 @@ import (
 	"go.uber.org/zap"
 )
 
+var (
+	// globalDefenderAdmin holds the singleton instance
+	globalDefenderAdmin *DefenderAdmin
+	globalAdminMu       sync.RWMutex
+)
+
 func init() {
 	caddy.RegisterModule(DefenderAdmin{})
 }
@@ -39,6 +45,30 @@ func (d *DefenderAdmin) Provision(ctx caddy.Context) error {
 	d.log = ctx.Logger(d)
 	d.defenders = make(map[string]*Defender)
 
+	// Set the global instance so Defender middleware can register
+	globalAdminMu.Lock()
+	globalDefenderAdmin = d
+	globalAdminMu.Unlock()
+
+	d.log.Info("DefenderAdmin provisioned - admin API routes will be available")
+
+	return nil
+}
+
+// Start is called after all modules are provisioned
+func (d *DefenderAdmin) Start() error {
+	d.log.Info("DefenderAdmin started", zap.Int("registered_defenders", len(d.defenders)))
+	return nil
+}
+
+// Stop is called when the app is shutting down
+func (d *DefenderAdmin) Stop() error {
+	// Clear the global instance
+	globalAdminMu.Lock()
+	globalDefenderAdmin = nil
+	globalAdminMu.Unlock()
+
+	d.log.Info("DefenderAdmin stopped")
 	return nil
 }
 
@@ -307,5 +337,6 @@ func (d *DefenderAdmin) handleStats(w http.ResponseWriter, r *http.Request) erro
 var (
 	_ caddy.Module      = (*DefenderAdmin)(nil)
 	_ caddy.Provisioner = (*DefenderAdmin)(nil)
+	_ caddy.App         = (*DefenderAdmin)(nil)
 	_ caddy.AdminRouter = (*DefenderAdmin)(nil)
 )
