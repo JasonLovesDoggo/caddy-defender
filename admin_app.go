@@ -141,7 +141,7 @@ func (d *DefenderAdmin) handleBlocklist(w http.ResponseWriter, r *http.Request) 
 	}
 }
 
-// handleGetBlocklist returns all dynamically blocked IPs
+// handleGetBlocklist returns all blocked IPs from all sources
 func (d *DefenderAdmin) handleGetBlocklist(w http.ResponseWriter, r *http.Request, m *Defender) error {
 	if m.dynamicBlocklist == nil {
 		return caddy.APIError{
@@ -150,11 +150,44 @@ func (d *DefenderAdmin) handleGetBlocklist(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	ips := m.dynamicBlocklist.List()
+	// Collect all blocked IPs from different sources
+	allIPs := make(map[string]string) // map[ip]source
 
+	// 1. Get file-based ranges
+	var fileRanges []string
+	if m.BlocklistFile != "" {
+		fileFetcher, ok := m.fileFetcher.(interface{ FetchIPRanges() ([]string, error) })
+		if ok {
+			fileRanges, _ = fileFetcher.FetchIPRanges()
+			for _, ip := range fileRanges {
+				allIPs[ip] = "file"
+			}
+		}
+	}
+
+	// 2. Get dynamically added IPs
+	dynamicIPs := m.dynamicBlocklist.List()
+	for _, ip := range dynamicIPs {
+		allIPs[ip] = "dynamic"
+	}
+
+	// Build response with categorized IPs
 	response := map[string]interface{}{
-		"count": len(ips),
-		"ips":   ips,
+		"total": len(allIPs),
+		"sources": map[string]interface{}{
+			"file":    len(fileRanges),
+			"dynamic": len(dynamicIPs),
+		},
+		"ips": func() []map[string]string {
+			result := make([]map[string]string, 0, len(allIPs))
+			for ip, source := range allIPs {
+				result = append(result, map[string]string{
+					"ip":     ip,
+					"source": source,
+				})
+			}
+			return result
+		}(),
 	}
 
 	w.Header().Set("Content-Type", "application/json")

@@ -109,8 +109,10 @@ func TestDefenderAdminAPIHandlers(t *testing.T) {
 		err = json.NewDecoder(w.Body).Decode(&response)
 		require.NoError(t, err)
 
-		assert.Equal(t, float64(0), response["count"])
-		assert.Empty(t, response["ips"])
+		assert.Equal(t, float64(0), response["total"])
+		sources := response["sources"].(map[string]interface{})
+		assert.Equal(t, float64(0), sources["dynamic"])
+		assert.Equal(t, float64(0), sources["file"])
 	})
 
 	t.Run("POST /defender/blocklist - add IPs", func(t *testing.T) {
@@ -142,7 +144,12 @@ func TestDefenderAdminAPIHandlers(t *testing.T) {
 		err = json.NewDecoder(w.Body).Decode(&response)
 		require.NoError(t, err)
 
-		assert.Equal(t, float64(2), response["count"])
+		assert.Equal(t, float64(2), response["total"])
+		sources := response["sources"].(map[string]interface{})
+		assert.Equal(t, float64(2), sources["dynamic"])
+
+		ips := response["ips"].([]interface{})
+		assert.Len(t, ips, 2)
 	})
 
 	t.Run("POST /defender/blocklist - invalid CIDR", func(t *testing.T) {

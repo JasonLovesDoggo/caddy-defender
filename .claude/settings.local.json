@@ -9,7 +9,8 @@
       "Bash(MSYS_NO_PATHCONV=1 docker run --rm -v /c/_cloned/caddy-defender:/app -w /app golang:1.25rc1 go build -o /dev/null .)",
       "Bash(docker build:*)",
       "Bash(docker push:*)",
-      "Bash(git commit:*)"
+      "Bash(git commit:*)",
+      "Bash(git push:*)"
     ],
     "deny": [],
     "ask": []
