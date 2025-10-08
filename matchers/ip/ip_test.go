@@ -245,3 +245,122 @@ func TestPredefinedCIDRGroups(t *testing.T) {
 		})
 	}
 }
+
+func TestIPChecker_UpdateRanges(t *testing.T) {
+	t.Run("UpdateWithNewRanges", func(t *testing.T) {
+		// Create IPChecker with initial ranges
+		initialRanges := []string{"192.168.1.0/24"}
+		checker := NewIPChecker(initialRanges, []string{}, testLogger)
+
+		// IP in initial range
+		clientIP := net.ParseIP("192.168.1.100")
+		ipAddr, err := ipToAddr(clientIP)
+		assert.NoError(t, err)
+		assert.True(t, checker.IPInRanges(context.Background(), ipAddr))
+
+		// IP not in initial range
+		clientIP2 := net.ParseIP("10.0.0.1")
+		ipAddr2, err := ipToAddr(clientIP2)
+		assert.NoError(t, err)
+		assert.False(t, checker.IPInRanges(context.Background(), ipAddr2))
+
+		// Update ranges to include 10.0.0.0/8
+		newRanges := []string{"10.0.0.0/8", "172.16.0.0/12"}
+		checker.UpdateRanges(newRanges)
+
+		// Now 10.0.0.1 should be in range
+		assert.True(t, checker.IPInRanges(context.Background(), ipAddr2))
+
+		// But 192.168.1.100 should no longer be in range
+		assert.False(t, checker.IPInRanges(context.Background(), ipAddr))
+	})
+
+	t.Run("UpdateClearCache", func(t *testing.T) {
+		// Create IPChecker with initial ranges
+		initialRanges := []string{"192.168.1.0/24"}
+		checker := NewIPChecker(initialRanges, []string{}, testLogger)
+
+		// Check IP (will be cached)
+		clientIP := net.ParseIP("192.168.1.100")
+		ipAddr, err := ipToAddr(clientIP)
+		assert.NoError(t, err)
+		assert.True(t, checker.IPInRanges(context.Background(), ipAddr))
+
+		// Update ranges (should clear cache)
+		newRanges := []string{"10.0.0.0/8"}
+		checker.UpdateRanges(newRanges)
+
+		// IP should now be false (cache was cleared)
+		assert.False(t, checker.IPInRanges(context.Background(), ipAddr))
+	})
+
+	t.Run("UpdateWithEmptyRanges", func(t *testing.T) {
+		// Create IPChecker with initial ranges
+		initialRanges := []string{"192.168.1.0/24"}
+		checker := NewIPChecker(initialRanges, []string{}, testLogger)
+
+		// IP in initial range
+		clientIP := net.ParseIP("192.168.1.100")
+		ipAddr, err := ipToAddr(clientIP)
+		assert.NoError(t, err)
+		assert.True(t, checker.IPInRanges(context.Background(), ipAddr))
+
+		// Update with empty ranges
+		checker.UpdateRanges([]string{})
+
+		// IP should now be false
+		assert.False(t, checker.IPInRanges(context.Background(), ipAddr))
+	})
+
+	t.Run("UpdateWithPredefinedRanges", func(t *testing.T) {
+		// Mock predefined CIDRs
+		originalIPRanges := data.IPRanges
+		defer func() { data.IPRanges = originalIPRanges }()
+		data.IPRanges = map[string][]string{
+			"testservice": {
+				"203.0.113.0/24",
+			},
+		}
+
+		// Create IPChecker with initial ranges
+		checker := NewIPChecker([]string{"192.168.1.0/24"}, []string{}, testLogger)
+
+		// Update with predefined range
+		checker.UpdateRanges([]string{"testservice"})
+
+		// IP in predefined range should now match
+		clientIP := net.ParseIP("203.0.113.50")
+		ipAddr, err := ipToAddr(clientIP)
+		assert.NoError(t, err)
+		assert.True(t, checker.IPInRanges(context.Background(), ipAddr))
+	})
+
+	t.Run("ConcurrentUpdates", func(t *testing.T) {
+		checker := NewIPChecker([]string{"192.168.1.0/24"}, []string{}, testLogger)
+
+		done := make(chan bool)
+
+		// Concurrent updates
+		for i := 0; i < 5; i++ {
+			go func() {
+				checker.UpdateRanges([]string{"10.0.0.0/8"})
+				done <- true
+			}()
+		}
+
+		// Concurrent reads
+		for i := 0; i < 5; i++ {
+			go func() {
+				clientIP := net.ParseIP("192.168.1.100")
+				ipAddr, _ := ipToAddr(clientIP)
+				checker.IPInRanges(context.Background(), ipAddr)
+				done <- true
+			}()
+		}
+
+		// Wait for all goroutines
+		for i := 0; i < 10; i++ {
+			<-done
+		}
+	})
+}

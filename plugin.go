@@ -11,6 +11,7 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"go.uber.org/zap"
 	"pkg.jsn.cam/caddy-defender/matchers/ip"
+	"pkg.jsn.cam/caddy-defender/ranges/fetchers"
 	"pkg.jsn.cam/caddy-defender/responders"
 	"pkg.jsn.cam/caddy-defender/responders/tarpit"
 )
@@ -106,6 +107,15 @@ type Defender struct {
 	// ServeIgnore specifies whether to serve a robots.txt file with a "Disallow: /" directive
 	// Default: false
 	ServeIgnore bool `json:"serve_ignore,omitempty"`
+
+	// BlocklistFile specifies a path to a file containing IP addresses/ranges to block (one per line).
+	// The file is monitored for changes and automatically reloaded.
+	// Lines starting with # are treated as comments and empty lines are ignored.
+	// Default: ""
+	BlocklistFile string `json:"blocklist_file,omitempty"`
+
+	// fileFetcher is the internal file watcher for dynamic IP loading
+	fileFetcher interface{ Close() error }
 }
 
 // Provision sets up the middleware, logger, and responder configurations.
@@ -120,6 +130,36 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 
 	// ensure to keep AFTER the ranges are checked (above)
 	m.ipChecker = ip.NewIPChecker(m.Ranges, m.Whitelist, m.log)
+
+	// Set up file-based IP range loading if a blocklist file is specified
+	if m.BlocklistFile != "" {
+		fileFetcher, err := fetchers.NewFileFetcher(m.BlocklistFile, m.log, func(newRanges []string) {
+			// Callback when file changes - merge with existing ranges
+			allRanges := append([]string{}, m.Ranges...)
+			allRanges = append(allRanges, newRanges...)
+			m.ipChecker.UpdateRanges(allRanges)
+		})
+		if err != nil {
+			return fmt.Errorf("failed to initialize blocklist file watcher: %w", err)
+		}
+		m.fileFetcher = fileFetcher
+
+		// Load initial ranges from file and merge with configured ranges
+		fileRanges, err := fileFetcher.FetchIPRanges()
+		if err != nil {
+			fileFetcher.Close()
+			return fmt.Errorf("failed to load initial blocklist file: %w", err)
+		}
+
+		// Merge file ranges with configured ranges
+		allRanges := append([]string{}, m.Ranges...)
+		allRanges = append(allRanges, fileRanges...)
+		m.ipChecker.UpdateRanges(allRanges)
+
+		m.log.Info("Blocklist file monitoring enabled",
+			zap.String("file", m.BlocklistFile),
+			zap.Int("initial_count", len(fileRanges)))
+	}
 
 	// Finish configuring tarpit responder's content reader / defaults
 	if m.RawResponder == "tarpit" {
@@ -157,9 +197,18 @@ func (Defender) CaddyModule() caddy.ModuleInfo {
 	}
 }
 
+// Cleanup closes the file watcher if it exists
+func (m *Defender) Cleanup() error {
+	if m.fileFetcher != nil {
+		return m.fileFetcher.Close()
+	}
+	return nil
+}
+
 // Interface guards
 var (
 	_ caddy.Provisioner           = (*Defender)(nil)
+	_ caddy.CleanerUpper          = (*Defender)(nil)
 	_ caddyhttp.MiddlewareHandler = (*Defender)(nil)
 	_ caddyfile.Unmarshaler       = (*Defender)(nil)
 )

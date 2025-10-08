@@ -425,6 +425,94 @@ Whitelist certain IP(s) from blocked ranges:
 
 ---
 
+## **File-Based Blocklist**
+
+Load IP addresses/ranges from a file that's automatically monitored for changes:
+
+### **Example 1 - Simple File Blocklist**
+
+```caddyfile
+localhost:8080 {
+    defender block {
+        blocklist_file /etc/caddy/blocklist.txt
+    }
+    respond "Legitimate content"
+}
+```
+
+Create `/etc/caddy/blocklist.txt`:
+```
+# Blocked IP addresses and ranges
+203.0.113.45
+198.51.100.0/24
+192.0.2.10
+
+# Comments and empty lines are ignored
+10.0.0.0/8
+```
+
+### **Example 2 - Combined with Predefined Ranges**
+
+```caddyfile
+{
+    auto_https off
+    order defender after header
+}
+
+:80 {
+    defender block {
+        ranges openai deepseek githubcopilot
+        blocklist_file /etc/caddy/custom-blocks.txt
+    }
+    respond "This is what a human sees"
+}
+```
+
+### **Example 3 - Docker Volume Mount**
+
+In your `docker-compose.yml`:
+```yaml
+version: '3'
+services:
+  caddy:
+    image: ghcr.io/jasonlovesdoggo/caddy-defender:latest
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile
+      - ./blocklist.txt:/etc/caddy/blocklist.txt:ro
+    restart: unless-stopped
+```
+
+Your `Caddyfile`:
+```caddyfile
+example.com {
+    defender block {
+        ranges openai aws
+        blocklist_file /etc/caddy/blocklist.txt
+    }
+    reverse_proxy backend:8080
+}
+```
+
+Your `blocklist.txt`:
+```
+# Dynamic blocklist - edit this file and Caddy will reload automatically
+192.168.1.100
+10.20.30.0/24
+```
+
+**Features:**
+- File is monitored for changes and automatically reloaded
+- No restart required when adding/removing IPs
+- Lines starting with `#` are treated as comments
+- Empty lines are ignored
+- Supports both individual IPs and CIDR ranges
+- IP addresses are validated on load (invalid entries logged as warnings)
+
+---
+
 ## **geoip**
 
 > _See issue [#27](https://github.com/JasonLovesDoggo/caddy-defender/issues/27)._

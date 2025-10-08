@@ -35,6 +35,8 @@ var responderTypes = []string{"block", "custom", "drop", "garbage", "ratelimit",
 //	    url
 //	    # Serve robots.txt banning everything (optional)
 //	    serve_ignore (no arguments)
+//	    # Path to file containing IP addresses/ranges to block (optional)
+//	    blocklist_file <path>
 //	}
 func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	d.Next() // consume directive name
@@ -77,6 +79,11 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 			}
 		case "serve_ignore":
 			m.ServeIgnore = true
+		case "blocklist_file":
+			if !d.NextArg() {
+				return d.ArgErr()
+			}
+			m.BlocklistFile = d.Val()
 		case "tarpit_config":
 			for nesting := d.Nesting(); d.NextBlock(nesting); {
 				switch d.Val() {
