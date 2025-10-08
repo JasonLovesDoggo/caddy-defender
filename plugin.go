@@ -116,9 +116,6 @@ type Defender struct {
 
 	// fileFetcher is the internal file watcher for dynamic IP loading
 	fileFetcher interface{ Close() error }
-
-	// dynamicBlocklist manages IPs added via the admin API
-	dynamicBlocklist *dynamicBlocklist
 }
 
 // Provision sets up the middleware, logger, and responder configurations.
@@ -130,9 +127,6 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 		m.log.Debug("no ranges specified, defaulting to default ranges", zap.Strings("ranges", DefaultRanges))
 		m.Ranges = DefaultRanges
 	}
-
-	// Initialize dynamic blocklist for API management
-	m.dynamicBlocklist = newDynamicBlocklist(m.log)
 
 	// Try to register this Defender instance with the global admin API module
 	// This happens after admin apps are provisioned, so we use a global variable
@@ -152,14 +146,8 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 
 	// Set up file-based IP range loading if a blocklist file is specified
 	if m.BlocklistFile != "" {
-		// Enable file persistence for dynamic blocklist
-		if err := m.dynamicBlocklist.EnableFilePersistence(m.BlocklistFile); err != nil {
-			return fmt.Errorf("failed to enable dynamic blocklist persistence: %w", err)
-		}
-
 		fileFetcher, err := fetchers.NewFileFetcher(m.BlocklistFile, m.log, func(newRanges []string) {
-			// Callback when file changes - merge with existing ranges
-			// Note: file now contains all IPs including dynamic ones
+			// Callback when file changes - merge with configured ranges
 			allRanges := append([]string{}, m.Ranges...)
 			allRanges = append(allRanges, newRanges...)
 			m.ipChecker.UpdateRanges(allRanges)
@@ -177,7 +165,6 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 		}
 
 		// Merge file ranges with configured ranges
-		// Note: file now contains all IPs including dynamic ones
 		allRanges := append([]string{}, m.Ranges...)
 		allRanges = append(allRanges, fileRanges...)
 		m.ipChecker.UpdateRanges(allRanges)

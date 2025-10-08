@@ -11,7 +11,8 @@
       "Bash(docker push:*)",
       "Bash(git commit:*)",
       "Bash(git push:*)",
-      "Bash(git fetch:*)"
+      "Bash(git fetch:*)",
+      "Bash(docker tag:*)"
     ],
     "deny": [],
     "ask": []
