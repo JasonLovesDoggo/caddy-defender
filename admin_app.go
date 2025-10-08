@@ -239,16 +239,20 @@ func (d *DefenderAdmin) handleAddToBlocklist(w http.ResponseWriter, r *http.Requ
 	}
 
 	// Update IPChecker with new ranges
+	// Note: if file persistence is enabled, the file watcher will trigger an update
+	// Otherwise, we need to manually update with dynamic IPs
 	allRanges := append([]string{}, m.Ranges...)
 	if m.BlocklistFile != "" {
-		// Include file-based ranges if configured
+		// File persistence enabled - reload from file (which now includes dynamic IPs)
 		fileFetcher, ok := m.fileFetcher.(interface{ FetchIPRanges() ([]string, error) })
 		if ok {
 			fileRanges, _ := fileFetcher.FetchIPRanges()
 			allRanges = append(allRanges, fileRanges...)
 		}
+	} else {
+		// No file persistence - add dynamic IPs directly
+		allRanges = append(allRanges, m.dynamicBlocklist.List()...)
 	}
-	allRanges = append(allRanges, m.dynamicBlocklist.List()...)
 	m.ipChecker.UpdateRanges(allRanges)
 
 	response := map[string]interface{}{
@@ -311,15 +315,20 @@ func (d *DefenderAdmin) handleBlocklistItem(w http.ResponseWriter, r *http.Reque
 	}
 
 	// Update IPChecker
+	// Note: if file persistence is enabled, the file watcher will trigger an update
+	// Otherwise, we need to manually update with dynamic IPs
 	allRanges := append([]string{}, defender.Ranges...)
 	if defender.BlocklistFile != "" {
+		// File persistence enabled - reload from file (which now excludes removed IP)
 		fileFetcher, ok := defender.fileFetcher.(interface{ FetchIPRanges() ([]string, error) })
 		if ok {
 			fileRanges, _ := fileFetcher.FetchIPRanges()
 			allRanges = append(allRanges, fileRanges...)
 		}
+	} else {
+		// No file persistence - add dynamic IPs directly
+		allRanges = append(allRanges, defender.dynamicBlocklist.List()...)
 	}
-	allRanges = append(allRanges, defender.dynamicBlocklist.List()...)
 	defender.ipChecker.UpdateRanges(allRanges)
 
 	response := map[string]interface{}{

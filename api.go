@@ -34,41 +34,10 @@ func (d *dynamicBlocklist) EnableFilePersistence(filePath string) error {
 	d.filePath = filePath
 	d.persistToFile = true
 
-	// Load existing IPs from file if it exists
-	if _, err := os.Stat(filePath); err == nil {
-		if err := d.loadFromFileUnsafe(); err != nil {
-			d.log.Warn("Failed to load existing dynamic IPs from file",
-				zap.String("file", filePath),
-				zap.Error(err))
-		}
-	}
+	d.log.Info("Dynamic blocklist file persistence enabled",
+		zap.String("file", filePath))
 
 	return nil
-}
-
-// loadFromFileUnsafe loads IPs from file (must be called with lock held)
-func (d *dynamicBlocklist) loadFromFileUnsafe() error {
-	file, err := os.Open(d.filePath)
-	if err != nil {
-		return err
-	}
-	defer file.Close()
-
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		// Skip empty lines and comments
-		if line == "" || strings.HasPrefix(line, "#") {
-			continue
-		}
-		// Only load lines marked as dynamic
-		if strings.HasPrefix(line, "# [DYNAMIC] ") {
-			ip := strings.TrimPrefix(line, "# [DYNAMIC] ")
-			d.ips[ip] = true
-		}
-	}
-
-	return scanner.Err()
 }
 
 // saveToFile persists the current dynamic blocklist to file
@@ -77,8 +46,8 @@ func (d *dynamicBlocklist) saveToFile() error {
 		return nil
 	}
 
-	// Read existing file content
-	var existingLines []string
+	// Read existing file content to preserve non-dynamic entries
+	existingIPs := make(map[string]bool)
 	if _, err := os.Stat(d.filePath); err == nil {
 		file, err := os.Open(d.filePath)
 		if err != nil {
@@ -86,11 +55,13 @@ func (d *dynamicBlocklist) saveToFile() error {
 		}
 		scanner := bufio.NewScanner(file)
 		for scanner.Scan() {
-			line := scanner.Text()
-			// Skip lines that were dynamically added (we'll re-add them)
-			if !strings.HasPrefix(line, "# [DYNAMIC] ") {
-				existingLines = append(existingLines, line)
+			line := strings.TrimSpace(scanner.Text())
+			// Skip empty lines and comments
+			if line == "" || strings.HasPrefix(line, "#") {
+				continue
 			}
+			// Keep track of existing IPs (these are static/file-based)
+			existingIPs[line] = true
 		}
 		file.Close()
 		if err := scanner.Err(); err != nil {
@@ -98,7 +69,16 @@ func (d *dynamicBlocklist) saveToFile() error {
 		}
 	}
 
-	// Write back existing content plus dynamic IPs
+	// Create a set of all IPs: existing static + dynamic
+	allIPs := make(map[string]bool)
+	for ip := range existingIPs {
+		allIPs[ip] = true
+	}
+	for ip := range d.ips {
+		allIPs[ip] = true
+	}
+
+	// Write all IPs to file
 	file, err := os.Create(d.filePath)
 	if err != nil {
 		return fmt.Errorf("failed to create file: %w", err)
@@ -107,24 +87,10 @@ func (d *dynamicBlocklist) saveToFile() error {
 
 	writer := bufio.NewWriter(file)
 
-	// Write existing static entries
-	for _, line := range existingLines {
-		if _, err := writer.WriteString(line + "\n"); err != nil {
-			return fmt.Errorf("failed to write line: %w", err)
-		}
-	}
-
-	// Write dynamic entries with marker
-	if len(d.ips) > 0 {
-		if len(existingLines) > 0 {
-			writer.WriteString("\n# Dynamically added IPs via Admin API\n")
-		} else {
-			writer.WriteString("# Dynamically added IPs via Admin API\n")
-		}
-		for ip := range d.ips {
-			if _, err := writer.WriteString(fmt.Sprintf("# [DYNAMIC] %s\n", ip)); err != nil {
-				return fmt.Errorf("failed to write dynamic IP: %w", err)
-			}
+	// Write all IPs (both static and dynamic)
+	for ip := range allIPs {
+		if _, err := writer.WriteString(ip + "\n"); err != nil {
+			return fmt.Errorf("failed to write IP: %w", err)
 		}
 	}
 

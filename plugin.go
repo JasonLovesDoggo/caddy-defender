@@ -158,10 +158,10 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 		}
 
 		fileFetcher, err := fetchers.NewFileFetcher(m.BlocklistFile, m.log, func(newRanges []string) {
-			// Callback when file changes - merge with existing ranges and dynamic blocklist
+			// Callback when file changes - merge with existing ranges
+			// Note: file now contains all IPs including dynamic ones
 			allRanges := append([]string{}, m.Ranges...)
 			allRanges = append(allRanges, newRanges...)
-			allRanges = append(allRanges, m.dynamicBlocklist.List()...)
 			m.ipChecker.UpdateRanges(allRanges)
 		})
 		if err != nil {
@@ -176,10 +176,10 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 			return fmt.Errorf("failed to load initial blocklist file: %w", err)
 		}
 
-		// Merge file ranges with configured ranges and dynamic blocklist
+		// Merge file ranges with configured ranges
+		// Note: file now contains all IPs including dynamic ones
 		allRanges := append([]string{}, m.Ranges...)
 		allRanges = append(allRanges, fileRanges...)
-		allRanges = append(allRanges, m.dynamicBlocklist.List()...)
 		m.ipChecker.UpdateRanges(allRanges)
 
 		m.log.Info("Blocklist file monitoring enabled",
