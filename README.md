@@ -9,6 +9,7 @@ The **Caddy Defender** plugin is a middleware for Caddy that allows you to block
 - **IP Range Filtering**: Block or manipulate requests from specific IP ranges.
 - **Embedded IP Ranges**: Predefined IP ranges for popular AI services (e.g., OpenAI, DeepSeek, GitHub Copilot).
 - **Custom IP Ranges**: Add your own IP ranges via Caddyfile configuration.
+- **File-Based Blocklists**: Load IP addresses from a file with automatic reload on changes (perfect for Docker volume mounts).
 - **Multiple Responder Backends**:
   - **Block**: Return a `403 Forbidden` response.
   - **Custom**: Return a custom message.
@@ -60,6 +61,7 @@ defender <responder> {
     message <custom message>
     ranges <ip_ranges...>
     url <url>
+    blocklist_file <path>
 }
 ```
 
@@ -74,6 +76,7 @@ defender <responder> {
 - `<ip_ranges...>`: An optional list of CIDR ranges or predefined range keys to match against the client's IP. Defaults to [`aws azurepubliccloud deepseek gcloud githubcopilot openai`](./plugin.go).
 - `<custom message>`: A custom message to return when using the `custom` responder.
 - `<url>`: The URI that the `redirect` responder would redirect to.
+- `<path>`: Path to a file containing IP addresses/CIDR ranges (one per line) to block. The file is automatically monitored for changes.
 
 For more information about the configuration, refer to the [configuration page](https://JasonLovesDoggo.github.io/caddy-defender/config/) on the website.
 

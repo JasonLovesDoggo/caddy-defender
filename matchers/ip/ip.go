@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net"
 	"net/netip"
+	"sync"
 	"time"
 
 	Whitelist "pkg.jsn.cam/caddy-defender/matchers/whitelist"
@@ -20,6 +21,7 @@ type IPChecker struct {
 	cache     *sturdyc.Client[string]
 	whitelist *Whitelist.Whitelist
 	log       *zap.Logger
+	mu        sync.RWMutex // Protects table for dynamic updates
 }
 
 func NewIPChecker(cidrRanges, whitelistedIPs []string, log *zap.Logger) *IPChecker {
@@ -87,13 +89,55 @@ func (c *IPChecker) IPInRanges(ctx context.Context, ipAddr netip.Addr) bool {
 	cacheKey := ipAddr.String()
 
 	result, _ := c.cache.GetOrFetch(ctx, cacheKey, func(ctx context.Context) (string, error) {
-		if c.table.Contains(ipAddr) {
+		c.mu.RLock()
+		contains := c.table.Contains(ipAddr)
+		c.mu.RUnlock()
+
+		if contains {
 			return "true", nil
 		}
 		return "false", sturdyc.ErrNotFound
 	})
 
 	return result == "true"
+}
+
+// UpdateRanges dynamically updates the IP ranges in the routing table
+func (c *IPChecker) UpdateRanges(cidrRanges []string) {
+	c.mu.Lock()
+	defer c.mu.Unlock()
+
+	// Build a new table with the updated ranges
+	c.table = buildTable(cidrRanges, c.log)
+
+	// Create a new cache instance to ensure fresh lookups with new ranges
+	// (sturdyc doesn't provide a "clear all" method, so we recreate the cache)
+	const (
+		capacity        = 10000
+		numShards       = 10
+		ttl             = 10 * time.Minute
+		evictionPercent = 10
+		minRefreshDelay = 100 * time.Millisecond
+		maxRefreshDelay = 300 * time.Millisecond
+		retryBaseDelay  = 10 * time.Millisecond
+	)
+
+	c.cache = sturdyc.New[string](
+		capacity,
+		numShards,
+		ttl,
+		evictionPercent,
+		sturdyc.WithEarlyRefreshes(
+			minRefreshDelay,
+			maxRefreshDelay,
+			ttl,
+			retryBaseDelay,
+		),
+		sturdyc.WithMissingRecordStorage(),
+	)
+
+	c.log.Info("IP ranges updated dynamically",
+		zap.Int("range_count", len(cidrRanges)))
 }
 
 func buildTable(cidrRanges []string, log *zap.Logger) *bart.Table[struct{}] {
