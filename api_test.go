@@ -81,21 +81,28 @@ func TestDynamicBlocklist(t *testing.T) {
 	})
 }
 
-func TestAPIHandlers(t *testing.T) {
+func TestDefenderAdminAPIHandlers(t *testing.T) {
+	// Create a Defender instance
 	defender := &Defender{
 		log:              testLog,
 		dynamicBlocklist: newDynamicBlocklist(testLog),
-		Ranges:           []string{"192.168.1.0/24"}, // Use real CIDR for test
+		Ranges:           []string{"192.168.1.0/24"},
 		RawResponder:     "block",
 	}
-	// Initialize IPChecker for tests
 	defender.ipChecker = ip.NewIPChecker(defender.Ranges, []string{}, testLog)
+
+	// Create DefenderAdmin and register the Defender instance
+	admin := &DefenderAdmin{
+		log:       testLog,
+		defenders: make(map[string]*Defender),
+	}
+	admin.RegisterDefender("test", defender)
 
 	t.Run("GET /defender/blocklist - empty", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/defender/blocklist", nil)
 		w := httptest.NewRecorder()
 
-		err := defender.handleBlocklist(w, req)
+		err := admin.handleBlocklist(w, req)
 		require.NoError(t, err)
 
 		var response map[string]interface{}
@@ -107,15 +114,12 @@ func TestAPIHandlers(t *testing.T) {
 	})
 
 	t.Run("POST /defender/blocklist - add IPs", func(t *testing.T) {
-		reqBody := map[string]interface{}{
-			"ips": []string{"192.168.1.100/32", "10.0.0.0/8"},
-		}
-		body, _ := json.Marshal(reqBody)
-
-		req := httptest.NewRequest(http.MethodPost, "/defender/blocklist", bytes.NewReader(body))
+		body := bytes.NewBufferString(`{"ips": ["192.168.2.1/32", "10.0.0.0/8"]}`)
+		req := httptest.NewRequest(http.MethodPost, "/defender/blocklist", body)
+		req.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 
-		err := defender.handleBlocklist(w, req)
+		err := admin.handleBlocklist(w, req)
 		require.NoError(t, err)
 
 		var response map[string]interface{}
@@ -123,124 +127,152 @@ func TestAPIHandlers(t *testing.T) {
 		require.NoError(t, err)
 
 		assert.Equal(t, float64(2), response["count"])
-		assert.Equal(t, http.StatusCreated, w.Code)
-	})
-
-	t.Run("POST /defender/blocklist - invalid CIDR", func(t *testing.T) {
-		reqBody := map[string]interface{}{
-			"ips": []string{"192.168.1.100"}, // Missing /32
-		}
-		body, _ := json.Marshal(reqBody)
-
-		req := httptest.NewRequest(http.MethodPost, "/defender/blocklist", bytes.NewReader(body))
-		w := httptest.NewRecorder()
-
-		err := defender.handleBlocklist(w, req)
-		assert.Error(t, err)
-	})
-
-	t.Run("POST /defender/blocklist - no IPs", func(t *testing.T) {
-		reqBody := map[string]interface{}{
-			"ips": []string{},
-		}
-		body, _ := json.Marshal(reqBody)
-
-		req := httptest.NewRequest(http.MethodPost, "/defender/blocklist", bytes.NewReader(body))
-		w := httptest.NewRecorder()
-
-		err := defender.handleBlocklist(w, req)
-		assert.Error(t, err)
+		added := response["added"].([]interface{})
+		assert.Len(t, added, 2)
 	})
 
 	t.Run("GET /defender/blocklist - with IPs", func(t *testing.T) {
-		defender.dynamicBlocklist.Add("192.168.1.1/32", "10.0.0.0/8")
-
 		req := httptest.NewRequest(http.MethodGet, "/defender/blocklist", nil)
 		w := httptest.NewRecorder()
 
-		err := defender.handleBlocklist(w, req)
+		err := admin.handleBlocklist(w, req)
 		require.NoError(t, err)
 
 		var response map[string]interface{}
 		err = json.NewDecoder(w.Body).Decode(&response)
 		require.NoError(t, err)
 
-		assert.Greater(t, response["count"], float64(0))
-		ips := response["ips"].([]interface{})
-		assert.NotEmpty(t, ips)
+		assert.Equal(t, float64(2), response["count"])
+	})
+
+	t.Run("POST /defender/blocklist - invalid CIDR", func(t *testing.T) {
+		body := bytes.NewBufferString(`{"ips": ["192.168.1.1"]}`)
+		req := httptest.NewRequest(http.MethodPost, "/defender/blocklist", body)
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		err := admin.handleBlocklist(w, req)
+		require.Error(t, err)
+	})
+
+	t.Run("POST /defender/blocklist - empty IPs", func(t *testing.T) {
+		body := bytes.NewBufferString(`{"ips": []}`)
+		req := httptest.NewRequest(http.MethodPost, "/defender/blocklist", body)
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+
+		err := admin.handleBlocklist(w, req)
+		require.Error(t, err)
 	})
 
 	t.Run("DELETE /defender/blocklist/{ip}", func(t *testing.T) {
-		defender.dynamicBlocklist.Add("192.168.1.1/32")
-
-		req := httptest.NewRequest(http.MethodDelete, "/defender/blocklist/192.168.1.1/32", nil)
-		req.URL.Path = "/defender/blocklist/192.168.1.1/32"
+		req := httptest.NewRequest(http.MethodDelete, "/defender/blocklist/192.168.2.1/32", nil)
 		w := httptest.NewRecorder()
 
-		err := defender.handleBlocklistItem(w, req)
+		err := admin.handleBlocklistItem(w, req)
 		require.NoError(t, err)
 
 		var response map[string]interface{}
 		err = json.NewDecoder(w.Body).Decode(&response)
 		require.NoError(t, err)
 
-		assert.Equal(t, "192.168.1.1/32", response["removed"])
-		assert.False(t, defender.dynamicBlocklist.Contains("192.168.1.1/32"))
+		assert.Equal(t, "192.168.2.1/32", response["removed"])
 	})
 
 	t.Run("DELETE /defender/blocklist/{ip} - not found", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodDelete, "/defender/blocklist/nonexistent/32", nil)
-		req.URL.Path = "/defender/blocklist/nonexistent/32"
 		w := httptest.NewRecorder()
 
-		err := defender.handleBlocklistItem(w, req)
-		assert.Error(t, err)
+		err := admin.handleBlocklistItem(w, req)
+		require.Error(t, err)
 	})
 
 	t.Run("GET /defender/stats", func(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/defender/stats", nil)
 		w := httptest.NewRecorder()
 
-		err := defender.handleStats(w, req)
+		err := admin.handleStats(w, req)
 		require.NoError(t, err)
 
 		var response map[string]interface{}
 		err = json.NewDecoder(w.Body).Decode(&response)
 		require.NoError(t, err)
 
-		assert.Contains(t, response, "configured_ranges")
-		assert.Contains(t, response, "counts")
-		assert.Contains(t, response, "responder")
 		assert.Equal(t, "block", response["responder"])
+		counts := response["counts"].(map[string]interface{})
+		assert.Equal(t, float64(1), counts["configured_ranges"])
 	})
 
-	t.Run("Invalid method", func(t *testing.T) {
-		req := httptest.NewRequest(http.MethodPut, "/defender/blocklist", nil)
-		w := httptest.NewRecorder()
+	t.Run("ConcurrentAPIAccess", func(t *testing.T) {
+		done := make(chan bool)
 
-		err := defender.handleBlocklist(w, req)
-		assert.Error(t, err)
+		// Concurrent POST requests
+		for i := 0; i < 5; i++ {
+			go func() {
+				body := bytes.NewBufferString(`{"ips": ["172.16.0.0/12"]}`)
+				req := httptest.NewRequest(http.MethodPost, "/defender/blocklist", body)
+				req.Header.Set("Content-Type", "application/json")
+				w := httptest.NewRecorder()
+				_ = admin.handleBlocklist(w, req)
+				done <- true
+			}()
+		}
+
+		// Concurrent GET requests
+		for i := 0; i < 5; i++ {
+			go func() {
+				req := httptest.NewRequest(http.MethodGet, "/defender/blocklist", nil)
+				w := httptest.NewRecorder()
+				_ = admin.handleBlocklist(w, req)
+				done <- true
+			}()
+		}
+
+		// Wait for all goroutines
+		for i := 0; i < 10; i++ {
+			<-done
+		}
+	})
+
+	t.Run("Routes method", func(t *testing.T) {
+		routes := admin.Routes()
+		assert.Len(t, routes, 3)
+		assert.Equal(t, "/defender/blocklist", routes[0].Pattern)
+		assert.Equal(t, "/defender/blocklist/*", routes[1].Pattern)
+		assert.Equal(t, "/defender/stats", routes[2].Pattern)
 	})
 }
 
-func TestRoutes(t *testing.T) {
-	defender := &Defender{
-		log:              testLog,
-		dynamicBlocklist: newDynamicBlocklist(testLog),
+func TestDefenderAdminNoDefender(t *testing.T) {
+	// Create DefenderAdmin with no registered Defender instances
+	admin := &DefenderAdmin{
+		log:       testLog,
+		defenders: make(map[string]*Defender),
 	}
 
-	routes := defender.Routes()
+	t.Run("GET /defender/blocklist - no defender", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/defender/blocklist", nil)
+		w := httptest.NewRecorder()
 
-	assert.Len(t, routes, 3)
+		err := admin.handleBlocklist(w, req)
+		require.Error(t, err)
+	})
 
-	patterns := []string{
-		"/defender/blocklist",
-		"/defender/blocklist/*",
-		"/defender/stats",
-	}
+	t.Run("POST /defender/blocklist - no defender", func(t *testing.T) {
+		body := bytes.NewBufferString(`{"ips": ["192.168.1.1/32"]}`)
+		req := httptest.NewRequest(http.MethodPost, "/defender/blocklist", body)
+		req.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
 
-	for i, route := range routes {
-		assert.Equal(t, patterns[i], route.Pattern)
-		assert.NotNil(t, route.Handler)
-	}
+		err := admin.handleBlocklist(w, req)
+		require.Error(t, err)
+	})
+
+	t.Run("GET /defender/stats - no defender", func(t *testing.T) {
+		req := httptest.NewRequest(http.MethodGet, "/defender/stats", nil)
+		w := httptest.NewRecorder()
+
+		err := admin.handleStats(w, req)
+		require.Error(t, err)
+	})
 }

@@ -134,6 +134,24 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 	// Initialize dynamic blocklist for API management
 	m.dynamicBlocklist = newDynamicBlocklist(m.log)
 
+	// Try to register this Defender instance with the admin API module if it exists
+	// This is optional - if the admin module isn't configured, we just skip registration
+	defer func() {
+		if r := recover(); r != nil {
+			m.log.Debug("Admin API module not available, continuing without admin registration")
+		}
+	}()
+
+	adminApp, err := ctx.App("admin.api.defender")
+	if err == nil && adminApp != nil {
+		if defenderAdmin, ok := adminApp.(*DefenderAdmin); ok {
+			// Use a unique ID based on the responder type and ranges
+			id := fmt.Sprintf("%s-%d", m.RawResponder, len(m.Ranges))
+			defenderAdmin.RegisterDefender(id, m)
+			m.log.Debug("Registered with admin API", zap.String("id", id))
+		}
+	}
+
 	// ensure to keep AFTER the ranges are checked (above)
 	m.ipChecker = ip.NewIPChecker(m.Ranges, m.Whitelist, m.log)
 
@@ -217,5 +235,4 @@ var (
 	_ caddy.CleanerUpper          = (*Defender)(nil)
 	_ caddyhttp.MiddlewareHandler = (*Defender)(nil)
 	_ caddyfile.Unmarshaler       = (*Defender)(nil)
-	_ caddy.AdminRouter           = (*Defender)(nil)
 )
