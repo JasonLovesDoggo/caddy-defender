@@ -19,6 +19,11 @@ var (
 	globalAdminMu       sync.RWMutex
 )
 
+// IPRangeFetcher defines the interface for fetching IP ranges from a source
+type IPRangeFetcher interface {
+	FetchIPRanges() ([]string, error)
+}
+
 func init() {
 	caddy.RegisterModule(DefenderAdmin{})
 }
@@ -149,7 +154,7 @@ func (d *DefenderAdmin) handleGetBlocklist(w http.ResponseWriter, r *http.Reques
 		}
 	}
 
-	fileFetcher, ok := m.fileFetcher.(interface{ FetchIPRanges() ([]string, error) })
+	fileFetcher, ok := m.fileFetcher.(IPRangeFetcher)
 	if !ok {
 		return caddy.APIError{
 			HTTPStatus: http.StatusInternalServerError,
@@ -313,7 +318,7 @@ func (d *DefenderAdmin) handleStats(w http.ResponseWriter, r *http.Request) erro
 
 	fileCount := 0
 	if defender.BlocklistFile != "" {
-		fileFetcher, ok := defender.fileFetcher.(interface{ FetchIPRanges() ([]string, error) })
+		fileFetcher, ok := defender.fileFetcher.(IPRangeFetcher)
 		if ok {
 			fileRanges, _ := fileFetcher.FetchIPRanges()
 			fileCount = len(fileRanges)
