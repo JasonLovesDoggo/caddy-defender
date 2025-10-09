@@ -28,9 +28,8 @@ type DefenderAdmin struct {
 	ctx caddy.Context
 	log *zap.Logger
 
-	// Registry of all Defender instances by their address
-	defenders map[string]*Defender
-	mu        sync.RWMutex
+	defender *Defender
+	mu       sync.RWMutex
 }
 
 // CaddyModule returns the Caddy module information
@@ -45,7 +44,6 @@ func (DefenderAdmin) CaddyModule() caddy.ModuleInfo {
 func (d *DefenderAdmin) Provision(ctx caddy.Context) error {
 	d.ctx = ctx
 	d.log = ctx.Logger(d)
-	d.defenders = make(map[string]*Defender)
 
 	// Set the global instance so Defender middleware can register
 	globalAdminMu.Lock()
@@ -59,7 +57,11 @@ func (d *DefenderAdmin) Provision(ctx caddy.Context) error {
 
 // Start is called after all modules are provisioned
 func (d *DefenderAdmin) Start() error {
-	d.log.Info("DefenderAdmin started", zap.Int("registered_defenders", len(d.defenders)))
+	d.mu.RLock()
+	hasDefender := d.defender != nil
+	d.mu.RUnlock()
+
+	d.log.Info("DefenderAdmin started", zap.Bool("defender_registered", hasDefender))
 	return nil
 }
 
@@ -74,32 +76,27 @@ func (d *DefenderAdmin) Stop() error {
 	return nil
 }
 
-// RegisterDefender allows Defender middleware instances to register themselves
+// RegisterDefender allows a Defender middleware instance to register itself
 func (d *DefenderAdmin) RegisterDefender(id string, defender *Defender) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	d.defenders[id] = defender
+	d.defender = defender
 	d.log.Debug("Registered Defender instance", zap.String("id", id))
 }
 
-// UnregisterDefender removes a Defender instance from the registry
+// UnregisterDefender removes the Defender instance from the registry
 func (d *DefenderAdmin) UnregisterDefender(id string) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
-	delete(d.defenders, id)
+	d.defender = nil
 	d.log.Debug("Unregistered Defender instance", zap.String("id", id))
 }
 
-// getDefender retrieves the first available Defender instance
+// getDefender retrieves the registered Defender instance
 func (d *DefenderAdmin) getDefender() *Defender {
 	d.mu.RLock()
 	defer d.mu.RUnlock()
-
-	// Return the first defender instance we find
-	for _, defender := range d.defenders {
-		return defender
-	}
-	return nil
+	return d.defender
 }
 
 // Routes implements caddy.AdminRouter to add API endpoints
