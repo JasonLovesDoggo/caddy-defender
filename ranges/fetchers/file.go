@@ -72,7 +72,7 @@ func (f *FileFetcher) FetchIPRanges() ([]string, error) {
 	defer f.mu.RUnlock()
 
 	if len(f.ranges) == 0 {
-		return nil, fmt.Errorf("no IP ranges loaded from file")
+		return nil, fmt.Errorf("no IP ranges loaded from file: %s", f.filePath)
 	}
 
 	// Return a copy to prevent external modifications
