@@ -142,7 +142,7 @@ func (f *FileFetcher) validateIPOrCIDR(s string) error {
 		return nil
 	}
 
-	return fmt.Errorf("invalid IP address or CIDR range")
+	return fmt.Errorf("invalid IP address or CIDR range: %q", s)
 }
 
 // startWatching begins monitoring the file for changes
