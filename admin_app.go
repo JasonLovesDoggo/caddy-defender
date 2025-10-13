@@ -119,6 +119,14 @@ func (d *DefenderAdmin) Routes() []caddy.AdminRoute {
 			Pattern: "/defender/stats",
 			Handler: caddy.AdminHandlerFunc(d.handleStats),
 		},
+		{
+			Pattern: "/defender/ratelimit/stats",
+			Handler: caddy.AdminHandlerFunc(d.handleRateLimitStats),
+		},
+		{
+			Pattern: "/defender/ratelimit/reset/*",
+			Handler: caddy.AdminHandlerFunc(d.handleRateLimitReset),
+		},
 	}
 }
 
@@ -441,6 +449,96 @@ func (d *DefenderAdmin) removeIPFromFile(filePath string, ipToRemove string) (bo
 		zap.String("ip", ipToRemove))
 
 	return true, nil
+}
+
+// handleRateLimitStats returns current rate limiting statistics
+func (d *DefenderAdmin) handleRateLimitStats(w http.ResponseWriter, r *http.Request) error {
+	defender := d.getDefender()
+	if defender == nil {
+		return caddy.APIError{
+			HTTPStatus: http.StatusServiceUnavailable,
+			Message:    "no defender instances available",
+		}
+	}
+
+	if r.Method != http.MethodGet {
+		return caddy.APIError{
+			HTTPStatus: http.StatusMethodNotAllowed,
+			Message:    "method not allowed",
+		}
+	}
+
+	if defender.rateLimitTracker == nil {
+		return caddy.APIError{
+			HTTPStatus: http.StatusBadRequest,
+			Message:    "rate limiting not enabled",
+		}
+	}
+
+	stats := defender.rateLimitTracker.GetStats()
+
+	response := map[string]interface{}{
+		"enabled":       defender.RateLimitConfig.Enabled,
+		"status_codes":  defender.RateLimitConfig.StatusCodes,
+		"max_requests":  defender.RateLimitConfig.MaxRequests,
+		"window":        defender.RateLimitConfig.WindowDuration.String(),
+		"tracked_count": len(stats),
+		"tracked_ips":   stats,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	return json.NewEncoder(w).Encode(response)
+}
+
+// handleRateLimitReset resets rate limiting tracking for a specific IP
+func (d *DefenderAdmin) handleRateLimitReset(w http.ResponseWriter, r *http.Request) error {
+	defender := d.getDefender()
+	if defender == nil {
+		return caddy.APIError{
+			HTTPStatus: http.StatusServiceUnavailable,
+			Message:    "no defender instances available",
+		}
+	}
+
+	if r.Method != http.MethodDelete {
+		return caddy.APIError{
+			HTTPStatus: http.StatusMethodNotAllowed,
+			Message:    "method not allowed",
+		}
+	}
+
+	if defender.rateLimitTracker == nil {
+		return caddy.APIError{
+			HTTPStatus: http.StatusBadRequest,
+			Message:    "rate limiting not enabled",
+		}
+	}
+
+	// Extract IP from path
+	path := strings.TrimPrefix(r.URL.Path, "/defender/ratelimit/reset/")
+	ip := strings.TrimSpace(path)
+
+	if ip == "" {
+		return caddy.APIError{
+			HTTPStatus: http.StatusBadRequest,
+			Message:    "IP address required",
+		}
+	}
+
+	reset := defender.rateLimitTracker.ResetIP(ip)
+	if !reset {
+		return caddy.APIError{
+			HTTPStatus: http.StatusNotFound,
+			Message:    fmt.Sprintf("IP not found in rate limit tracking: %s", ip),
+		}
+	}
+
+	response := map[string]interface{}{
+		"reset": ip,
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	return json.NewEncoder(w).Encode(response)
 }
 
 // Interface guards

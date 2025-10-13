@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 	"pkg.jsn.cam/caddy-defender/matchers/ip"
 	"pkg.jsn.cam/caddy-defender/ranges/fetchers"
+	"pkg.jsn.cam/caddy-defender/ratelimit"
 	"pkg.jsn.cam/caddy-defender/responders"
 	"pkg.jsn.cam/caddy-defender/responders/tarpit"
 )
@@ -116,6 +117,14 @@ type Defender struct {
 	// ServeIgnore specifies whether to serve a robots.txt file with a "Disallow: /" directive
 	// Default: false
 	ServeIgnore bool `json:"serve_ignore,omitempty"`
+
+	// RateLimitConfig configures automatic blocking based on HTTP status codes (e.g., 404s)
+	// When enabled, IPs exceeding the threshold are automatically added to the blocklist
+	// Default: disabled
+	RateLimitConfig ratelimit.Config `json:"rate_limit_config,omitempty"`
+
+	// rateLimitTracker is the internal rate limit tracker instance
+	rateLimitTracker *ratelimit.Tracker
 }
 
 // Provision sets up the middleware, logger, and responder configurations.
@@ -199,6 +208,15 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 		}
 	}
 
+	// Initialize rate limiter if enabled
+	if m.RateLimitConfig.Enabled {
+		m.rateLimitTracker = ratelimit.NewTracker(m.RateLimitConfig, m.log)
+		m.log.Info("Rate limiter enabled",
+			zap.Ints("status_codes", m.RateLimitConfig.StatusCodes),
+			zap.Int("max_requests", m.RateLimitConfig.MaxRequests),
+			zap.Duration("window", m.RateLimitConfig.WindowDuration))
+	}
+
 	return nil
 }
 
@@ -210,10 +228,15 @@ func (Defender) CaddyModule() caddy.ModuleInfo {
 	}
 }
 
-// Cleanup closes the file watcher if it exists
+// Cleanup closes the file watcher and rate limiter if they exist
 func (m *Defender) Cleanup() error {
 	if m.fileFetcher != nil {
-		return m.fileFetcher.Close()
+		if err := m.fileFetcher.Close(); err != nil {
+			return err
+		}
+	}
+	if m.rateLimitTracker != nil {
+		m.rateLimitTracker.Stop()
 	}
 	return nil
 }

@@ -1,0 +1,40 @@
+{
+	admin :2019
+	# Enable the DefenderAdmin app for API access
+	defender_admin
+}
+
+:80 {
+	# Configure Defender with built-in rate limiting
+	defender block {
+		# Block known AI/cloud service ranges
+		ranges openai aws gcloud
+
+		# Path to blocklist file (will be updated automatically)
+		blocklist_file /var/lib/caddy/blocklist.txt
+
+		# Rate limiting configuration
+		rate_limit_config {
+			# Enable rate limiting
+			enabled
+
+			# Track 404 responses (can add other codes like 403, 401)
+			status_codes 404
+
+			# Maximum 10 requests within the time window
+			max_requests 10
+
+			# 5-minute time window
+			window_duration 5m
+
+			# Automatically add offending IPs to blocklist
+			auto_add_to_blocklist
+
+			# Clean up old tracking data every 10 minutes
+			cleanup_interval 10m
+		}
+	}
+
+	# Your application
+	respond "Hello from Caddy Defender with Rate Limiting!"
+}

@@ -10,7 +10,8 @@ The **Caddy Defender** plugin is a middleware for Caddy that allows you to block
 - **Embedded IP Ranges**: Predefined IP ranges for popular AI services (e.g., OpenAI, DeepSeek, GitHub Copilot).
 - **Custom IP Ranges**: Add your own IP ranges via Caddyfile configuration.
 - **File-Based Blocklists**: Load IP addresses from a file with automatic reload on changes (perfect for Docker volume mounts).
-- **Admin API**: Dynamically manage blocklists via RESTful API endpoints without restarting Caddy.
+- **Built-in Rate Limiting**: Automatically detect and block IPs generating excessive 404s (or other status codes) - perfect for catching scanners and bots.
+- **Admin API**: Dynamically manage blocklists and view rate limiting stats via RESTful API endpoints without restarting Caddy.
 - **Multiple Responder Backends**:
   - **Block**: Return a `403 Forbidden` response.
   - **Custom**: Return a custom message.
@@ -63,6 +64,12 @@ defender <responder> {
     ranges <ip_ranges...>
     url <url>
     blocklist_file <path>
+    rate_limit_config {
+        enabled
+        status_codes <codes...>
+        max_requests <number>
+        window_duration <duration>
+    }
 }
 ```
 
@@ -88,6 +95,39 @@ For more information about the configuration, refer to the [configuration page](
 The [documentation website](https://JasonLovesDoggo.github.io/caddy-defender/) has info that includes the configurations of the plugin, code examples, and more.
 
 For a quick start, follow the [Getting Started](https://JasonLovesDoggo.github.io/caddy-defender/intro/) guide to protect your server using the _Caddy Defender Plugin_.
+
+### **Rate Limiting Quick Example**
+
+Automatically block IPs that generate excessive 404 responses (scanner/bot detection):
+
+```caddyfile
+{
+    defender_admin  # Enable admin API
+}
+
+:80 {
+    defender block {
+        ranges openai aws
+        blocklist_file /var/lib/caddy/blocklist.txt
+
+        rate_limit_config {
+            enabled
+            status_codes 404
+            max_requests 10
+            window_duration 5m
+        }
+    }
+
+    respond "Hello, World!"
+}
+```
+
+This configuration will:
+- Track 404 responses per IP
+- Block IPs after 10 404s in 5 minutes
+- Automatically add violators to blocklist
+
+See [examples/rate-limiting](examples/rate-limiting/) for more details.
 
 ---
 

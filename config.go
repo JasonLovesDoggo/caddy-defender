@@ -16,6 +16,7 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"pkg.jsn.cam/caddy-defender/matchers/whitelist"
 	"pkg.jsn.cam/caddy-defender/ranges/data"
+	"pkg.jsn.cam/caddy-defender/ratelimit"
 	"pkg.jsn.cam/caddy-defender/responders"
 	"pkg.jsn.cam/caddy-defender/responders/tarpit"
 )
@@ -37,6 +38,15 @@ var responderTypes = []string{"block", "custom", "drop", "garbage", "ratelimit",
 //	    serve_ignore (no arguments)
 //	    # Path to file containing IP addresses/ranges to block (optional)
 //	    blocklist_file <path>
+//	    # Rate limiting configuration (optional)
+//	    rate_limit_config {
+//	        enabled
+//	        status_codes <code...>
+//	        max_requests <number>
+//	        window_duration <duration>
+//	        auto_add_to_blocklist
+//	        cleanup_interval <duration>
+//	    }
 //	}
 func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 	d.Next() // consume directive name
@@ -146,6 +156,55 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 					m.TarpitConfig.ResponseCode = responseCode
 				default:
 					return d.Errf("unknown nested config key: %s", d.Val())
+				}
+			}
+		case "rate_limit_config":
+			m.RateLimitConfig = ratelimit.DefaultConfig()
+			for nesting := d.Nesting(); d.NextBlock(nesting); {
+				switch d.Val() {
+				case "enabled":
+					m.RateLimitConfig.Enabled = true
+				case "status_codes":
+					var codes []int
+					for d.NextArg() {
+						code, err := strconv.Atoi(d.Val())
+						if err != nil {
+							return fmt.Errorf("invalid status code: '%s'", d.Val())
+						}
+						codes = append(codes, code)
+					}
+					m.RateLimitConfig.StatusCodes = codes
+				case "max_requests":
+					if !d.NextArg() {
+						return d.ArgErr()
+					}
+					maxReq, err := strconv.Atoi(d.Val())
+					if err != nil {
+						return fmt.Errorf("invalid max_requests value: '%s'", d.Val())
+					}
+					m.RateLimitConfig.MaxRequests = maxReq
+				case "window_duration":
+					if !d.NextArg() {
+						return d.ArgErr()
+					}
+					duration, err := time.ParseDuration(d.Val())
+					if err != nil {
+						return fmt.Errorf("invalid window_duration value: '%s'", d.Val())
+					}
+					m.RateLimitConfig.WindowDuration = duration
+				case "auto_add_to_blocklist":
+					m.RateLimitConfig.AutoAddToBlocklist = true
+				case "cleanup_interval":
+					if !d.NextArg() {
+						return d.ArgErr()
+					}
+					interval, err := time.ParseDuration(d.Val())
+					if err != nil {
+						return fmt.Errorf("invalid cleanup_interval value: '%s'", d.Val())
+					}
+					m.RateLimitConfig.CleanupInterval = interval
+				default:
+					return d.Errf("unknown rate_limit_config option: %s", d.Val())
 				}
 			}
 		default:
