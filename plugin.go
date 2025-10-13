@@ -132,10 +132,8 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 	// This happens after admin apps are provisioned, so we use a global variable
 	globalAdminMu.RLock()
 	if globalDefenderAdmin != nil {
-		// Use a unique ID based on the responder type and ranges
-		id := fmt.Sprintf("%s-%d", m.RawResponder, len(m.Ranges))
-		globalDefenderAdmin.RegisterDefender(id, m)
-		m.log.Info("Registered with DefenderAdmin API", zap.String("id", id))
+		globalDefenderAdmin.RegisterDefender(m)
+		m.log.Info("Registered with DefenderAdmin API")
 	} else {
 		m.log.Debug("DefenderAdmin not available - admin API endpoints will not be available")
 	}

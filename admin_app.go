@@ -82,19 +82,19 @@ func (d *DefenderAdmin) Stop() error {
 }
 
 // RegisterDefender allows a Defender middleware instance to register itself
-func (d *DefenderAdmin) RegisterDefender(id string, defender *Defender) {
+func (d *DefenderAdmin) RegisterDefender(defender *Defender) {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	d.defender = defender
-	d.log.Debug("Registered Defender instance", zap.String("id", id))
+	d.log.Debug("Registered Defender instance")
 }
 
 // UnregisterDefender removes the Defender instance from the registry
-func (d *DefenderAdmin) UnregisterDefender(id string) {
+func (d *DefenderAdmin) UnregisterDefender() {
 	d.mu.Lock()
 	defer d.mu.Unlock()
 	d.defender = nil
-	d.log.Debug("Unregistered Defender instance", zap.String("id", id))
+	d.log.Debug("Unregistered Defender instance")
 }
 
 // getDefender retrieves the registered Defender instance
