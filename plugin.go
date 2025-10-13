@@ -77,17 +77,8 @@ type Defender struct {
 	responder responders.Responder
 	ipChecker *ip.IPChecker
 	log       *zap.Logger
-	// Message specifies the custom response message for 'custom' responder type.
-	// Required only when using 'custom' responder.
-	Message string `json:"message,omitempty"`
-
-	// URL specifies the custom URL to redirect clients to for 'redirect' responder type.
-	// Required only when using 'redirect' responder.
-	URL string `json:"url,omitempty"`
-
-	// RawResponder defines the response strategy for blocked requests.
-	// Required. Must be one of: "block", "custom", "drop", "garbage", "redirect", "tarpit"
-	RawResponder string `json:"raw_responder,omitempty"`
+	// fileFetcher is the internal file watcher for dynamic IP loading
+	fileFetcher interface{ Close() error }
 
 	// Ranges specifies IP ranges to block, which can be either:
 	// - CIDR notations (e.g., "192.168.1.0/24")
@@ -104,9 +95,17 @@ type Defender struct {
 	// Default: {Headers: {}, timeout: 30s, ResponseCode: 200}
 	TarpitConfig tarpit.Config `json:"tarpit_config,omitempty"`
 
-	// ServeIgnore specifies whether to serve a robots.txt file with a "Disallow: /" directive
-	// Default: false
-	ServeIgnore bool `json:"serve_ignore,omitempty"`
+	// Message specifies the custom response message for 'custom' responder type.
+	// Required only when using 'custom' responder.
+	Message string `json:"message,omitempty"`
+
+	// URL specifies the custom URL to redirect clients to for 'redirect' responder type.
+	// Required only when using 'redirect' responder.
+	URL string `json:"url,omitempty"`
+
+	// RawResponder defines the response strategy for blocked requests.
+	// Required. Must be one of: "block", "custom", "drop", "garbage", "redirect", "tarpit"
+	RawResponder string `json:"raw_responder,omitempty"`
 
 	// BlocklistFile specifies a path to a file containing IP addresses/ranges to block (one per line).
 	// The file is monitored for changes and automatically reloaded.
@@ -114,8 +113,9 @@ type Defender struct {
 	// Default: ""
 	BlocklistFile string `json:"blocklist_file,omitempty"`
 
-	// fileFetcher is the internal file watcher for dynamic IP loading
-	fileFetcher interface{ Close() error }
+	// ServeIgnore specifies whether to serve a robots.txt file with a "Disallow: /" directive
+	// Default: false
+	ServeIgnore bool `json:"serve_ignore,omitempty"`
 }
 
 // Provision sets up the middleware, logger, and responder configurations.

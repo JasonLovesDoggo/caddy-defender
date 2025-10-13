@@ -15,12 +15,12 @@ import (
 // FileFetcher implements IPRangeFetcher for loading IP addresses from a file.
 // It supports automatic reloading when the file changes.
 type FileFetcher struct {
-	filePath string
-	ranges   []string
-	mu       sync.RWMutex
 	watcher  *fsnotify.Watcher
 	log      *zap.Logger
 	onChange func([]string) // Callback when ranges are updated
+	ranges   []string
+	mu       sync.RWMutex
+	filePath string
 }
 
 // NewFileFetcher creates a new FileFetcher with file watching capability

@@ -38,7 +38,7 @@ type DefenderAdmin struct {
 }
 
 // CaddyModule returns the Caddy module information
-func (DefenderAdmin) CaddyModule() caddy.ModuleInfo {
+func (*DefenderAdmin) CaddyModule() caddy.ModuleInfo {
 	return caddy.ModuleInfo{
 		ID:  "admin.api.defender",
 		New: func() caddy.Module { return new(DefenderAdmin) },
@@ -134,7 +134,7 @@ func (d *DefenderAdmin) handleBlocklist(w http.ResponseWriter, r *http.Request) 
 
 	switch r.Method {
 	case http.MethodGet:
-		return d.handleGetBlocklist(w, r, defender)
+		return d.handleGetBlocklist(w, defender)
 	case http.MethodPost:
 		return d.handleAddToBlocklist(w, r, defender)
 	default:
@@ -146,7 +146,7 @@ func (d *DefenderAdmin) handleBlocklist(w http.ResponseWriter, r *http.Request) 
 }
 
 // handleGetBlocklist returns all blocked IPs from the blocklist file
-func (d *DefenderAdmin) handleGetBlocklist(w http.ResponseWriter, r *http.Request, m *Defender) error {
+func (d *DefenderAdmin) handleGetBlocklist(w http.ResponseWriter, m *Defender) error {
 	if m.BlocklistFile == "" {
 		return caddy.APIError{
 			HTTPStatus: http.StatusBadRequest,

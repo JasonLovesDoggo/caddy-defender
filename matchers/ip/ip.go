@@ -52,7 +52,6 @@ type IPChecker struct {
 }
 
 func NewIPChecker(cidrRanges, whitelistedIPs []string, log *zap.Logger) *IPChecker {
-
 	whitelist, err := Whitelist.Initialize(whitelistedIPs)
 	if err != nil {
 		log.Warn("Invalid whitelist IP",
