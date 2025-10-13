@@ -1,9 +1,0 @@
-# Test blocklist file - IPs must be in CIDR format
-192.168.100.50/32
-10.20.30.0/24
-
-# Another blocked IP  
-203.0.113.100/32
-
-# Block localhost for testing
-127.0.0.1/32
