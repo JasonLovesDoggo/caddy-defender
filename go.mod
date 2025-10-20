@@ -4,7 +4,7 @@ go 1.25
 
 require (
 	github.com/caddyserver/caddy/v2 v2.10.2
-	github.com/gaissmai/bart v0.25.0
+	github.com/gaissmai/bart v0.26.0
 	github.com/stretchr/testify v1.11.1
 	github.com/viccon/sturdyc v1.1.5
 	go.uber.org/zap v1.27.0
