@@ -155,5 +155,11 @@ func ipToAddr(ip net.IP) (netip.Addr, error) {
 	if !ok {
 		return netip.Addr{}, fmt.Errorf("invalid IP address")
 	}
+
+	// Normalize IPv4-mapped IPv6 addresses to pure IPv4
+	if addr.Is4In6() {
+		addr = netip.AddrFrom4(addr.As4())
+	}
+
 	return addr, nil
 }
