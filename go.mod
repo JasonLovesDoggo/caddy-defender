@@ -1,4 +1,4 @@
-module pkg.jsn.cam/caddy-defender
+module github.com/stardothosting/caddy-defender
 
 go 1.25
 
