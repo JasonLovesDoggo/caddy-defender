@@ -7,6 +7,7 @@ The `defender` directive is used to configure the Caddy Defender plugin. It has 
 ```caddyfile
 defender <responder> {
     message <custom_message>
+    status_code <http_status_code>
     ranges <cidr_or_predefined...>
     url <url>
 }
@@ -15,12 +16,13 @@ defender <responder> {
 - `<responder>`: The responder backend to use.
 - `<cidr_or_predefined>`: An optional list of CIDR ranges or predefined range keys to match against the client's IP. Defaults to [`aws azurepubliccloud deepseek gcloud githubcopilot openai`](https://github.com/JasonLovesDoggo/caddy-defender/blob/main/plugin.go).
 - `<custom_message>`: A custom message to return when using the `custom` responder.
+- `<http_status_code>`: An optional HTTP status code to return when using the `custom` responder. Defaults to 200.
 - `<url>`: The URI that the `redirect` responder would redirect to.
 
 #### **Supported responder types:**
 
 - `block`: Returns a `403 Forbidden` response.
-- `custom`: Returns a custom message (requires `message`).
+- `custom`: Returns a custom message with configurable status code (requires `message`, optional `status_code` defaults to 200).
 - `drop`: Drops the connection.
 - `garbage`: Returns garbage data to pollute AI training.
 - `redirect`: Returns a `308 Permanent Redirect` response (requires `url`).
@@ -32,6 +34,7 @@ defender <responder> {
 ```JSON
 {
 	"message": "",
+	"status_code": 0,
 	"url": "",
 	"raw_responder": "",
 	"ranges": [""],
@@ -50,7 +53,12 @@ defender <responder> {
 
 `message`
 
-- Message specifies the custom response message for `custom` responder type. Required only when using `custom` responder.
+- Message specifies the custom response message for `custom` responder type. Required when using `custom` responder.
+
+`status_code`
+
+- StatusCode specifies the HTTP status code for `custom` responder type. Optional. Default: 200.
+- Can be set to any valid HTTP status code (e.g., 200, 403, 404, 451, 503).
 
 `url`
 
@@ -172,6 +180,120 @@ rate_limit {
   "raw_responder": "ratelimit",
   "ranges": ["aws", "10.0.0.0/8"],
   "rate_limit_header": "X-Defender-RateLimit"
+}
+```
+
+## **Custom Responder Examples**
+
+### **Return 200 OK with Custom Message (Default)**
+
+```caddy
+example.com {
+    defender custom {
+        ranges openai aws
+        message "Please contact support for API access"
+    }
+    respond "Hello World"
+}
+```
+
+```json
+{
+  "handler": "defender",
+  "raw_responder": "custom",
+  "message": "Please contact support for API access",
+  "ranges": ["openai", "aws"]
+}
+```
+
+### **Return 403 Forbidden with Custom Message**
+
+```caddy
+example.com {
+    defender custom {
+        ranges openai aws
+        message "You don't have permission to access this page"
+        status_code 403
+    }
+    respond "Hello World"
+}
+```
+
+```json
+{
+  "handler": "defender",
+  "raw_responder": "custom",
+  "message": "You don't have permission to access this page",
+  "status_code": 403,
+  "ranges": ["openai", "aws"]
+}
+```
+
+### **Return 404 Not Found for Stealth Mode**
+
+```caddy
+example.com {
+    defender custom {
+        ranges vpn tor
+        message "Page not found"
+        status_code 404
+    }
+    respond "Hello World"
+}
+```
+
+```json
+{
+  "handler": "defender",
+  "raw_responder": "custom",
+  "message": "Page not found",
+  "status_code": 404,
+  "ranges": ["vpn", "tor"]
+}
+```
+
+### **Return 451 Unavailable For Legal Reasons**
+
+```caddy
+example.com {
+    defender custom {
+        ranges 192.168.1.0/24
+        message "This content is not available in your region due to legal restrictions"
+        status_code 451
+    }
+    respond "Hello World"
+}
+```
+
+```json
+{
+  "handler": "defender",
+  "raw_responder": "custom",
+  "message": "This content is not available in your region due to legal restrictions",
+  "status_code": 451,
+  "ranges": ["192.168.1.0/24"]
+}
+```
+
+### **Return 503 Service Unavailable for Maintenance**
+
+```caddy
+example.com {
+    defender custom {
+        ranges all
+        message "Service temporarily unavailable for maintenance"
+        status_code 503
+    }
+}
+```
+
+```json
+{
+  "handler": "defender",
+  "raw_responder": "custom",
+  "message": "Service temporarily unavailable for maintenance",
+  "status_code": 503,
+  "ranges": ["all"]
 }
 ```
 
