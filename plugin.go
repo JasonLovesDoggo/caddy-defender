@@ -77,8 +77,12 @@ type Defender struct {
 	ipChecker *ip.IPChecker
 	log       *zap.Logger
 	// Message specifies the custom response message for 'custom' responder type.
-	// Required only when using 'custom' responder.
+	// Required when using 'custom' responder.
 	Message string `json:"message,omitempty"`
+
+	// StatusCode specifies the HTTP status code for 'custom' responder type.
+	// Optional. Default: 200
+	StatusCode int `json:"status_code,omitempty"`
 
 	// URL specifies the custom URL to redirect clients to for 'redirect' responder type.
 	// Required only when using 'redirect' responder.

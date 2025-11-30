@@ -67,3 +67,12 @@ formatters:
       - third_party$
       - builtin$
       - examples$
+
+
+severity:
+  default: error
+  rules:
+    - linters:
+        - govet
+      severity: warning
+
