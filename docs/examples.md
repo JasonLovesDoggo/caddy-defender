@@ -6,15 +6,15 @@ This part of the documentation contains usable examples which you can refer to w
 
 Caddy Defender supports multiple response strategies:
 
-| Responder   | Description                                                                         | Configuration Required         |
-| ----------- | ----------------------------------------------------------------------------------- | ------------------------------ |
-| `block`     | Immediately blocks requests with 403 Forbidden                                      | No                             |
-| `custom`    | Returns a custom text response                                                      | `message` field required       |
-| `drop`      | Drops the connection                                                                | No                             |
-| `garbage`   | Returns random garbage data to confuse scrapers/AI                                  | No                             |
-| `ratelimit` | Marks requests for rate limiting (requires `caddy-ratelimit` integration)           | Additional rate limit config   |
-| `redirect`  | Returns `308 Permanent Redirect` response                                           | `url` field required           |
-| `tarpit`    | Stream data at a slow, but configurable rate to stall bots and pollute AI training. | `tarpit_config` block required |
+| Responder   | Description                                                                         | Configuration Required                                |
+| ----------- | ----------------------------------------------------------------------------------- | ----------------------------------------------------- |
+| `block`     | Immediately blocks requests with 403 Forbidden                                      | No                                                    |
+| `custom`    | Returns a custom text response with configurable status code                        | `message` required, `status_code` optional (default: 200) |
+| `drop`      | Drops the connection                                                                | No                                                    |
+| `garbage`   | Returns random garbage data to confuse scrapers/AI                                  | No                                                    |
+| `ratelimit` | Marks requests for rate limiting (requires `caddy-ratelimit` integration)           | Additional rate limit config                          |
+| `redirect`  | Returns `308 Permanent Redirect` response                                           | `url` field required                                  |
+| `tarpit`    | Stream data at a slow, but configurable rate to stall bots and pollute AI training. | `tarpit_config` block required                        |
 
 ---
 
@@ -68,9 +68,9 @@ localhost:8080 {
 
 ## **Custom Response**
 
-Return tailored messages for blocked requests:
+Return tailored messages with custom status codes for blocked requests:
 
-### **Example 1**
+### **Example 1: Default 200 OK**
 
 ```caddyfile
 localhost:8080 {
@@ -90,7 +90,29 @@ localhost:8080 {
 }
 ```
 
-### **Example 2**
+### **Example 2: Custom Status Code 403**
+
+```caddyfile
+localhost:8080 {
+    defender custom {
+        ranges openai aws
+        message "You don't have permission to access this API"
+        status_code 403
+    }
+    respond "Public content"
+}
+
+# JSON equivalent
+{
+    "handler": "defender",
+    "raw_responder": "custom",
+    "ranges": ["openai", "aws"],
+    "message": "You don't have permission to access this API",
+    "status_code": 403
+}
+```
+
+### **Example 3: Stealth Mode with 404**
 
 ```caddyfile
 {
@@ -104,7 +126,8 @@ localhost:8080 {
 
 	defender custom {
 		ranges private
-		message "You are not welcome here"
+		message "Page not found"
+		status_code 404
 	}
 	respond "This is what a human sees"
 }
@@ -113,6 +136,28 @@ localhost:8080 {
 	bind 127.0.0.1 ::1
 
 	respond "Clear text HTTP"
+}
+```
+
+### **Example 4: Legal Compliance with 451**
+
+```caddyfile
+example.com {
+    defender custom {
+        ranges 192.168.1.0/24
+        message "This content is not available in your region due to legal restrictions"
+        status_code 451
+    }
+    respond "Content for allowed regions"
+}
+
+# JSON equivalent
+{
+    "handler": "defender",
+    "raw_responder": "custom",
+    "ranges": ["192.168.1.0/24"],
+    "message": "This content is not available in your region due to legal restrictions",
+    "status_code": 451
 }
 ```
 

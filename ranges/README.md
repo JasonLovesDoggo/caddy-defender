@@ -34,7 +34,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/jasonlovesdoggo/caddy-defender/ranges/data"
+	"pkg.jsn.cam/caddy-defender/ranges/data"
 )
 
 func main() {

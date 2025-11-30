@@ -1,21 +1,67 @@
+# Example: Custom Responder with Status Codes
+# This example demonstrates various use cases for the custom responder
+# with different HTTP status codes
+
 {
 	auto_https off
 	order defender after header
 	debug
 }
 
-:80 {
+# Example 1: Default 200 OK with custom message
+:8080 {
 	bind 127.0.0.1 ::1
-
+	
 	defender custom {
-		ranges private
-		message "You are not welcome here"
+		ranges openai aws
+		message "Please contact support for API access"
 	}
-	respond "This is what a human sees"
+	respond "Normal content"
 }
 
-:83 {
+# Example 2: 403 Forbidden with custom message
+:8081 {
 	bind 127.0.0.1 ::1
+	
+	defender custom {
+		ranges openai aws
+		message "You don't have permission to access this page"
+		status_code 403
+	}
+	respond "Normal content"
+}
 
-	respond "Clear text HTTP"
+# Example 3: 404 Not Found for stealth mode
+:8082 {
+	bind 127.0.0.1 ::1
+	
+	defender custom {
+		ranges vpn tor
+		message "Page not found"
+		status_code 404
+	}
+	respond "Normal content"
+}
+
+# Example 4: 451 Unavailable For Legal Reasons
+:8083 {
+	bind 127.0.0.1 ::1
+	
+	defender custom {
+		ranges 192.168.1.0/24
+		message "This content is not available in your region due to legal restrictions"
+		status_code 451
+	}
+	respond "Normal content"
+}
+
+# Example 5: 503 Service Unavailable for maintenance
+:8084 {
+	bind 127.0.0.1 ::1
+	
+	defender custom {
+		ranges all
+		message "Service temporarily unavailable for maintenance"
+		status_code 503
+	}
 }

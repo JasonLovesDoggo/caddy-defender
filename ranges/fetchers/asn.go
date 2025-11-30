@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 	"strings"
 )
 
@@ -67,8 +68,12 @@ func NewASNFetcher(asns []string) *ASNFetcher {
 		return nil
 	}
 	for _, asn := range asns {
-		if !strings.HasPrefix(asn, "AS") || len(asn) != 6 {
-			panic(fmt.Sprintf("invalid ASN: %s", asn))
+		if !strings.HasPrefix(asn, "AS") {
+			panic(fmt.Sprintf("invalid ASN: %s. It must start with 'AS'.", asn))
+		}
+		// check if the remainder is a number
+		if _, err := strconv.Atoi(asn[2:]); err != nil {
+			panic(fmt.Sprintf("invalid ASN: %s. The part after 'AS' is not a number.", asn))
 		}
 	}
 
