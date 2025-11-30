@@ -17,18 +17,21 @@ type mockHandler struct{}
 
 func (m *mockHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) error {
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("OK"))
+	_, err := w.Write([]byte("OK"))
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
 func TestDefenderServeHTTP_WhitelistBehavior(t *testing.T) {
 	tests := []struct {
 		name           string
+		clientIP       string
+		description    string
 		ranges         []string
 		whitelist      []string
-		clientIP       string
 		expectedStatus int
-		description    string
 	}{
 		{
 			name:           "IP in blocked range, not whitelisted - should be blocked",
@@ -126,7 +129,9 @@ func TestDefenderServeHTTP_WhitelistBehavior(t *testing.T) {
 			} else {
 				// Should be blocked - BlockResponder doesn't return error, just sets status
 				require.NoError(t, err, "BlockResponder should not return error")
-				require.Equal(t, tt.expectedStatus, recorder.Code, "Expected status %d but got %d", tt.expectedStatus, recorder.Code)
+				require.Equal(t, tt.expectedStatus, recorder.Code,
+					"Expected status %d but got %d",
+					tt.expectedStatus, recorder.Code)
 				require.Equal(t, "Access denied", recorder.Body.String(), "Expected 'Access denied' message from BlockResponder")
 			}
 		})
@@ -137,8 +142,8 @@ func TestDefenderServeHTTP_EdgeCases(t *testing.T) {
 	tests := []struct {
 		name        string
 		remoteAddr  string
-		expectError bool
 		description string
+		expectError bool
 	}{
 		{
 			name:        "Invalid IP format",
