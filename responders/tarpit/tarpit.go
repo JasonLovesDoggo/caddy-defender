@@ -172,7 +172,13 @@ func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyh
 	return r.streamContent(req, reader, w, chunk, flush)
 }
 
-func (r *Responder) streamContent(req *http.Request, reader io.Reader, w http.ResponseWriter, chunk []byte, flush func()) error {
+func (r *Responder) streamContent(
+	req *http.Request,
+	reader io.Reader,
+	w http.ResponseWriter,
+	chunk []byte,
+	flush func(),
+) error {
 	// Write data every 100ms
 	ticker := time.NewTicker(time.Millisecond * 100)
 	defer ticker.Stop()
