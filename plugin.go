@@ -80,10 +80,6 @@ type Defender struct {
 	// Required when using 'custom' responder.
 	Message string `json:"message,omitempty"`
 
-	// StatusCode specifies the HTTP status code for 'custom' responder type.
-	// Optional. Default: 200
-	StatusCode int `json:"status_code,omitempty"`
-
 	// URL specifies the custom URL to redirect clients to for 'redirect' responder type.
 	// Required only when using 'redirect' responder.
 	URL string `json:"url,omitempty"`
@@ -106,6 +102,10 @@ type Defender struct {
 	// An optional configuration for the 'tarpit' responder
 	// Default: {Headers: {}, timeout: 30s, ResponseCode: 200}
 	TarpitConfig tarpit.Config `json:"tarpit_config,omitempty"`
+
+	// StatusCode specifies the HTTP status code for 'custom' responder type.
+	// Optional. Default: 200
+	StatusCode int `json:"status_code,omitempty"`
 
 	// ServeIgnore specifies whether to serve a robots.txt file with a "Disallow: /" directive
 	// Default: false
