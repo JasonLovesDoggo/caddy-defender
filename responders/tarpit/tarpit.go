@@ -169,6 +169,10 @@ func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyh
 
 	chunk := make([]byte, r.Config.BytesPerSecond/10)
 
+	return r.streamContent(req, reader, w, chunk, flush)
+}
+
+func (r *Responder) streamContent(req *http.Request, reader io.Reader, w http.ResponseWriter, chunk []byte, flush func()) error {
 	// Write data every 100ms
 	ticker := time.NewTicker(time.Millisecond * 100)
 	defer ticker.Stop()
@@ -187,13 +191,13 @@ func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyh
 			if err == io.EOF {
 				// Graceful exit as we've reached the end of the content
 				return nil
-			} else if err != nil {
+			}
+			if err != nil {
 				return err
 			}
 
 			if n > 0 {
-				_, err = w.Write(chunk[:n])
-				if err != nil {
+				if _, err = w.Write(chunk[:n]); err != nil {
 					return err
 				}
 
