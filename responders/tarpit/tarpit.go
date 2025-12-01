@@ -81,10 +81,11 @@ type Responder struct {
 	ContentReader ContentReader
 }
 
-// Try to find a flusher by unwrapping response writers
-func getFlushableWriter(w http.ResponseWriter) http.ResponseWriter {
-	if _, ok := w.(http.Flusher); ok {
-		return w
+// Try to find a flusher by unwrapping response writers. The original writer
+// must remain the target for all writes; we only need its flusher counterpart.
+func getFlushableWriter(w http.ResponseWriter) http.Flusher {
+	if flusher, ok := w.(http.Flusher); ok {
+		return flusher
 	}
 
 	// Try to unwrap the response writer
@@ -105,20 +106,31 @@ func getFlushableWriter(w http.ResponseWriter) http.ResponseWriter {
 			break
 		}
 
-		if _, ok := unwrapped.(http.Flusher); ok {
-			return unwrapped
+		if flusher, ok := unwrapped.(http.Flusher); ok {
+			return flusher
 		}
 
 		current = unwrapped
 	}
 
-	// If we can't find a flusher, return the original writer
-	return w
+	// If we can't find a flusher, return nil so callers can handle it gracefully.
+	return nil
 }
 
 func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyhttp.Handler) error {
-	// Get a writer we can flush
-	flushableWriter := getFlushableWriter(w)
+	// Locate a flusher (if any) without bypassing middleware wrappers.
+	flusher := getFlushableWriter(w)
+	var warnedNoFlusher bool
+	flush := func() {
+		if flusher == nil {
+			if !warnedNoFlusher {
+				slog.Warn("tarpit responder could not flush the response writer")
+				warnedNoFlusher = true
+			}
+			return
+		}
+		flusher.Flush()
+	}
 
 	// Open Content data stream
 	reader, err := r.ContentReader.Read()
@@ -146,18 +158,13 @@ func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyh
 
 	// Write the first chunk before starting the ticker
 	if n > 0 {
-		_, err = flushableWriter.Write(buffer[:n])
+		_, err = w.Write(buffer[:n])
 		if err != nil {
 			return err
 		}
 
-		// Flush after writing
-		if flusher, ok := flushableWriter.(http.Flusher); ok {
-			flusher.Flush()
-		} else {
-			// This should not happen since we got a flushable writer,
-			slog.Warn("could not flush the response writer")
-		}
+		// Flush after writing so data starts sending immediately.
+		flush()
 	}
 
 	chunk := make([]byte, r.Config.BytesPerSecond/10)
@@ -185,18 +192,13 @@ func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyh
 			}
 
 			if n > 0 {
-				_, err = flushableWriter.Write(chunk[:n])
+				_, err = w.Write(chunk[:n])
 				if err != nil {
 					return err
 				}
 
-				// Flush after writing
-				if flusher, ok := flushableWriter.(http.Flusher); ok {
-					flusher.Flush()
-				} else {
-					// This should not happen since we got a flushable writer
-					slog.Warn("could not flush the response writer")
-				}
+				// Flush after writing to maintain the slow-drip behavior.
+				flush()
 			}
 
 		case <-timeout:
