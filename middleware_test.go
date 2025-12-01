@@ -50,7 +50,7 @@ func TestDefenderServeHTTP_WhitelistBehavior(t *testing.T) {
 			description:    "Should allow IPs that are not in any blocked ranges",
 		},
 		{
-			name:           "IP in blocked range but whitelisted - should be ALLOWED (this is the bug)",
+			name:           "IP in blocked range but whitelisted - should be ALLOWED",
 			ranges:         []string{"192.168.1.0/24"},
 			whitelist:      []string{"192.168.1.100"},
 			clientIP:       "192.168.1.100",
