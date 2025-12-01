@@ -67,9 +67,8 @@ func (m Defender) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyht
 		m.log.Debug("Request allowed (IP whitelisted or not in blocked ranges)", zap.String("ip", clientIP.String()))
 		// Request is allowed, proceed to the next handler
 		return next.ServeHTTP(w, r)
-	} else {
-		m.log.Debug("Request blocked (IP in blocked ranges and not whitelisted)", zap.String("ip", clientIP.String()))
-		// Request should be blocked
-		return m.responder.ServeHTTP(w, r, next)
 	}
+	m.log.Debug("Request blocked (IP in blocked ranges and not whitelisted)", zap.String("ip", clientIP.String()))
+	// Request should be blocked
+	return m.responder.ServeHTTP(w, r, next)
 }
