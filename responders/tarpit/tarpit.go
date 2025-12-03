@@ -4,10 +4,12 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"net/http"
 	"time"
 
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+
 	"pkg.jsn.cam/caddy-defender/cache"
 )
 
@@ -79,7 +81,57 @@ type Responder struct {
 	ContentReader ContentReader
 }
 
+// Try to find a flusher by unwrapping response writers. The original writer
+// must remain the target for all writes; we only need its flusher counterpart.
+func getFlushableWriter(w http.ResponseWriter) http.Flusher {
+	if flusher, ok := w.(http.Flusher); ok {
+		return flusher
+	}
+
+	// Try to unwrap the response writer
+	type Unwrapper interface {
+		Unwrap() http.ResponseWriter
+	}
+
+	// Recursively unwrap until we find a flusher or can't unwrap further
+	current := w
+	for {
+		unwrapper, ok := current.(Unwrapper)
+		if !ok {
+			break
+		}
+
+		unwrapped := unwrapper.Unwrap()
+		if unwrapped == nil {
+			break
+		}
+
+		if flusher, ok := unwrapped.(http.Flusher); ok {
+			return flusher
+		}
+
+		current = unwrapped
+	}
+
+	// If we can't find a flusher, return nil so callers can handle it gracefully.
+	return nil
+}
+
 func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyhttp.Handler) error {
+	// Locate a flusher (if any) without bypassing middleware wrappers.
+	flusher := getFlushableWriter(w)
+	var warnedNoFlusher bool
+	flush := func() {
+		if flusher == nil {
+			if !warnedNoFlusher {
+				slog.Warn("tarpit responder could not flush the response writer")
+				warnedNoFlusher = true
+			}
+			return
+		}
+		flusher.Flush()
+	}
+
 	// Open Content data stream
 	reader, err := r.ContentReader.Read()
 	if err != nil {
@@ -110,11 +162,23 @@ func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyh
 		if err != nil {
 			return err
 		}
-		w.(http.Flusher).Flush()
+
+		// Flush after writing so data starts sending immediately.
+		flush()
 	}
 
 	chunk := make([]byte, r.Config.BytesPerSecond/10)
 
+	return r.streamContent(req, reader, w, chunk, flush)
+}
+
+func (r *Responder) streamContent(
+	req *http.Request,
+	reader io.Reader,
+	w http.ResponseWriter,
+	chunk []byte,
+	flush func(),
+) error {
 	// Write data every 100ms
 	ticker := time.NewTicker(time.Millisecond * 100)
 	defer ticker.Stop()
@@ -126,23 +190,27 @@ func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyh
 		case <-ticker.C:
 			// Stop if client disconnects to prevent panic
 			if req.Context().Err() != nil {
-				break
+				return nil
 			}
 
 			n, err := reader.Read(chunk)
 			if err == io.EOF {
 				// Graceful exit as we've reached the end of the content
 				return nil
-			} else if err != nil {
+			}
+			if err != nil {
 				return err
 			}
+
 			if n > 0 {
-				_, err = w.Write(chunk[:n])
-				if err != nil {
+				if _, err = w.Write(chunk[:n]); err != nil {
 					return err
 				}
-				w.(http.Flusher).Flush()
+
+				// Flush after writing to maintain the slow-drip behavior.
+				flush()
 			}
+
 		case <-timeout:
 			// Forcefully close response after timeout
 			return nil
