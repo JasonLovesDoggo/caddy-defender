@@ -5,9 +5,15 @@ import (
 	"io"
 	"net/http"
 	"regexp"
+	"strings"
 )
 
+var huaweiCIDRRegex = regexp.MustCompile(`<b>CIDR:</b>\s*([^<]+)<br>`)
+
 // HuaweiCloudFetcher implements the IPRangeFetcher interface for Huawei Cloud.
+// NOTE: Currently scrapes IP ranges from networksdb.io. If an official Huawei Cloud
+// API or structured data source becomes available (JSON/CSV), please update this fetcher
+// to use that instead, similar to AWS, Azure, and GCP.
 type HuaweiCloudFetcher struct{}
 
 func (f HuaweiCloudFetcher) Name() string {
@@ -37,8 +43,7 @@ func (f HuaweiCloudFetcher) FetchIPRanges() ([]string, error) {
 	}
 
 	// Extract CIDR blocks using regex
-	cidrRegex := regexp.MustCompile(`<b>CIDR:</b>\s*([^<]+)<br>`)
-	matches := cidrRegex.FindAllStringSubmatch(string(body), -1)
+	matches := huaweiCIDRRegex.FindAllStringSubmatch(string(body), -1)
 
 	if len(matches) == 0 {
 		return nil, fmt.Errorf("no CIDR blocks found in Huawei Cloud IP list")
@@ -47,7 +52,7 @@ func (f HuaweiCloudFetcher) FetchIPRanges() ([]string, error) {
 	ipRanges := make([]string, 0, len(matches))
 	for _, match := range matches {
 		if len(match) > 1 {
-			cidr := match[1]
+			cidr := strings.TrimSpace(match[1])
 			// Skip entries marked as "N/A"
 			if cidr != "N/A" {
 				ipRanges = append(ipRanges, cidr)
