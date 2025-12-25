@@ -45,12 +45,13 @@ func main() {
 		aws.RegionFetcher{Region: "us-east-1"}, // us-east-1 region
 		aws.RegionFetcher{Region: "us-west-1"}, // us-west-1 region
 		// aws.RegionFetcher{Region: "eu-west-1"}, // eu-west-1 region
-		fetchers.PrivateFetcher{},    // Private IP ranges (RFC 1918)
-		fetchers.AllFetcher{},        // All IP ranges
-		fetchers.MistralFetcher{},    // Mistral IP ranges
-		fetchers.VultrFetcher{},      // Vultr Cloud IP ranges
-		fetchers.CloudflareFetcher{}, // Cloudflare IP ranges
-		fetchers.AliyunFetcher{},     // Aliyun IP ranges
+		fetchers.PrivateFetcher{},     // Private IP ranges (RFC 1918)
+		fetchers.AllFetcher{},         // All IP ranges
+		fetchers.MistralFetcher{},     // Mistral IP ranges
+		fetchers.VultrFetcher{},       // Vultr Cloud IP ranges
+		fetchers.CloudflareFetcher{},  // Cloudflare IP ranges
+		fetchers.AliyunFetcher{},      // Aliyun IP ranges
+		fetchers.HuaweiCloudFetcher{}, // Huawei Cloud IP ranges
 	}
 
 	if fetchTor {
