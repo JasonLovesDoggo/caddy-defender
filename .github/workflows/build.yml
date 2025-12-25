@@ -33,7 +33,7 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest, macos-latest, windows-latest]
-        go-version: ["1.25.5"]
+        go-version: ["1.25"]
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
