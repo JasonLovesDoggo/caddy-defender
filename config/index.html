@@ -1,0 +1,1639 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The Caddy Defender documentation site.">
+      
+      
+        <meta name="author" content="Jason Cameron">
+      
+      
+        <link rel="canonical" href="https://defender.jasonlovesdoggo.dev/config/">
+      
+      
+        <link rel="prev" href="../installation/">
+      
+      
+        <link rel="next" href="../advanced/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Configuration - Caddy Defender Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#configuration" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Caddy Defender Docs" class="md-header__button md-logo" aria-label="Caddy Defender Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Caddy Defender Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Configuration
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/JasonLovesDoggo/caddy-defender" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Caddy Defender Docs" class="md-nav__button md-logo" aria-label="Caddy Defender Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Caddy Defender Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/JasonLovesDoggo/caddy-defender" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../intro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#caddyfile-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caddyfile Syntax
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Caddyfile Syntax">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supported-responder-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported responder types:
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#json-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#embedded-ip-ranges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Embedded IP Ranges
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Embedded IP Ranges">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#disabled-by-default-require-manual-inclusion-at-build-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disabled by default (require manual inclusion at build time)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rate-limiting-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rate Limiting Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Rate Limiting Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caddyfile-syntax_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caddyfile Syntax
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json-configuration_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-responder-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Responder Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Custom Responder Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-200-ok-with-custom-message-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return 200 OK with Custom Message (Default)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#return-403-forbidden-with-custom-message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return 403 Forbidden with Custom Message
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#return-404-not-found-for-stealth-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return 404 Not Found for Stealth Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#return-451-unavailable-for-legal-reasons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return 451 Unavailable For Legal Reasons
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#return-503-service-unavailable-for-maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return 503 Service Unavailable for Maintenance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Configurations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example Configurations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advanced Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#directives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directives
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../examples/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fetchers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fetchers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#caddyfile-syntax" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caddyfile Syntax
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Caddyfile Syntax">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#supported-responder-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Supported responder types:
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#json-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON Configuration
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#embedded-ip-ranges" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Embedded IP Ranges
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Embedded IP Ranges">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#disabled-by-default-require-manual-inclusion-at-build-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Disabled by default (require manual inclusion at build time)
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rate-limiting-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rate Limiting Configuration
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Rate Limiting Configuration">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#caddyfile-syntax_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Caddyfile Syntax
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#json-configuration_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        JSON Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-responder-examples" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Responder Examples
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Custom Responder Examples">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#return-200-ok-with-custom-message-default" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return 200 OK with Custom Message (Default)
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#return-403-forbidden-with-custom-message" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return 403 Forbidden with Custom Message
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#return-404-not-found-for-stealth-mode" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return 404 Not Found for Stealth Mode
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#return-451-unavailable-for-legal-reasons" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return 451 Unavailable For Legal Reasons
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#return-503-service-unavailable-for-maintenance" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return 503 Service Unavailable for Maintenance
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#example-configurations" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example Configurations
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Example Configurations">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#basic-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Basic Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#advanced-configuration" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Advanced Configuration
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#documentation" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Documentation
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Documentation">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#directives" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Directives
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#how-it-works" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        How It Works
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#use-cases" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Use Cases
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#requirements" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Requirements
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#notes" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Notes
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#troubleshooting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Troubleshooting
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="configuration"><strong>Configuration</strong></h1>
+<h3 id="caddyfile-syntax"><strong>Caddyfile Syntax</strong></h3>
+<p>The <code>defender</code> directive is used to configure the Caddy Defender plugin. It has the following syntax:</p>
+<pre><code class="language-caddyfile">defender &lt;responder&gt; {
+    message &lt;custom_message&gt;
+    status_code &lt;http_status_code&gt;
+    ranges &lt;cidr_or_predefined...&gt;
+    url &lt;url&gt;
+}
+</code></pre>
+<ul>
+<li><code>&lt;responder&gt;</code>: The responder backend to use.</li>
+<li><code>&lt;cidr_or_predefined&gt;</code>: An optional list of CIDR ranges or predefined range keys to match against the client's IP. Defaults to <a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/plugin.go"><code>aws azurepubliccloud deepseek gcloud githubcopilot openai</code></a>.</li>
+<li><code>&lt;custom_message&gt;</code>: A custom message to return when using the <code>custom</code> responder.</li>
+<li><code>&lt;http_status_code&gt;</code>: An optional HTTP status code to return when using the <code>custom</code> responder. Defaults to 200.</li>
+<li><code>&lt;url&gt;</code>: The URI that the <code>redirect</code> responder would redirect to.</li>
+</ul>
+<h4 id="supported-responder-types"><strong>Supported responder types:</strong></h4>
+<ul>
+<li><code>block</code>: Returns a <code>403 Forbidden</code> response.</li>
+<li><code>custom</code>: Returns a custom message with configurable status code (requires <code>message</code>, optional <code>status_code</code> defaults to 200).</li>
+<li><code>drop</code>: Drops the connection.</li>
+<li><code>garbage</code>: Returns garbage data to pollute AI training.</li>
+<li><code>redirect</code>: Returns a <code>308 Permanent Redirect</code> response (requires <code>url</code>).</li>
+<li><code>ratelimit</code>: Marks requests for rate limiting (requires <a href="https://github.com/mholt/caddy-ratelimit">Caddy-Ratelimit</a> to be installed as well ).</li>
+<li><code>tarpit</code>: Stream data at a slow, but configurable rate to stall bots and pollute AI training.</li>
+</ul>
+<h3 id="json-configuration"><strong>JSON Configuration</strong></h3>
+<pre><code class="language-JSON">{
+    &quot;message&quot;: &quot;&quot;,
+    &quot;status_code&quot;: 0,
+    &quot;url&quot;: &quot;&quot;,
+    &quot;raw_responder&quot;: &quot;&quot;,
+    &quot;ranges&quot;: [&quot;&quot;],
+    &quot;whitelist&quot;: [&quot;&quot;],
+    &quot;tarpit_config&quot;: {
+        &quot;headers&quot;: {
+            &quot;&quot;: &quot;&quot;
+        },
+        &quot;timeout&quot;: 0,
+        &quot;bytes_per_second&quot;: 0,
+        &quot;code&quot;: 0
+    },
+    &quot;serve_ignore&quot;: false
+}
+</code></pre>
+<p><code>message</code></p>
+<ul>
+<li>Message specifies the custom response message for <code>custom</code> responder type. Required when using <code>custom</code> responder.</li>
+</ul>
+<p><code>status_code</code></p>
+<ul>
+<li>StatusCode specifies the HTTP status code for <code>custom</code> responder type. Optional. Default: 200.</li>
+<li>Can be set to any valid HTTP status code (e.g., 200, 403, 404, 451, 503).</li>
+</ul>
+<p><code>url</code></p>
+<ul>
+<li>URL specifies the custom URL to redirect clients to for <code>redirect</code> responder type. Required only when using <code>redirect</code> responder.</li>
+</ul>
+<p><code>raw_responder</code></p>
+<ul>
+<li>RawResponder defines the response strategy for blocked requests. <strong>Required</strong>.</li>
+<li>Must be one of the <a href="#supported-responder-types">supported responder types</a>, (e.g "block", "drop", etc.).</li>
+</ul>
+<p><code>ranges</code></p>
+<ul>
+<li>Ranges specifies IP ranges to block, which can be either:</li>
+<li>CIDR notations (e.g., "192.168.1.0/24")</li>
+<li>Predefined service keys (e.g., "openai", "aws") Default:</li>
+</ul>
+<p><code>whitelist</code></p>
+<ul>
+<li>An optional whitelist of IP addresses to exclude from blocking.</li>
+<li>NOTE: this only supports IP addresses, not ranges.</li>
+<li>If empty, no IPs are whitelisted.</li>
+<li>Default: <code>[]</code></li>
+</ul>
+<p><code>tarpit_config</code></p>
+<ul>
+<li>An optional configuration for the <code>tarpit</code> responder</li>
+<li>Config holds the tarpit responder`s configuration.</li>
+<li>Default: <code>{Headers: {}, timeout: 30s, ResponseCode: 200}</code></li>
+</ul>
+<p><code>tarpit_config/headers</code></p>
+<ul>
+<li>An optional configuration for the headers to be set with the tarpit config.</li>
+<li>Default: <code>{}</code></li>
+</ul>
+<p><code>tarpit_config/timeout</code></p>
+<ul>
+<li>A Duration represents the elapsed time between two instants as an int64 nanosecond count.</li>
+<li>The representation limits the largest representable duration to approximately 290 years.</li>
+</ul>
+<p><code>tarpit_config/bytes_per_second</code></p>
+<ul>
+<li>An optional configuration for the default amount of bytes to stream per second.</li>
+<li>Default: <code>24</code>.</li>
+</ul>
+<p><code>tarpit_config/code</code></p>
+<ul>
+<li>An optional configuration for the default response code for the tarpit responder.</li>
+<li>Default: <code>http.statusOK</code></li>
+</ul>
+<p><code>serve_ignore</code></p>
+<ul>
+<li>ServeIgnore specifies whether to serve a robots.txt file with a "Disallow: /" directive.</li>
+<li>Default: <code>false</code></li>
+</ul>
+<blockquote>
+<p><em>For code examples, check out <a href="../examples/">examples</a>.</em></p>
+</blockquote>
+<hr />
+<h2 id="embedded-ip-ranges"><strong>Embedded IP Ranges</strong></h2>
+<p>The plugin includes predefined IP ranges for popular AI services. These ranges are embedded in the binary and can be used without additional configuration.</p>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Service</th>
+<th style="text-align: center;">Key</th>
+<th style="text-align: center;">IP Ranges (GitHub)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Alibaba Cloud</td>
+<td style="text-align: center;">aliyun</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/aliyun.go">aliyun.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">VPNs</td>
+<td style="text-align: center;">vpn</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/vpn.go">vpn.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">AWS</td>
+<td style="text-align: center;">aws</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/aws/aws.go">aws.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">AWS Region</td>
+<td style="text-align: center;">aws-us-east-1, aws-us-west-1, aws-eu-west-1</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/aws/aws_region.go">aws_region.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">DeepSeek</td>
+<td style="text-align: center;">deepseek</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/deepseek.go">deepseek.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">GitHub Copilot</td>
+<td style="text-align: center;">githubcopilot</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/github.go">github.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">Google Cloud Platform</td>
+<td style="text-align: center;">gcloud</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/gcloud.go">gcloud.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">Oracle Cloud Infrastructure</td>
+<td style="text-align: center;">oci</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/oracle.go">oracle.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">Microsoft Azure</td>
+<td style="text-align: center;">azurepubliccloud</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/azure.go">azure.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">OpenAI</td>
+<td style="text-align: center;">openai</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/openai.go">openai.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">Mistral</td>
+<td style="text-align: center;">mistral</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/mistral.go">mistral.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">Vultr</td>
+<td style="text-align: center;">vultr</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/vultr.go">vultr.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">Cloudflare</td>
+<td style="text-align: center;">cloudflare</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/cloudflare.go">cloudflare.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">Digital Ocean</td>
+<td style="text-align: center;">digitalocean</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/digitalocean.go">digitalocean.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">Linode</td>
+<td style="text-align: center;">linode</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/linode.go">linode.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;"><a href="https://caddyserver.com/docs/caddyfile/matchers#remote-ip">Private</a></td>
+<td style="text-align: center;">private</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/private.go">private.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">All IP addresses</td>
+<td style="text-align: center;">all</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/all.go">all.go</a></td>
+</tr>
+</tbody>
+</table>
+<h3 id="disabled-by-default-require-manual-inclusion-at-build-time"><strong>Disabled by default (require manual inclusion at build time)</strong></h3>
+<table>
+<thead>
+<tr>
+<th style="text-align: center;">Service</th>
+<th style="text-align: center;">Key</th>
+<th style="text-align: center;">IP Ranges (GitHub)</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align: center;">Tor Exit Nodes</td>
+<td style="text-align: center;">tor</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/tor.go">tor.go</a></td>
+</tr>
+<tr>
+<td style="text-align: center;">ASN (Autonomous System Numbers)</td>
+<td style="text-align: center;">asn</td>
+<td style="text-align: center;"><a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/fetchers/asn.go">asn.go</a></td>
+</tr>
+</tbody>
+</table>
+<p>More are welcome! For a precompiled list, see the <a href="https://github.com/JasonLovesDoggo/caddy-defender/blob/main/ranges/data/generated.go">embedded results</a>.</p>
+<h2 id="rate-limiting-configuration"><strong>Rate Limiting Configuration</strong></h2>
+<p><strong>Feature:</strong> Match requests by IP range and apply rate limiting using <a href="https://github.com/mholt/caddy-ratelimit">caddy-ratelimit</a>.</p>
+<h3 id="caddyfile-syntax_1"><strong>Caddyfile Syntax</strong></h3>
+<pre><code class="language-caddy">defender ratelimit {
+    ranges &lt;cidr_or_predefined...&gt;
+}
+
+rate_limit {
+    # Match requests marked by Defender
+    match header X-Defender-RateLimit true
+
+    # Rate limiting parameters
+    rate  &lt;requests-per-second&gt;
+    burst &lt;burst-size&gt;
+    key   &lt;rate-limit-key&gt;
+}
+</code></pre>
+<h3 id="json-configuration_1"><strong>JSON Configuration</strong></h3>
+<pre><code class="language-json">{
+  &quot;handler&quot;: &quot;defender&quot;,
+  &quot;raw_responder&quot;: &quot;ratelimit&quot;,
+  &quot;ranges&quot;: [&quot;aws&quot;, &quot;10.0.0.0/8&quot;],
+  &quot;rate_limit_header&quot;: &quot;X-Defender-RateLimit&quot;
+}
+</code></pre>
+<h2 id="custom-responder-examples"><strong>Custom Responder Examples</strong></h2>
+<h3 id="return-200-ok-with-custom-message-default"><strong>Return 200 OK with Custom Message (Default)</strong></h3>
+<pre><code class="language-caddy">example.com {
+    defender custom {
+        ranges openai aws
+        message &quot;Please contact support for API access&quot;
+    }
+    respond &quot;Hello World&quot;
+}
+</code></pre>
+<pre><code class="language-json">{
+  &quot;handler&quot;: &quot;defender&quot;,
+  &quot;raw_responder&quot;: &quot;custom&quot;,
+  &quot;message&quot;: &quot;Please contact support for API access&quot;,
+  &quot;ranges&quot;: [&quot;openai&quot;, &quot;aws&quot;]
+}
+</code></pre>
+<h3 id="return-403-forbidden-with-custom-message"><strong>Return 403 Forbidden with Custom Message</strong></h3>
+<pre><code class="language-caddy">example.com {
+    defender custom {
+        ranges openai aws
+        message &quot;You don't have permission to access this page&quot;
+        status_code 403
+    }
+    respond &quot;Hello World&quot;
+}
+</code></pre>
+<pre><code class="language-json">{
+  &quot;handler&quot;: &quot;defender&quot;,
+  &quot;raw_responder&quot;: &quot;custom&quot;,
+  &quot;message&quot;: &quot;You don't have permission to access this page&quot;,
+  &quot;status_code&quot;: 403,
+  &quot;ranges&quot;: [&quot;openai&quot;, &quot;aws&quot;]
+}
+</code></pre>
+<h3 id="return-404-not-found-for-stealth-mode"><strong>Return 404 Not Found for Stealth Mode</strong></h3>
+<pre><code class="language-caddy">example.com {
+    defender custom {
+        ranges vpn tor
+        message &quot;Page not found&quot;
+        status_code 404
+    }
+    respond &quot;Hello World&quot;
+}
+</code></pre>
+<pre><code class="language-json">{
+  &quot;handler&quot;: &quot;defender&quot;,
+  &quot;raw_responder&quot;: &quot;custom&quot;,
+  &quot;message&quot;: &quot;Page not found&quot;,
+  &quot;status_code&quot;: 404,
+  &quot;ranges&quot;: [&quot;vpn&quot;, &quot;tor&quot;]
+}
+</code></pre>
+<h3 id="return-451-unavailable-for-legal-reasons"><strong>Return 451 Unavailable For Legal Reasons</strong></h3>
+<pre><code class="language-caddy">example.com {
+    defender custom {
+        ranges 192.168.1.0/24
+        message &quot;This content is not available in your region due to legal restrictions&quot;
+        status_code 451
+    }
+    respond &quot;Hello World&quot;
+}
+</code></pre>
+<pre><code class="language-json">{
+  &quot;handler&quot;: &quot;defender&quot;,
+  &quot;raw_responder&quot;: &quot;custom&quot;,
+  &quot;message&quot;: &quot;This content is not available in your region due to legal restrictions&quot;,
+  &quot;status_code&quot;: 451,
+  &quot;ranges&quot;: [&quot;192.168.1.0/24&quot;]
+}
+</code></pre>
+<h3 id="return-503-service-unavailable-for-maintenance"><strong>Return 503 Service Unavailable for Maintenance</strong></h3>
+<pre><code class="language-caddy">example.com {
+    defender custom {
+        ranges all
+        message &quot;Service temporarily unavailable for maintenance&quot;
+        status_code 503
+    }
+}
+</code></pre>
+<pre><code class="language-json">{
+  &quot;handler&quot;: &quot;defender&quot;,
+  &quot;raw_responder&quot;: &quot;custom&quot;,
+  &quot;message&quot;: &quot;Service temporarily unavailable for maintenance&quot;,
+  &quot;status_code&quot;: 503,
+  &quot;ranges&quot;: [&quot;all&quot;]
+}
+</code></pre>
+<h2 id="example-configurations"><strong>Example Configurations</strong></h2>
+<h3 id="basic-configuration"><strong>Basic Configuration</strong></h3>
+<pre><code class="language-caddy">example.com {
+    defender ratelimit {
+        ranges cloudflare openai
+    }
+
+    rate_limit {
+        match header X-Defender-RateLimit true
+        rate  5r/s
+        burst 10
+        key   {http.request.remote.host}
+    }
+
+    respond &quot;Hello World&quot;
+}
+</code></pre>
+<h3 id="advanced-configuration"><strong>Advanced Configuration</strong></h3>
+<pre><code class="language-caddy">api.example.com {
+    defender ratelimit {
+        ranges 192.168.1.0/24 azure
+        rate_limit_header X-API-RateLimit
+    }
+
+    rate_limit {
+        match header X-API-RateLimit true
+        rate  10r/s
+        burst 20
+        key   {http.request.uri.path}
+
+        # Optional: Custom response
+        respond {
+            status_code 429
+            body &quot;Too Many Requests - Try Again Later&quot;
+        }
+    }
+
+    reverse_proxy localhost:3000
+}
+</code></pre>
+<h2 id="documentation"><strong>Documentation</strong></h2>
+<h3 id="directives"><strong>Directives</strong></h3>
+<p><strong>Defender Rate Limit Responder:</strong></p>
+<ul>
+<li><code>ranges</code> - IP ranges to apply rate limiting (CIDR or predefined)</li>
+<li><code>rate_limit_header</code> (optional) - Header to mark requests for rate limiting (default: <code>X-Defender-RateLimit</code>)</li>
+</ul>
+<p><strong>Rate Limit Module:</strong></p>
+<ul>
+<li><code>match header</code> - Match the header set by Defender</li>
+<li><code>rate</code> - Requests per second (e.g., <code>10r/s</code>)</li>
+<li><code>burst</code> - Allow temporary bursts of requests</li>
+<li><code>key</code> - Rate limit key (typically client IP or path)</li>
+</ul>
+<h3 id="how-it-works"><strong>How It Works</strong></h3>
+<ol>
+<li><strong>IP Matching:</strong> Defender checks if client IP matches configured ranges</li>
+<li><strong>Header Marking:</strong> Matching requests get a header (<code>X-Defender-RateLimit: true</code>)</li>
+<li><strong>Rate Limiting:</strong> caddy-ratelimit applies limits only to marked requests</li>
+<li><strong>Request Processing:</strong> Non-matched requests bypass rate limiting</li>
+</ol>
+<h3 id="use-cases"><strong>Use Cases</strong></h3>
+<ul>
+<li>Protect API endpoints from scraping</li>
+<li>Mitigate brute force attacks</li>
+<li>Enforce different rate limits for:</li>
+<li>Different geographic regions</li>
+<li>Known bot networks</li>
+<li>Internal vs external traffic</li>
+</ul>
+<h3 id="requirements"><strong>Requirements</strong></h3>
+<ul>
+<li><a href="https://github.com/mholt/caddy-ratelimit">caddy-ratelimit</a> module installed</li>
+<li><a href="https://github.com/JasonLovesDoggo/caddy-defender">caddy-defender</a> v0.5.0+</li>
+</ul>
+<h3 id="notes"><strong>Notes</strong></h3>
+<ol>
+<li><strong>Order Matters:</strong> Defender must come before ratelimit in handler chain</li>
+<li><strong>Header Customization:</strong> Change header name if conflicts occur</li>
+<li><strong>Combination with Other Protections:</strong></li>
+</ol>
+<pre><code class="language-caddy">defender ratelimit {
+   ranges aws
+}
+
+rate_limit {
+   match header X-Defender-RateLimit true
+   rate 2r/s
+}
+
+defender block {
+   ranges known-bad-ips
+}
+</code></pre>
+<hr />
+<h3 id="troubleshooting"><strong>Troubleshooting</strong></h3>
+<p>1. <strong>Check Headers:</strong></p>
+<pre><code class="language-bash">curl -I http://example.com
+</code></pre>
+<p>2. <strong>Verify Handler Order:</strong> Defender → Ratelimit → Other handlers</p>
+<p>3. <strong>Test Rate Limits:</strong></p>
+<pre><code class="language-bash"># Simulate requests from blocked range
+for i in {1..20}; do
+   curl -H &quot;X-Forwarded-For: 20.202.43.67&quot; http://example.com
+done
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>

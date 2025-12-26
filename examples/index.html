@@ -1,0 +1,1654 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="The Caddy Defender documentation site.">
+      
+      
+        <meta name="author" content="Jason Cameron">
+      
+      
+        <link rel="canonical" href="https://defender.jasonlovesdoggo.dev/examples/">
+      
+      
+        <link rel="prev" href="../advanced/">
+      
+      
+        <link rel="next" href="../fetchers/">
+      
+      
+        
+      
+      
+      <link rel="icon" href="../assets/images/favicon.png">
+      <meta name="generator" content="mkdocs-1.6.1, mkdocs-material-9.7.1">
+    
+    
+      
+        <title>Examples - Caddy Defender Docs</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.484c7ddc.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce(((e,_)=>(e<<5)-e+_.charCodeAt(0)),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+  </head>
+  
+  
+    <body dir="ltr">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#examples" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="Caddy Defender Docs" class="md-header__button md-logo" aria-label="Caddy Defender Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3zm0 5h18v2H3zm0 5h18v2H3z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            Caddy Defender Docs
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Examples
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+    
+      <script>var palette=__md_get("__palette");if(palette&&palette.color){if("(prefers-color-scheme)"===palette.color.media){var media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']");palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent")}for(var[key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      
+      
+        <label class="md-header__button md-icon" for="__search">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        </label>
+        <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.52 6.52 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" tabindex="0" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+      
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/JasonLovesDoggo/caddy-defender" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="Caddy Defender Docs" class="md-nav__button md-logo" aria-label="Caddy Defender Docs" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54"/></svg>
+
+    </a>
+    Caddy Defender Docs
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/JasonLovesDoggo/caddy-defender" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 7.1.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2025 Fonticons, Inc.--><path d="M439.6 236.1 244 40.5c-5.4-5.5-12.8-8.5-20.4-8.5s-15 3-20.4 8.4L162.5 81l51.5 51.5c27.1-9.1 52.7 16.8 43.4 43.7l49.7 49.7c34.2-11.8 61.2 31 35.5 56.7-26.5 26.5-70.2-2.9-56-37.3L240.3 199v121.9c25.3 12.5 22.3 41.8 9.1 55-6.4 6.4-15.2 10.1-24.3 10.1s-17.8-3.6-24.3-10.1c-17.6-17.6-11.1-46.9 11.2-56v-123c-20.8-8.5-24.6-30.7-18.6-45L142.6 101 8.5 235.1C3 240.6 0 247.9 0 255.5s3 15 8.5 20.4l195.6 195.7c5.4 5.4 12.7 8.4 20.4 8.4s15-3 20.4-8.4l194.7-194.7c5.4-5.4 8.4-12.8 8.4-20.4s-3-15-8.4-20.4"/></svg>
+  </div>
+  <div class="md-source__repository">
+    GitHub
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Home
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../intro/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Getting Started
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../installation/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Installation
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../config/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Configuration
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../advanced/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Advanced Usage
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Examples
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#responder-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Responder Types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#block-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Block Requests
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Block Requests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Response
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Custom Response">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1-default-200-ok" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1: Default 200 OK
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2-custom-status-code-403" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2: Custom Status Code 403
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-3-stealth-mode-with-404" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 3: Stealth Mode with 404
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-4-legal-compliance-with-451" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 4: Legal Compliance with 451
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#drop-connections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Drop connections
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Drop connections">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#return-garbage-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Garbage Data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Return Garbage Data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rate-limiting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rate Limiting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#redirect-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Redirect Response
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Redirect Response">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tarpit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tarpit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tarpit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#combination-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Combination Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whitelisting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Whitelisting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#geoip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        geoip
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../fetchers/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Fetchers
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../CONTRIBUTING/" class="md-nav__link">
+        
+  
+  
+  <span class="md-ellipsis">
+    
+  
+    Contributing
+  
+
+    
+  </span>
+  
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#responder-types" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Responder Types
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#block-requests" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Block Requests
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Block Requests">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#custom-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Custom Response
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Custom Response">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1-default-200-ok" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1: Default 200 OK
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2-custom-status-code-403" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2: Custom Status Code 403
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-3-stealth-mode-with-404" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 3: Stealth Mode with 404
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-4-legal-compliance-with-451" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 4: Legal Compliance with 451
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#drop-connections" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Drop connections
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Drop connections">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2_1" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#return-garbage-data" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Return Garbage Data
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Return Garbage Data">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2_2" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#rate-limiting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Rate Limiting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#redirect-response" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Redirect Response
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Redirect Response">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2_3" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#tarpit" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Tarpit
+      
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Tarpit">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#example-1_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 1
+      
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#example-2_4" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Example 2
+      
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#combination-example" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Combination Example
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#whitelisting" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        Whitelisting
+      
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#geoip" class="md-nav__link">
+    <span class="md-ellipsis">
+      
+        geoip
+      
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+
+  
+  
+
+
+<h1 id="examples"><strong>Examples</strong></h1>
+<p>This part of the documentation contains usable examples which you can refer to when writing your caddyfile(s).</p>
+<h2 id="responder-types"><strong>Responder Types</strong></h2>
+<p>Caddy Defender supports multiple response strategies:</p>
+<table>
+<thead>
+<tr>
+<th>Responder</th>
+<th>Description</th>
+<th>Configuration Required</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>block</code></td>
+<td>Immediately blocks requests with 403 Forbidden</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>custom</code></td>
+<td>Returns a custom text response with configurable status code</td>
+<td><code>message</code> required, <code>status_code</code> optional (default: 200)</td>
+</tr>
+<tr>
+<td><code>drop</code></td>
+<td>Drops the connection</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>garbage</code></td>
+<td>Returns random garbage data to confuse scrapers/AI</td>
+<td>No</td>
+</tr>
+<tr>
+<td><code>ratelimit</code></td>
+<td>Marks requests for rate limiting (requires <code>caddy-ratelimit</code> integration)</td>
+<td>Additional rate limit config</td>
+</tr>
+<tr>
+<td><code>redirect</code></td>
+<td>Returns <code>308 Permanent Redirect</code> response</td>
+<td><code>url</code> field required</td>
+</tr>
+<tr>
+<td><code>tarpit</code></td>
+<td>Stream data at a slow, but configurable rate to stall bots and pollute AI training.</td>
+<td><code>tarpit_config</code> block required</td>
+</tr>
+</tbody>
+</table>
+<hr />
+<h2 id="block-requests"><strong>Block Requests</strong></h2>
+<p>Block requests from specific IP ranges with 403 Forbidden:</p>
+<h3 id="example-1"><strong>Example 1</strong></h3>
+<pre><code class="language-caddyfile">localhost:8080 {
+    defender block {
+        ranges 203.0.113.0/24 openai 198.51.100.0/24
+    }
+    respond &quot;Human-friendly content&quot;
+}
+
+# JSON equivalent
+{
+    &quot;handler&quot;: &quot;defender&quot;,
+    &quot;raw_responder&quot;: &quot;block&quot;,
+    &quot;ranges&quot;: [&quot;203.0.113.0/24&quot;, &quot;openai&quot;]
+}
+</code></pre>
+<h3 id="example-2"><strong>Example 2</strong></h3>
+<pre><code class="language-caddyfile">{
+    auto_https off
+    order defender after header
+    debug
+}
+
+:80 {
+    bind 127.0.0.1 ::1
+
+    defender block {
+        ranges private
+    }
+    respond &quot;This is what a human sees&quot;
+}
+
+:83 {
+    bind 127.0.0.1 ::1
+    respond &quot;Clear text HTTP&quot;
+}
+</code></pre>
+<hr />
+<h2 id="custom-response"><strong>Custom Response</strong></h2>
+<p>Return tailored messages with custom status codes for blocked requests:</p>
+<h3 id="example-1-default-200-ok"><strong>Example 1: Default 200 OK</strong></h3>
+<pre><code class="language-caddyfile">localhost:8080 {
+    defender custom {
+        ranges 10.0.0.0/8
+        message &quot;Access restricted for your network&quot;
+    }
+    respond &quot;Public content&quot;
+}
+
+# JSON equivalent
+{
+    &quot;handler&quot;: &quot;defender&quot;,
+    &quot;raw_responder&quot;: &quot;custom&quot;,
+    &quot;ranges&quot;: [&quot;10.0.0.0/8&quot;],
+    &quot;message&quot;: &quot;Access restricted for your network&quot;
+}
+</code></pre>
+<h3 id="example-2-custom-status-code-403"><strong>Example 2: Custom Status Code 403</strong></h3>
+<pre><code class="language-caddyfile">localhost:8080 {
+    defender custom {
+        ranges openai aws
+        message &quot;You don't have permission to access this API&quot;
+        status_code 403
+    }
+    respond &quot;Public content&quot;
+}
+
+# JSON equivalent
+{
+    &quot;handler&quot;: &quot;defender&quot;,
+    &quot;raw_responder&quot;: &quot;custom&quot;,
+    &quot;ranges&quot;: [&quot;openai&quot;, &quot;aws&quot;],
+    &quot;message&quot;: &quot;You don't have permission to access this API&quot;,
+    &quot;status_code&quot;: 403
+}
+</code></pre>
+<h3 id="example-3-stealth-mode-with-404"><strong>Example 3: Stealth Mode with 404</strong></h3>
+<pre><code class="language-caddyfile">{
+    auto_https off
+    order defender after header
+    debug
+}
+
+:80 {
+    bind 127.0.0.1 ::1
+
+    defender custom {
+        ranges private
+        message &quot;Page not found&quot;
+        status_code 404
+    }
+    respond &quot;This is what a human sees&quot;
+}
+
+:83 {
+    bind 127.0.0.1 ::1
+
+    respond &quot;Clear text HTTP&quot;
+}
+</code></pre>
+<h3 id="example-4-legal-compliance-with-451"><strong>Example 4: Legal Compliance with 451</strong></h3>
+<pre><code class="language-caddyfile">example.com {
+    defender custom {
+        ranges 192.168.1.0/24
+        message &quot;This content is not available in your region due to legal restrictions&quot;
+        status_code 451
+    }
+    respond &quot;Content for allowed regions&quot;
+}
+
+# JSON equivalent
+{
+    &quot;handler&quot;: &quot;defender&quot;,
+    &quot;raw_responder&quot;: &quot;custom&quot;,
+    &quot;ranges&quot;: [&quot;192.168.1.0/24&quot;],
+    &quot;message&quot;: &quot;This content is not available in your region due to legal restrictions&quot;,
+    &quot;status_code&quot;: 451
+}
+</code></pre>
+<hr />
+<h2 id="drop-connections"><strong>Drop connections</strong></h2>
+<p>Drop connections rather than send a response:</p>
+<h3 id="example-1_1"><strong>Example 1</strong></h3>
+<pre><code class="language-caddyfile">localhost:8080 {
+    defender drop {
+        ranges 203.0.113.0/24 openai 198.51.100.0/24
+    }
+}
+
+# JSON equivalent
+{
+    &quot;handler&quot;: &quot;defender&quot;,
+    &quot;raw_responder&quot;: &quot;drop&quot;,
+    &quot;ranges&quot;: [&quot;203.0.113.0/24&quot;, &quot;openai&quot;]
+}
+</code></pre>
+<h3 id="example-2_1"><strong>Example 2</strong></h3>
+<pre><code class="language-caddyfile">{
+    auto_https off
+    order defender after header
+    debug
+}
+
+:80 {
+    bind 127.0.0.1 ::1
+
+    defender drop {
+        ranges private
+    }
+}
+</code></pre>
+<hr />
+<h2 id="return-garbage-data"><strong>Return Garbage Data</strong></h2>
+<p>Return meaningless content for AI/scrapers:</p>
+<h3 id="example-1_2"><strong>Example 1</strong></h3>
+<pre><code class="language-caddyfile">localhost:8080 {
+    defender garbage {
+        ranges 192.168.0.0/24
+    }
+    respond &quot;Legitimate content&quot;
+}
+
+# JSON equivalent
+{
+    &quot;handler&quot;: &quot;defender&quot;,
+    &quot;raw_responder&quot;: &quot;garbage&quot;,
+    &quot;ranges&quot;: [&quot;192.168.0.0/24&quot;]
+}
+</code></pre>
+<h3 id="example-2_2"><strong>Example 2</strong></h3>
+<pre><code class="language-caddyfile">{
+    auto_https off
+    order defender after header
+    debug
+}
+
+:80 {
+    bind 127.0.0.1 ::1
+
+    defender garbage {
+        ranges private
+        serve_ignore
+    }
+    respond &quot;This is what a human sees&quot;
+}
+
+:83 {
+    bind 127.0.0.1 ::1
+
+    respond &quot;Clear text HTTP&quot;
+}
+</code></pre>
+<hr />
+<h2 id="rate-limiting"><strong>Rate Limiting</strong></h2>
+<p>Integrate with <a href="https://github.com/mholt/caddy-ratelimit">caddy-ratelimit</a>:</p>
+<pre><code class="language-caddyfile">{
+    order rate_limit after basic_auth
+}
+
+:80 {
+    defender ratelimit {
+        ranges private
+    }
+
+    rate_limit {
+        zone static_example {
+            match {
+                method GET
+                header X-RateLimit-Apply true
+            }
+            key {remote_host}
+            events 3
+            window 1m
+        }
+    }
+
+    respond &quot;Hey I'm behind a rate limit!&quot;
+}
+</code></pre>
+<p>For complete rate limiting documentation,
+see <a href="../config/#rate-limiting-configuration">Rate Limiting Configuration</a> and <a href="https://github.com/mholt/caddy-ratelimit">caddy-ratelimit</a>.</p>
+<hr />
+<h2 id="redirect-response"><strong>Redirect Response</strong></h2>
+<p>Redirect requests:</p>
+<h3 id="example-1_3"><strong>Example 1</strong></h3>
+<pre><code class="language-caddyfile">localhost:8080 {
+    defender redirect {
+        ranges 10.0.0.0/8
+        url &quot;https://example.com&quot;
+    }
+}
+
+# JSON equivalent
+{
+    &quot;handler&quot;: &quot;defender&quot;,
+    &quot;raw_responder&quot;: &quot;redirect&quot;,
+    &quot;ranges&quot;: [&quot;10.0.0.0/8&quot;],
+    &quot;url&quot;: &quot;https://example.com&quot;
+}
+</code></pre>
+<h3 id="example-2_3"><strong>Example 2</strong></h3>
+<pre><code class="language-caddyfile">{
+    auto_https off
+    order defender after header
+    debug
+}
+
+:80 {
+    bind 127.0.0.1 ::1
+
+    defender redirect {
+        ranges private
+        url &quot;https://example.com&quot;
+    }
+}
+</code></pre>
+<hr />
+<h2 id="tarpit"><strong>Tarpit</strong></h2>
+<p>Stream data at a slow, but configurable rate to stall bots and pollute AI training.</p>
+<h3 id="example-1_4"><strong>Example 1</strong></h3>
+<pre><code class="language-caddyfile">localhost:8080 {
+    defender tarpit {
+        ranges private
+        tarpit_config {
+            # Optional headers
+            headers {
+                X-You-Got Played
+            }
+            # Optional. Use content from local file to stream slowly. Can also use source from http/https which is cached locally.
+            content file://some-file.txt
+            # Optional. Complete request at this duration if content EOF is not reached. Default 30s
+            timeout 30s
+            # Optional. Rate of data stream. Default 24
+            bytes_per_second 24
+            # Optional. HTTP Response Code Default 200
+            response_code 200
+        }
+    }
+}
+
+# JSON equivalent
+{
+    &quot;handler&quot;: &quot;defender&quot;,
+    &quot;raw_responder&quot;: &quot;tarpit&quot;,
+    &quot;ranges&quot;: [&quot;10.0.0.0/8&quot;],
+    &quot;tarpit_config&quot;: {
+        &quot;headers&quot;: {
+             &quot;X-You-Got&quot; &quot;Played&quot;
+        },
+        &quot;content&quot;: &quot;file://some-file.txt&quot;,
+        &quot;timeout&quot;: &quot;30s&quot;,
+        &quot;bytes_per_second&quot;: 24,
+        &quot;response_code&quot;: 200
+    }
+}
+</code></pre>
+<h3 id="example-2_4"><strong>Example 2</strong></h3>
+<pre><code class="language-caddyfile">{
+    auto_https off
+    order defender after header
+    debug
+}
+
+:80 {
+    bind 127.0.0.1 ::1
+
+    defender tarpit {
+        ranges private
+        tarpit_config {
+            # Optional headers
+            headers {
+                X-You-Got &quot;Played&quot;
+            }
+            # Optional. Use content from local file to stream slowly. Can also use source from http/https which is cached locally.
+            # content file://some-file.txt
+            content https://www.cloudflare.com/robots.txt
+            # Optional. Complete request at this duration if content EOF is not reached. Default 30s
+            timeout 30s
+            # Optional. Rate of data stream. Default 24
+            bytes_per_second 24
+            # Optional. HTTP Response Code Default 200
+            response_code 200
+        }
+    }
+}
+</code></pre>
+<hr />
+<h2 id="combination-example"><strong>Combination Example</strong></h2>
+<p>Mix multiple response strategies:</p>
+<pre><code class="language-caddyfile">example.com {
+    defender block {
+        ranges known-bad-actors
+    }
+
+    defender ratelimit {
+        ranges aws
+    }
+
+    defender garbage {
+        ranges scrapers
+    }
+
+    respond &quot;Main Website Content&quot;
+}
+</code></pre>
+<hr />
+<h2 id="whitelisting"><strong>Whitelisting</strong></h2>
+<p>Whitelist certain IP(s) from blocked ranges:</p>
+<pre><code class="language-caddyfile">{
+    auto_https off
+    order defender after header
+    debug
+}
+
+:80 {
+    bind 127.0.0.1 ::1
+    # Everything in AWS besides my EC2 instance is blocked from accessing this site.
+    defender block {
+        ranges aws
+        whitelist 169.254.169.254 # my ec2's public IP.
+    }
+    respond &quot;This is what a human sees&quot;
+}
+
+:81 {
+    bind 127.0.0.1 ::1
+    # My localhost ipv6 is blocked but not my ipv4
+    defender block {
+        ranges private
+        whitelist 127.0.0.1
+    }
+    respond &quot;This is what a ipv4 human sees&quot;
+}
+</code></pre>
+<hr />
+<h2 id="geoip"><strong>geoip</strong></h2>
+<blockquote>
+<p><em>See issue <a href="https://github.com/JasonLovesDoggo/caddy-defender/issues/27">#27</a>.</em></p>
+</blockquote>
+<p>From <a href="https://github.com/porech/caddy-maxmind-geolocation">caddy-maxmind-geolocation</a>:</p>
+<pre><code class="language-caddyfile">localhost:8080 {
+  @mygeofilter {
+    maxmind_geolocation {
+      db_path &quot;/usr/share/GeoIP/GeoLite2-Country.mmdb&quot;
+      allow_countries IT FR # Allow access to the website only from Italy and France
+    }
+  }
+
+   file_server @mygeofilter {
+     root /var/www/html
+   }
+}
+</code></pre>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+  
+    Made with
+    <a href="https://squidfunk.github.io/mkdocs-material/" target="_blank" rel="noopener">
+      Material for MkDocs
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    
+      
+      
+      <script id="__config" type="application/json">{"annotate": null, "base": "..", "features": [], "search": "../assets/javascripts/workers/search.2c215733.min.js", "tags": null, "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}, "version": null}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.79ae519e.min.js"></script>
+      
+    
+  </body>
+</html>
