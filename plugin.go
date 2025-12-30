@@ -12,6 +12,7 @@ import (
 	"go.uber.org/zap"
 	"pkg.jsn.cam/caddy-defender/matchers/ip"
 	"pkg.jsn.cam/caddy-defender/responders"
+	"pkg.jsn.cam/caddy-defender/responders/header_tarpit"
 	"pkg.jsn.cam/caddy-defender/responders/tarpit"
 )
 
@@ -25,6 +26,7 @@ func init() {
 var (
 	// DefaultRanges is the default ranges to block if none are specified.
 	DefaultRanges = []string{"aws", "gcloud", "azurepubliccloud", "openai", "deepseek", "githubcopilot"}
+
 	// Tarpit Defaults
 	// defaultTarpitTimeout is the default duration for a request to be closed after.
 	defaultTarpitTimeout = time.Second * 30
@@ -32,6 +34,12 @@ var (
 	defaultTarpitBytesPerSecond = 24
 	// defaultTarpitResponseCode is the default HTTP respond code for the tarpit responder.
 	defaultTarpitResponseCode = http.StatusOK
+
+	// Header Tarpit Defaults
+	// defaultHeaderTarpitTimeout is the default duration for a request to be closed after.
+	defaultHeaderTarpitTimeout = time.Second * 30
+	// defaultTarpitHeaderDelaySecond is the default delay between each successive header responses
+	defaultHeaderTarpitDelaySecond = 4
 )
 
 // Defender implements an HTTP middleware that enforces IP-based rules to protect your site from AIs/Scrapers.
@@ -85,7 +93,7 @@ type Defender struct {
 	URL string `json:"url,omitempty"`
 
 	// RawResponder defines the response strategy for blocked requests.
-	// Required. Must be one of: "block", "custom", "drop", "garbage", "redirect", "tarpit"
+	// Required. Must be one of: "block", "custom", "drop", "garbage", "redirect", "tarpit", "header_tarpit"
 	RawResponder string `json:"raw_responder,omitempty"`
 
 	// Ranges specifies IP ranges to block, which can be either:
@@ -102,6 +110,10 @@ type Defender struct {
 	// An optional configuration for the 'tarpit' responder
 	// Default: {Headers: {}, timeout: 30s, ResponseCode: 200}
 	TarpitConfig tarpit.Config `json:"tarpit_config,omitempty"`
+
+	// An optional configuration for the 'tarpit' responder
+	// Default: {Headers: {}, timeout: 30s, ResponseCode: 200}
+	HeaderTarpitConfig header_tarpit.Config `json:"header_tarpit_config,omitempty"`
 
 	// StatusCode specifies the HTTP status code for 'custom' responder type.
 	// Optional. Default: 200
@@ -147,6 +159,16 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 
 		if m.TarpitConfig.ResponseCode == 0 {
 			m.TarpitConfig.ResponseCode = defaultTarpitResponseCode
+		}
+	}
+
+	if m.RawResponder == "header_tarpit" {
+		if m.HeaderTarpitConfig.Timeout == 0 {
+			m.HeaderTarpitConfig.Timeout = defaultHeaderTarpitTimeout
+		}
+
+		if m.HeaderTarpitConfig.DelaySecond == 0 {
+			m.HeaderTarpitConfig.DelaySecond = defaultHeaderTarpitDelaySecond
 		}
 	}
 
