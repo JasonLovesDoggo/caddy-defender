@@ -25,11 +25,12 @@ type Content struct {
 
 // Config holds the tarpit responder's configuration.
 type Config struct {
-	Headers        map[string]string `json:"headers"`
-	Content        Content
-	Timeout        time.Duration `json:"timeout"`
-	BytesPerSecond int           `json:"bytes_per_second"`
-	ResponseCode   int           `json:"code"`
+	Headers         map[string]string `json:"headers"`
+	Content         Content
+	Timeout         time.Duration `json:"timeout"`
+	HeaderPerSecond int           `json:"header_per_second"`
+	BytesPerSecond  int           `json:"bytes_per_second"`
+	ResponseCode    int           `json:"code"`
 }
 
 // ConfigureContentReader checks the content protocol configuration

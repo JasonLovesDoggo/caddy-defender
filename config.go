@@ -17,10 +17,11 @@ import (
 	"pkg.jsn.cam/caddy-defender/matchers/whitelist"
 	"pkg.jsn.cam/caddy-defender/ranges/data"
 	"pkg.jsn.cam/caddy-defender/responders"
+	"pkg.jsn.cam/caddy-defender/responders/header_tarpit"
 	"pkg.jsn.cam/caddy-defender/responders/tarpit"
 )
 
-var responderTypes = []string{"block", "custom", "drop", "garbage", "ratelimit", "redirect", "tarpit"}
+var responderTypes = []string{"block", "custom", "drop", "garbage", "ratelimit", "redirect", "tarpit", "header_tarpit"}
 
 // UnmarshalCaddyfile sets up the handler from Caddyfile tokens. Syntax:
 //
@@ -150,6 +151,57 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 					return d.Errf("unknown nested config key: %s", d.Val())
 				}
 			}
+		case "header_tarpit_config":
+			for nesting := d.Nesting(); d.NextBlock(nesting); {
+				switch d.Val() {
+				case "headers":
+					headers := map[string]string{}
+					for nesting := d.Nesting(); d.NextBlock(nesting); {
+						k := d.Val()
+						if !d.NextArg() {
+							return d.ArgErr()
+						}
+						headers[k] = d.Val()
+					}
+					m.HeaderTarpitConfig.Headers = headers
+				case "timeout":
+					if !d.NextArg() {
+						return d.ArgErr()
+					}
+
+					timeout, err := time.ParseDuration(d.Val())
+					if err != nil {
+						return fmt.Errorf("invalid timeout value: '%s'", d.Val())
+					}
+
+					m.HeaderTarpitConfig.Timeout = timeout
+				case "header_per_second":
+					if !d.NextArg() {
+						return d.ArgErr()
+					}
+
+					hps, err := strconv.Atoi(d.Val())
+					if err != nil {
+						return fmt.Errorf("invalid header_per_second value: '%s'", d.Val())
+					}
+
+					m.HeaderTarpitConfig.DelaySecond = hps
+				case "response_code":
+					if !d.NextArg() {
+						return d.ArgErr()
+					}
+
+					responseCode, err := strconv.Atoi(d.Val())
+					if err != nil {
+						return fmt.Errorf("invalid response_code value: '%s'", d.Val())
+					}
+
+					m.HeaderTarpitConfig.ResponseCode = responseCode
+				default:
+					return d.Errf("unknown nested config key: %s", d.Val())
+				}
+			}
+
 		default:
 			return d.Errf("unknown subdirective '%s'", d.Val())
 		}
@@ -162,7 +214,7 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 func (m *Defender) UnmarshalJSON(b []byte) error {
 	type rawDefender Defender
 	var rawConfig rawDefender
-	var excludedKeys = []string{"responder"}
+	excludedKeys := []string{"responder"}
 
 	if err := json.Unmarshal(b, &rawConfig); err != nil {
 		return err
@@ -193,6 +245,10 @@ func (m *Defender) UnmarshalJSON(b []byte) error {
 	case "tarpit":
 		m.responder = &tarpit.Responder{
 			Config: &m.TarpitConfig,
+		}
+	case "header_tarpit":
+		m.responder = &header_tarpit.Responder{
+			Config: &m.HeaderTarpitConfig,
 		}
 
 	default:
