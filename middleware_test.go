@@ -255,3 +255,31 @@ func TestDefenderServeHTTP_UsesCaddyClientIP(t *testing.T) {
 	require.Equal(t, http.StatusForbidden, recorder.Code)
 	require.Equal(t, "Access denied", recorder.Body.String())
 }
+
+func TestDefenderServeHTTP_RoutesBlockedRequestsToAccessLog(t *testing.T) {
+	defender := &Defender{
+		RawResponder:   "block",
+		Ranges:         []string{"203.0.113.0/24"},
+		AccessLogNames: []string{"general", "defender_blocked"},
+		responder:      &responders.BlockResponder{},
+	}
+
+	ctx := caddy.Context{Context: context.Background()}
+	defender.log = zap.NewNop()
+	err := defender.Provision(ctx)
+	require.NoError(t, err)
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.RemoteAddr = "203.0.113.10:12345"
+	req = req.WithContext(context.WithValue(req.Context(), caddyhttp.VarsCtxKey, map[string]any{
+		caddyhttp.AccessLoggerNameVarKey: []any{"site_log"},
+	}))
+
+	recorder := httptest.NewRecorder()
+
+	err = defender.ServeHTTP(recorder, req, &mockHandler{})
+
+	require.NoError(t, err)
+	require.Equal(t, http.StatusForbidden, recorder.Code)
+	require.Equal(t, []any{"site_log", "general", "defender_blocked"}, caddyhttp.GetVar(req.Context(), caddyhttp.AccessLoggerNameVarKey))
+}

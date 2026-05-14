@@ -107,6 +107,10 @@ type Defender struct {
 	// Optional. Default: 200
 	StatusCode int `json:"status_code,omitempty"`
 
+	// AccessLogNames routes blocked requests to the named Caddy access logger(s).
+	// Optional. Uses Caddy's native access log configuration.
+	AccessLogNames []string `json:"access_log,omitempty"`
+
 	// ServeIgnore specifies whether to serve a robots.txt file with a "Disallow: /" directive
 	// Default: false
 	ServeIgnore bool `json:"serve_ignore,omitempty"`

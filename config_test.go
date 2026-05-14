@@ -27,10 +27,12 @@ func TestUnmarshalCaddyfile(t *testing.T) {
 			name: "valid block responder with CIDR ranges",
 			input: `defender block {
 				ranges 192.168.1.0/24 10.0.0.0/8
+				access_log defender_blocked defender_audit
 			}`,
 			expected: Defender{
-				RawResponder: "block",
-				Ranges:       []string{"192.168.1.0/24", "10.0.0.0/8"},
+				RawResponder:   "block",
+				Ranges:         []string{"192.168.1.0/24", "10.0.0.0/8"},
+				AccessLogNames: []string{"defender_blocked", "defender_audit"},
 			},
 		},
 		{
@@ -193,6 +195,7 @@ func TestUnmarshalCaddyfile(t *testing.T) {
 			require.Equal(t, tt.expected.RawResponder, def.RawResponder)
 			require.Equal(t, tt.expected.Ranges, def.Ranges)
 			require.Equal(t, tt.expected.Message, def.Message)
+			require.Equal(t, tt.expected.AccessLogNames, def.AccessLogNames)
 		})
 	}
 }
@@ -206,11 +209,12 @@ func TestUnmarshalJSON(t *testing.T) {
 	}{
 		{
 			name:  "valid block responder with ranges",
-			input: `{"raw_responder":"block","ranges":["10.0.0.0/8","aws"]}`,
+			input: `{"raw_responder":"block","ranges":["10.0.0.0/8","aws"],"access_log":["defender_blocked"]}`,
 			expected: Defender{
-				RawResponder: "block",
-				Ranges:       []string{"10.0.0.0/8", "aws"},
-				responder:    &responders.BlockResponder{},
+				RawResponder:   "block",
+				Ranges:         []string{"10.0.0.0/8", "aws"},
+				AccessLogNames: []string{"defender_blocked"},
+				responder:      &responders.BlockResponder{},
 			},
 		},
 		{
@@ -317,6 +321,7 @@ func TestUnmarshalJSON(t *testing.T) {
 			require.Equal(t, tt.expected.RawResponder, def.RawResponder)
 			require.Equal(t, tt.expected.Ranges, def.Ranges)
 			require.Equal(t, tt.expected.Message, def.Message)
+			require.Equal(t, tt.expected.AccessLogNames, def.AccessLogNames)
 			require.IsType(t, tt.expected.responder, def.responder)
 		})
 	}
