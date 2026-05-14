@@ -1,3 +1,4 @@
+//nolint:goconst // Literal IP and group fixtures are clearer in table-driven tests.
 package ip
 
 import (

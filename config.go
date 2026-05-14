@@ -20,7 +20,25 @@ import (
 	"pkg.jsn.cam/caddy-defender/responders/tarpit"
 )
 
-var responderTypes = []string{"block", "custom", "drop", "garbage", "ratelimit", "redirect", "tarpit"}
+const (
+	responderBlock     = "block"
+	responderCustom    = "custom"
+	responderDrop      = "drop"
+	responderGarbage   = "garbage"
+	responderRateLimit = "ratelimit"
+	responderRedirect  = "redirect"
+	responderTarpit    = "tarpit"
+)
+
+var responderTypes = []string{
+	responderBlock,
+	responderCustom,
+	responderDrop,
+	responderGarbage,
+	responderRateLimit,
+	responderRedirect,
+	responderTarpit,
+}
 
 // UnmarshalCaddyfile sets up the handler from Caddyfile tokens. Syntax:
 //
@@ -177,9 +195,9 @@ func (m *Defender) UnmarshalJSON(b []byte) error {
 	}
 
 	switch rawConfig.RawResponder {
-	case "block":
+	case responderBlock:
 		m.responder = &responders.BlockResponder{}
-	case "custom":
+	case responderCustom:
 		// Get the custom message and status code
 		m.Message = rawConfig.Message
 		m.StatusCode = rawConfig.StatusCode
@@ -187,18 +205,18 @@ func (m *Defender) UnmarshalJSON(b []byte) error {
 			Message:    m.Message,
 			StatusCode: m.StatusCode,
 		}
-	case "drop":
+	case responderDrop:
 		m.responder = &responders.DropResponder{}
-	case "garbage":
+	case responderGarbage:
 		m.responder = &responders.GarbageResponder{}
-	case "ratelimit":
+	case responderRateLimit:
 		m.responder = &responders.RateLimitResponder{}
-	case "redirect":
+	case responderRedirect:
 		m.URL = rawConfig.URL
 		m.responder = &responders.RedirectResponder{
 			URL: m.URL,
 		}
-	case "tarpit":
+	case responderTarpit:
 		m.responder = &tarpit.Responder{
 			Config: &m.TarpitConfig,
 		}
@@ -254,7 +272,7 @@ func (m *Defender) Validate() error {
 	}
 
 	// Validate responder config options
-	if m.RawResponder == "redirect" && m.URL == "" {
+	if m.RawResponder == responderRedirect && m.URL == "" {
 		return errors.New("redirect responder requires 'url' to be set")
 	}
 
