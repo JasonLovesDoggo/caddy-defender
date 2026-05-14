@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/caddyserver/caddy/v2"
+	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"github.com/stretchr/testify/require"
 	"go.uber.org/zap"
 	"pkg.jsn.cam/caddy-defender/responders"
@@ -224,4 +225,33 @@ func TestDefenderServeHTTP_RobotsFile(t *testing.T) {
 	require.Equal(t, http.StatusOK, recorder.Code)
 	require.Contains(t, recorder.Body.String(), "User-agent: *")
 	require.Contains(t, recorder.Body.String(), "Disallow: /")
+}
+
+// Regression test for GHSA-3h23-rrpc-3p87: Caddy resolves the real client IP
+// into ClientIPVarKey, and Defender must not fall back to the proxy RemoteAddr.
+func TestDefenderServeHTTP_UsesCaddyClientIP(t *testing.T) {
+	defender := &Defender{
+		RawResponder: "block",
+		Ranges:       []string{"203.0.113.0/24"},
+		responder:    &responders.BlockResponder{},
+	}
+
+	ctx := caddy.Context{Context: context.Background()}
+	defender.log = zap.NewNop()
+	err := defender.Provision(ctx)
+	require.NoError(t, err)
+
+	req := httptest.NewRequest(http.MethodGet, "/", nil)
+	req.RemoteAddr = "198.51.100.1:12345"
+	req = req.WithContext(context.WithValue(req.Context(), caddyhttp.VarsCtxKey, map[string]any{
+		caddyhttp.ClientIPVarKey: "203.0.113.10",
+	}))
+
+	recorder := httptest.NewRecorder()
+
+	err = defender.ServeHTTP(recorder, req, &mockHandler{})
+
+	require.NoError(t, err)
+	require.Equal(t, http.StatusForbidden, recorder.Code)
+	require.Equal(t, "Access denied", recorder.Body.String())
 }
