@@ -1,3 +1,4 @@
+//nolint:goconst // Literal fixtures keep these Caddyfile and JSON cases readable.
 package caddydefender
 
 import (

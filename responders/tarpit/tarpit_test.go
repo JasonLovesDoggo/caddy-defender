@@ -1,3 +1,4 @@
+//nolint:goconst // Protocol and directory literals make the fixture cases explicit.
 package tarpit
 
 import (

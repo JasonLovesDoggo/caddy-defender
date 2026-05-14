@@ -1,3 +1,4 @@
+//nolint:goconst // Repeated IP fixtures are easier to audit as literals.
 package whitelist
 
 import (

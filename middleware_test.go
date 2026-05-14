@@ -1,3 +1,4 @@
+//nolint:goconst // Literal test fixtures are clearer than package-shared constants here.
 package caddydefender
 
 import (

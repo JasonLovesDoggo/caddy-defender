@@ -11,6 +11,13 @@ import (
 	"pkg.jsn.cam/caddy-defender/cache"
 )
 
+const (
+	contentProtocolFile  = "file"
+	contentProtocolHTTP  = "http"
+	contentProtocolHTTPS = "https"
+	tarpitCacheDirectory = "tarpit"
+)
+
 // ContentReader is an interface for fetching data from different data Contents to supply data to the tarpit.
 type ContentReader interface {
 	Read() (io.ReadCloser, error)
@@ -46,7 +53,7 @@ func (r *Responder) ConfigureContentReader() error {
 	// If no content to provide, we'll just hold the connection open
 	case "":
 		r.ContentReader = TimeoutReader{}
-	case "file":
+	case contentProtocolFile:
 		r.ContentReader = FileReader{
 			Path: r.Config.Content.Path,
 		}
@@ -54,9 +61,9 @@ func (r *Responder) ConfigureContentReader() error {
 		if err != nil {
 			return err
 		}
-	case "http", "https":
+	case contentProtocolHTTP, contentProtocolHTTPS:
 		tarCache := cache.New(&cache.Config{
-			Directory: "tarpit",
+			Directory: tarpitCacheDirectory,
 		})
 		r.ContentReader = HTTPReader{
 			URL:   r.Config.Content.Protocol + "://" + r.Config.Content.Path,
