@@ -1,10 +1,11 @@
 package caddydefender
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
+	"net"
 	"net/http"
-	"os"
 	"strings"
 	"testing"
 	"time"
@@ -14,7 +15,7 @@ import (
 )
 
 func TestDefenderBlockedRequestsAccessLogE2E(t *testing.T) {
-	logFile := t.TempDir() + "/defender-blocked.log"
+	logAddr, logLines, logErrs := startAccessLogServer(t)
 	tester := caddytest.NewTester(t)
 	defer tester.InitServer(`{
 	admin localhost:2999
@@ -31,7 +32,9 @@ func TestDefenderBlockedRequestsAccessLogE2E(t *testing.T) {
 
 http://localhost:9080 {
 	log defender_blocked {
-		output file %q
+		output net %q {
+			dial_timeout 1s
+		}
 		no_hostname
 		format json
 	}
@@ -42,7 +45,7 @@ http://localhost:9080 {
 	}
 
 	respond "allowed"
-}`, logFile), "caddyfile")
+}`, logAddr), "caddyfile")
 
 	allowedReq, err := http.NewRequest(http.MethodGet, "http://localhost:9080/allowed", nil)
 	require.NoError(t, err)
@@ -56,7 +59,7 @@ http://localhost:9080 {
 	blockedResp, _ := tester.AssertResponse(blockedReq, http.StatusForbidden, "Access denied")
 	require.NoError(t, blockedResp.Body.Close())
 
-	line := readSingleLogLine(t, logFile)
+	line := readLogLine(t, logLines, logErrs)
 
 	var entry map[string]any
 	require.NoError(t, json.Unmarshal([]byte(line), &entry))
@@ -68,17 +71,47 @@ http://localhost:9080 {
 	require.Equal(t, "ip_range", entry["defender.reason"])
 }
 
-func readSingleLogLine(t *testing.T, path string) string {
+func startAccessLogServer(t *testing.T) (string, <-chan string, <-chan error) {
 	t.Helper()
 
-	var data []byte
-	require.Eventually(t, func() bool {
-		var err error
-		data, err = os.ReadFile(path)
-		return err == nil && strings.TrimSpace(string(data)) != ""
-	}, 2*time.Second, 25*time.Millisecond)
+	listener, err := net.Listen("tcp", "127.0.0.1:0")
+	require.NoError(t, err)
+	t.Cleanup(func() {
+		require.NoError(t, listener.Close())
+	})
 
-	lines := strings.Split(strings.TrimSpace(string(data)), "\n")
-	require.Len(t, lines, 1)
-	return lines[0]
+	lines := make(chan string, 1)
+	errs := make(chan error, 1)
+
+	go func() {
+		conn, err := listener.Accept()
+		if err != nil {
+			errs <- err
+			return
+		}
+		defer conn.Close()
+
+		line, err := bufio.NewReader(conn).ReadString('\n')
+		if err != nil {
+			errs <- err
+			return
+		}
+		lines <- line
+	}()
+
+	return "tcp/" + listener.Addr().String(), lines, errs
+}
+
+func readLogLine(t *testing.T, lines <-chan string, errs <-chan error) string {
+	t.Helper()
+
+	select {
+	case line := <-lines:
+		return strings.TrimSpace(line)
+	case err := <-errs:
+		require.NoError(t, err)
+	case <-time.After(2 * time.Second):
+		t.Fatal("timed out waiting for access log entry")
+	}
+	return ""
 }
