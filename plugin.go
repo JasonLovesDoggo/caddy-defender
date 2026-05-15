@@ -106,6 +106,10 @@ type Defender struct {
 	// Default: []
 	Whitelist []string `json:"whitelist,omitempty"`
 
+	// AccessLogNames routes blocked requests to the named Caddy access logger(s).
+	// Optional. Uses Caddy's native access log configuration.
+	AccessLogNames []string `json:"access_log,omitempty"`
+
 	// An optional configuration for the 'tarpit' responder
 	// Default: {Headers: {}, timeout: 30s, ResponseCode: 200}
 	TarpitConfig tarpit.Config `json:"tarpit_config,omitempty"`
@@ -113,10 +117,6 @@ type Defender struct {
 	// StatusCode specifies the HTTP status code for 'custom' responder type.
 	// Optional. Default: 200
 	StatusCode int `json:"status_code,omitempty"`
-
-	// AccessLogNames routes blocked requests to the named Caddy access logger(s).
-	// Optional. Uses Caddy's native access log configuration.
-	AccessLogNames []string `json:"access_log,omitempty"`
 
 	// ServeIgnore specifies whether to serve a robots.txt file with a "Disallow: /" directive
 	// Default: false

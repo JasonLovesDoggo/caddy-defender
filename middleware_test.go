@@ -282,5 +282,9 @@ func TestDefenderServeHTTP_RoutesBlockedRequestsToAccessLog(t *testing.T) {
 
 	require.NoError(t, err)
 	require.Equal(t, http.StatusForbidden, recorder.Code)
-	require.Equal(t, []any{"site_log", "general", "defender_blocked"}, caddyhttp.GetVar(req.Context(), caddyhttp.AccessLoggerNameVarKey))
+	require.Equal(
+		t,
+		[]any{"site_log", "general", "defender_blocked"},
+		caddyhttp.GetVar(req.Context(), caddyhttp.AccessLoggerNameVarKey),
+	)
 }

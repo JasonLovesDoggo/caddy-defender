@@ -16,6 +16,10 @@ import (
 func TestDefenderBlockedRequestsAccessLogE2E(t *testing.T) {
 	logFile := t.TempDir() + "/defender-blocked.log"
 	tester := caddytest.NewTester(t)
+	defer tester.InitServer(`{
+	admin localhost:2999
+}`, "caddyfile")
+
 	tester.InitServer(fmt.Sprintf(`{
 	admin localhost:2999
 	order defender after header
@@ -43,12 +47,14 @@ http://localhost:9080 {
 	allowedReq, err := http.NewRequest(http.MethodGet, "http://localhost:9080/allowed", nil)
 	require.NoError(t, err)
 	allowedReq.Header.Set("X-Forwarded-For", "198.51.100.10")
-	tester.AssertResponse(allowedReq, http.StatusOK, "allowed")
+	allowedResp, _ := tester.AssertResponse(allowedReq, http.StatusOK, "allowed")
+	require.NoError(t, allowedResp.Body.Close())
 
 	blockedReq, err := http.NewRequest(http.MethodGet, "http://localhost:9080/blocked", nil)
 	require.NoError(t, err)
 	blockedReq.Header.Set("X-Forwarded-For", "203.0.113.10")
-	tester.AssertResponse(blockedReq, http.StatusForbidden, "Access denied")
+	blockedResp, _ := tester.AssertResponse(blockedReq, http.StatusForbidden, "Access denied")
+	require.NoError(t, blockedResp.Body.Close())
 
 	line := readSingleLogLine(t, logFile)
 
