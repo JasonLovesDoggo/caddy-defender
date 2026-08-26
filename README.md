@@ -112,6 +112,7 @@ The plugin includes predefined IP ranges for popular AI services. These ranges a
 |                              Cloudflare                              |                 cloudflare                  |   [cloudflare.go](ranges/fetchers/cloudflare.go)   |
 |                            Digital Ocean                             |                digitalocean                 | [digitalocean.go](ranges/fetchers/digitalocean.go) |
 |                                Linode                                |                   linode                    |       [linode.go](ranges/fetchers/linode.go)       |
+|                               Datadog                                |                   datadog                   |      [datadog.go](ranges/fetchers/datadog.go)      |
 | [Private](https://caddyserver.com/docs/caddyfile/matchers#remote-ip) |                   private                   |      [private.go](ranges/fetchers/private.go)      |
 |                           All IP addresses                           |                     all                     |          [all.go](ranges/fetchers/all.go)          |
 

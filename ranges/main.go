@@ -52,6 +52,7 @@ func main() {
 		fetchers.CloudflareFetcher{},  // Cloudflare IP ranges
 		fetchers.AliyunFetcher{},      // Aliyun IP ranges
 		fetchers.HuaweiCloudFetcher{}, // Huawei Cloud IP ranges
+		fetchers.DatadogFetcher{},     // Datadog IP ranges
 	}
 
 	if fetchTor {
