@@ -28,6 +28,10 @@ func Initialize(ipStrings []string) (*Whitelist, error) {
 
 // Matches checks if the remote address is in the whitelist.
 func (wl *Whitelist) Matches(ip netip.Addr) (bool, error) {
+	if wl == nil {
+		return false, fmt.Errorf("whitelist not initialized")
+	}
+
 	// Check if the IP is in the whitelist
 	_, ok := wl.ips[ip]
 	return ok, nil
