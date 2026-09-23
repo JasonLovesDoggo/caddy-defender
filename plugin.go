@@ -106,6 +106,10 @@ type Defender struct {
 	// Default: []
 	Whitelist []string `json:"whitelist,omitempty"`
 
+	// AccessLogNames routes blocked requests to the named Caddy access logger(s).
+	// Optional. Uses Caddy's native access log configuration.
+	AccessLogNames []string `json:"access_log,omitempty"`
+
 	// An optional configuration for the 'tarpit' responder
 	// Default: {Headers: {}, timeout: 30s, ResponseCode: 200}
 	TarpitConfig tarpit.Config `json:"tarpit_config,omitempty"`
