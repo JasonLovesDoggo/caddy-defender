@@ -38,6 +38,7 @@ func NewIPChecker(cidrRanges, whitelistedIPs []string, log *zap.Logger) *IPCheck
 		log.Warn("Invalid whitelist IP",
 			zap.Strings("whitelist", whitelistedIPs),
 			zap.Error(err))
+		whitelist, _ = Whitelist.Initialize([]string{})
 	}
 
 	cache := sturdyc.New[string](
