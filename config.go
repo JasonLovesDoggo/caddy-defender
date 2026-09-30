@@ -92,6 +92,14 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 				return fmt.Errorf("invalid status_code value: '%s'", d.Val())
 			}
 			m.StatusCode = statusCode
+		case "access_log":
+			if !d.NextArg() {
+				return d.ArgErr()
+			}
+			m.AccessLogNames = append(m.AccessLogNames, d.Val())
+			for d.NextArg() {
+				m.AccessLogNames = append(m.AccessLogNames, d.Val())
+			}
 		case "url":
 			if !d.NextArg() {
 				return d.ArgErr()
