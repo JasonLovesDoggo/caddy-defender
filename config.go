@@ -45,6 +45,8 @@ var responderTypes = []string{
 //	defender <responder> {
 //		# IP ranges to block
 //		ranges
+//		# User-Agent signatures or predefined groups to block (optional)
+//		user_agents
 //		# Whitelisted IP addresses to allow to bypass ranges (optional)
 //		whitelist
 //	    # Custom message to return to the client when using "custom" middleware (optional)
@@ -77,6 +79,10 @@ func (m *Defender) UnmarshalCaddyfile(d *caddyfile.Dispenser) error {
 				ranges = append(ranges, d.Val())
 			}
 			m.Ranges = ranges
+		case "user_agents":
+			for d.NextArg() {
+				m.UserAgents = append(m.UserAgents, d.Val())
+			}
 		case "message":
 			if !d.NextArg() {
 				return d.ArgErr()
