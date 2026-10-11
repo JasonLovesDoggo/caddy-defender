@@ -1,6 +1,6 @@
 name: Update IP Ranges
 permissions:
-  contents: write
+  contents: read
 
 on:
   schedule:
@@ -11,10 +11,20 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
+      - name: Create CIDR updater token
+        id: app-token
+        uses: actions/create-github-app-token@fee1f7d63c2ff003460e3d139729b119787bc349 # v2
+        with:
+          app-id: ${{ vars.CIDR_UPDATER_APP_ID }}
+          private-key: ${{ secrets.CIDR_UPDATER_PRIVATE_KEY }}
+          owner: ${{ github.repository_owner }}
+          repositories: ${{ github.event.repository.name }}
+          permission-contents: write
+
       - name: Checkout code
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.head_ref }}
+          ref: main
           persist-credentials: false
 
       - name: Set up Go
@@ -35,5 +45,5 @@ jobs:
       - name: Push changes
         uses: ad-m/github-push-action@77c5b412c50b723d2a4fbc6d71fb5723bcd439aa # master
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
+          github_token: ${{ steps.app-token.outputs.token }}
+          branch: main
