@@ -6,7 +6,7 @@ require (
 	github.com/caddyserver/caddy/v2 v2.11.4
 	github.com/gaissmai/bart v0.30.0
 	github.com/stretchr/testify v1.12.1
-	github.com/viccon/sturdyc v1.1.5
+	github.com/viccon/sturdyc v1.1.6
 	go.uber.org/zap v1.28.0
 )
 
