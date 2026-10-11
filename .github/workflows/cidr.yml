@@ -37,12 +37,20 @@ jobs:
           go run ranges/main.go -format go -output ranges/data/generated.go
 
       - name: Commit files
+        id: commit
         run: |
+          git add ranges/data/generated.go
+          if git diff --cached --quiet; then
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
           git config --local user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
-          git commit -a -m "chore: Update AI's CIDR"
+          git commit -m "chore: Update AI's CIDR"
+          echo "changed=true" >> "$GITHUB_OUTPUT"
 
       - name: Push changes
+        if: steps.commit.outputs.changed == 'true'
         uses: ad-m/github-push-action@77c5b412c50b723d2a4fbc6d71fb5723bcd439aa # master
         with:
           github_token: ${{ steps.app-token.outputs.token }}
