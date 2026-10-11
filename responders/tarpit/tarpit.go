@@ -131,11 +131,6 @@ func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyh
 	for {
 		select {
 		case <-ticker.C:
-			// Stop if client disconnects to prevent panic
-			if req.Context().Err() != nil {
-				break
-			}
-
 			n, err := reader.Read(chunk)
 			if err == io.EOF {
 				// Graceful exit as we've reached the end of the content
@@ -150,6 +145,9 @@ func (r *Responder) ServeHTTP(w http.ResponseWriter, req *http.Request, _ caddyh
 				}
 				w.(http.Flusher).Flush()
 			}
+
+		case <-req.Context().Done():
+			return nil
 		case <-timeout:
 			// Forcefully close response after timeout
 			return nil
