@@ -3,9 +3,11 @@ package tarpit
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io"
 	"net/http"
+	"net/http/httptest"
 	"os"
 	"testing"
 	"time"
@@ -184,6 +186,23 @@ func TestServeHTTP(t *testing.T) {
 			t.Errorf("Expected request to take at least %s from ServeHTTP, but took: %s", timeout, duration)
 		}
 	})
+}
+
+// Regression for https://github.com/JasonLovesDoggo/caddy-defender/security/advisories/GHSA-86w8-gf45-vqmq.
+func TestServeHTTPCancellationRegression(t *testing.T) {
+	ctx, cancel := context.WithCancel(context.Background())
+	cancel()
+	responder := newTestResponder(Content{}, 2*time.Second)
+	responder.ContentReader = TimeoutReader{}
+	req := httptest.NewRequestWithContext(ctx, http.MethodGet, "/", nil)
+
+	start := time.Now()
+	if err := responder.ServeHTTP(httptest.NewRecorder(), req, nil); err != nil {
+		t.Fatal(err)
+	}
+	if elapsed := time.Since(start); elapsed >= time.Second {
+		t.Fatalf("canceled request took %s; expected prompt return", elapsed)
+	}
 }
 
 // Mock response writer for testing
