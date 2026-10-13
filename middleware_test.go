@@ -256,3 +256,72 @@ func TestDefenderServeHTTP_UsesCaddyClientIP(t *testing.T) {
 	require.Equal(t, http.StatusForbidden, recorder.Code)
 	require.Equal(t, "Access denied", recorder.Body.String())
 }
+
+// TestDefenderServeHTTP_UserAgentBlocking verifies that requests whose
+// User-Agent matches a configured signature are blocked while others pass,
+// independently of the IP ranges.
+func TestDefenderServeHTTP_UserAgentBlocking(t *testing.T) {
+	tests := []struct {
+		name           string
+		userAgent      string
+		userAgents     []string
+		expectedStatus int
+	}{
+		{
+			name:           "predefined AI crawler is blocked",
+			userAgents:     []string{"ai"},
+			userAgent:      "Mozilla/5.0 (compatible; GPTBot/1.1; +https://openai.com/gptbot)",
+			expectedStatus: http.StatusForbidden,
+		},
+		{
+			name:           "literal signature is blocked",
+			userAgents:     []string{"BadScraper"},
+			userAgent:      "BadScraper/2.0",
+			expectedStatus: http.StatusForbidden,
+		},
+		{
+			name:           "case insensitive match is blocked",
+			userAgents:     []string{"BadScraper"},
+			userAgent:      "badscraper/9",
+			expectedStatus: http.StatusForbidden,
+		},
+		{
+			name:           "normal browser is allowed",
+			userAgents:     []string{"ai"},
+			userAgent:      "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36",
+			expectedStatus: http.StatusOK,
+		},
+		{
+			name:           "empty user_agents config allows everything",
+			userAgents:     nil,
+			userAgent:      "GPTBot/1.1",
+			expectedStatus: http.StatusOK,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			defender := &Defender{
+				RawResponder: "block",
+				// A range that the test client IP is not part of, so only the
+				// User-Agent dimension can block the request.
+				Ranges:     []string{"203.0.113.0/24"},
+				UserAgents: tt.userAgents,
+				responder:  &responders.BlockResponder{},
+			}
+
+			ctx := caddy.Context{Context: context.Background()}
+			defender.log = zap.NewNop()
+			require.NoError(t, defender.Provision(ctx))
+
+			req := httptest.NewRequest(http.MethodGet, "/", nil)
+			req.RemoteAddr = "198.51.100.1:12345"
+			req.Header.Set("User-Agent", tt.userAgent)
+
+			recorder := httptest.NewRecorder()
+			err := defender.ServeHTTP(recorder, req, &mockHandler{})
+			require.NoError(t, err)
+			require.Equal(t, tt.expectedStatus, recorder.Code)
+		})
+	}
+}

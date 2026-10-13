@@ -57,14 +57,21 @@ func (m Defender) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyht
 	m.log.Debug("Ranges", zap.Strings("ranges", m.Ranges))
 
 	// Check if the client IP should be allowed (considering whitelist and blocked ranges)
-	if m.ipChecker.ReqAllowed(r.Context(), clientIP) {
-		m.log.Debug("Request allowed (IP whitelisted or not in blocked ranges)", zap.String("ip", clientIP.String()))
-		// Request is allowed, proceed to the next handler
-		return next.ServeHTTP(w, r)
+	if !m.ipChecker.ReqAllowed(r.Context(), clientIP) {
+		m.log.Debug("Request blocked (IP in blocked ranges and not whitelisted)", zap.String("ip", clientIP.String()))
+		// Request should be blocked
+		return m.responder.ServeHTTP(w, r, next)
 	}
-	m.log.Debug("Request blocked (IP in blocked ranges and not whitelisted)", zap.String("ip", clientIP.String()))
-	// Request should be blocked
-	return m.responder.ServeHTTP(w, r, next)
+
+	// The IP passed; check the User-Agent against the configured signatures.
+	if ua := r.UserAgent(); m.uaChecker != nil && m.uaChecker.Matches(ua) {
+		m.log.Debug("Request blocked (User-Agent matched a blocked signature)", zap.String("user_agent", ua))
+		return m.responder.ServeHTTP(w, r, next)
+	}
+
+	m.log.Debug("Request allowed (IP not blocked, User-Agent not blocked)", zap.String("ip", clientIP.String()))
+	// Request is allowed, proceed to the next handler
+	return next.ServeHTTP(w, r)
 }
 
 func clientIPFromRequest(r *http.Request) (net.IP, error) {
