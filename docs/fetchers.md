@@ -283,4 +283,4 @@ This module is licensed under the **MIT License**. See the [LICENSE](index.md#li
 
 ## **Star History**
 
-[![Star History Chart](https://api.star-history.com/svg?repos=JasonLovesDoggo/caddy-defender&type=Date)](https://star-history.com/#JasonLovesDoggo/caddy-defender&Date)
+[![Star History Chart](https://star-history.dera.page/svg?repos=JasonLovesDoggo/caddy-defender&type=Date)](https://star-history.dera.page/#JasonLovesDoggo/caddy-defender&Date)
