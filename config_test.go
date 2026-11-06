@@ -110,6 +110,18 @@ func TestUnmarshalCaddyfile(t *testing.T) {
 			},
 		},
 		{
+			name: "valid user_agents directive",
+			input: `defender block {
+				ranges openai
+				user_agents ai BadScraper
+			}`,
+			expected: Defender{
+				RawResponder: "block",
+				Ranges:       []string{"openai"},
+				UserAgents:   []string{"ai", "BadScraper"},
+			},
+		},
+		{
 			name: "missing responder type",
 			input: `defender {
 				ranges 10.0.0.0/8
@@ -194,6 +206,7 @@ func TestUnmarshalCaddyfile(t *testing.T) {
 			require.Equal(t, tt.expected.RawResponder, def.RawResponder)
 			require.Equal(t, tt.expected.Ranges, def.Ranges)
 			require.Equal(t, tt.expected.Message, def.Message)
+			require.Equal(t, tt.expected.UserAgents, def.UserAgents)
 		})
 	}
 }

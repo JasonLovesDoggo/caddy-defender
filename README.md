@@ -9,6 +9,7 @@ The **Caddy Defender** plugin is a middleware for Caddy that allows you to block
 - **IP Range Filtering**: Block or manipulate requests from specific IP ranges.
 - **Embedded IP Ranges**: Predefined IP ranges for popular AI services (e.g., OpenAI, DeepSeek, GitHub Copilot).
 - **Custom IP Ranges**: Add your own IP ranges via Caddyfile configuration.
+- **User-Agent Filtering**: Block requests whose `User-Agent` matches a predefined group (e.g. known AI crawlers) or a custom signature.
 - **Multiple Responder Backends**:
   - **Block**: Return a `403 Forbidden` response.
   - **Custom**: Return a custom message.
@@ -59,6 +60,7 @@ The `defender` directive is used to configure the Caddy Defender plugin. It has 
 defender <responder> {
     message <custom message>
     ranges <ip_ranges...>
+    user_agents <user_agents...>
     url <url>
 }
 ```
@@ -72,6 +74,7 @@ defender <responder> {
   - `ratelimit`: Marks requests for rate limiting (requires [Caddy-Ratelimit](https://github.com/mholt/caddy-ratelimit) to be installed as well ).
   - `tarpit`: Stream data at a slow, but configurable rate to stall bots and pollute AI training.
 - `<ip_ranges...>`: An optional list of CIDR ranges or predefined range keys to match against the client's IP. Defaults to [`aws azurepubliccloud deepseek gcloud githubcopilot openai`](./plugin.go).
+- `<user_agents...>`: An optional list of User-Agent signatures or predefined group keys to match against the request `User-Agent` header. A signature matches when it appears as a case-insensitive substring of the header. The predefined `ai` group covers common AI crawlers (GPTBot, ClaudeBot, CCBot, PerplexityBot, and others). Defaults to empty (no User-Agent filtering).
 - `<custom message>`: A custom message to return when using the `custom` responder.
 - `<url>`: The URI that the `redirect` responder would redirect to.
 

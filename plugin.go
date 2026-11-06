@@ -11,6 +11,7 @@ import (
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
 	"go.uber.org/zap"
 	"pkg.jsn.cam/caddy-defender/matchers/ip"
+	"pkg.jsn.cam/caddy-defender/matchers/useragent"
 	"pkg.jsn.cam/caddy-defender/responders"
 	"pkg.jsn.cam/caddy-defender/responders/tarpit"
 )
@@ -53,6 +54,7 @@ var (
 //	  "handler": "defender",
 //	  "raw_responder": "block",
 //	  "ranges": ["openai", "10.0.0.0/8"],
+//	  "user_agents": ["ai"],
 //	  "message": "Custom block message" // Only for 'custom' responder
 //	}
 //
@@ -63,6 +65,7 @@ var (
 //
 //	defender <responder_type> {
 //	    ranges <cidr_or_predefined...>
+//	    user_agents <signature_or_predefined...>
 //	    message <custom_message>
 //	}
 //
@@ -82,6 +85,7 @@ type Defender struct {
 	// responder is the internal implementation of the response strategy
 	responder responders.Responder
 	ipChecker *ip.IPChecker
+	uaChecker *useragent.UAChecker
 	log       *zap.Logger
 	// Message specifies the custom response message for 'custom' responder type.
 	// Required when using 'custom' responder.
@@ -105,6 +109,14 @@ type Defender struct {
 	// NOTE: this only supports IP addresses, not ranges.
 	// Default: []
 	Whitelist []string `json:"whitelist,omitempty"`
+
+	// UserAgents specifies User-Agent signatures to block, which can be either:
+	// - Predefined group keys (e.g., "ai")
+	// - Literal substrings matched case-insensitively against the request User-Agent header
+	// A request is blocked when its User-Agent contains any configured signature.
+	// This dimension is opt-in and independent of the IP ranges.
+	// Default: []
+	UserAgents []string `json:"user_agents,omitempty"`
 
 	// An optional configuration for the 'tarpit' responder
 	// Default: {Headers: {}, timeout: 30s, ResponseCode: 200}
@@ -131,6 +143,9 @@ func (m *Defender) Provision(ctx caddy.Context) error {
 
 	// ensure to keep AFTER the ranges are checked (above)
 	m.ipChecker = ip.NewIPChecker(m.Ranges, m.Whitelist, m.log)
+
+	// User-Agent matching is opt-in; an empty list produces a checker that never matches.
+	m.uaChecker = useragent.NewUAChecker(m.UserAgents, m.log)
 
 	// Finish configuring tarpit responder's content reader / defaults
 	if m.RawResponder == responderTarpit {
