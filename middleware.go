@@ -1,13 +1,13 @@
 package caddydefender
 
 import (
+	"context"
 	"fmt"
 	"net"
 	"net/http"
 
-	"go.uber.org/zap"
-
 	"github.com/caddyserver/caddy/v2/modules/caddyhttp"
+	"go.uber.org/zap"
 )
 
 // serveIgnore is a helper function to serve a robots.txt file if the ServeIgnore option is enabled.
@@ -63,8 +63,35 @@ func (m Defender) ServeHTTP(w http.ResponseWriter, r *http.Request, next caddyht
 		return next.ServeHTTP(w, r)
 	}
 	m.log.Debug("Request blocked (IP in blocked ranges and not whitelisted)", zap.String("ip", clientIP.String()))
+	m.markBlockedRequest(r, clientIP)
 	// Request should be blocked
 	return m.responder.ServeHTTP(w, r, next)
+}
+
+func (m Defender) markBlockedRequest(r *http.Request, clientIP net.IP) {
+	if len(m.AccessLogNames) > 0 {
+		caddyhttp.SetVar(r.Context(), caddyhttp.AccessLoggerNameVarKey, accessLoggerNames(r.Context(), m.AccessLogNames))
+	}
+
+	extra, ok := r.Context().Value(caddyhttp.ExtraLogFieldsCtxKey).(*caddyhttp.ExtraLogFields)
+	if !ok {
+		return
+	}
+
+	extra.Set(zap.Bool("defender.blocked", true))
+	extra.Set(zap.String("defender.action", m.RawResponder))
+	extra.Set(zap.String("defender.client_ip", clientIP.String()))
+	extra.Set(zap.String("defender.reason", "ip_range"))
+}
+
+func accessLoggerNames(ctx context.Context, defenderLogNames []string) []any {
+	existing, _ := caddyhttp.GetVar(ctx, caddyhttp.AccessLoggerNameVarKey).([]any)
+	names := make([]any, 0, len(existing)+len(defenderLogNames))
+	names = append(names, existing...)
+	for _, name := range defenderLogNames {
+		names = append(names, name)
+	}
+	return names
 }
 
 func clientIPFromRequest(r *http.Request) (net.IP, error) {
