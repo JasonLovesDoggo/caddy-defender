@@ -9,12 +9,14 @@ defender <responder> {
     message <custom_message>
     status_code <http_status_code>
     ranges <cidr_or_predefined...>
+    access_log <logger_name...>
     url <url>
 }
 ```
 
 - `<responder>`: The responder backend to use.
 - `<cidr_or_predefined>`: An optional list of CIDR ranges or predefined range keys to match against the client's IP. Defaults to [`aws azurepubliccloud deepseek gcloud githubcopilot openai`](https://github.com/JasonLovesDoggo/caddy-defender/blob/main/plugin.go).
+- `<logger_name>`: Optional Caddy access logger name(s) to use for requests blocked by Defender. Defender also adds `defender.*` fields to blocked access log entries.
 - `<custom_message>`: A custom message to return when using the `custom` responder.
 - `<http_status_code>`: An optional HTTP status code to return when using the `custom` responder. Defaults to 200.
 - `<url>`: The URI that the `redirect` responder would redirect to.
@@ -38,6 +40,7 @@ defender <responder> {
 	"url": "",
 	"raw_responder": "",
 	"ranges": [""],
+	"access_log": [""],
 	"whitelist": [""],
 	"tarpit_config": {
 		"headers": {
@@ -80,6 +83,13 @@ defender <responder> {
 - An optional whitelist of IP addresses to exclude from blocking.
   - NOTE: this only supports IP addresses, not ranges.
 - If empty, no IPs are whitelisted.
+- Default: `[]`
+
+`access_log`
+
+- Optional Caddy access logger names for blocked requests.
+- When set, Defender routes blocked requests to those named Caddy access loggers using Caddy's native logging pipeline.
+- Defender adds `defender.blocked`, `defender.action`, `defender.client_ip`, and `defender.reason` fields to blocked access log entries.
 - Default: `[]`
 
 `tarpit_config`
