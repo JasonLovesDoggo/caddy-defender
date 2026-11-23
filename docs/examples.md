@@ -66,6 +66,30 @@ localhost:8080 {
 
 ---
 
+## **Log Blocked Requests**
+
+Route Defender-blocked requests to a named Caddy access logger:
+
+```caddyfile
+example.com {
+	log defender_blocked {
+		output file /var/log/caddy/defender-blocked.log
+		format json
+	}
+
+	defender block {
+		ranges openai aws
+		access_log defender_blocked
+	}
+
+	respond "Human-friendly content"
+}
+```
+
+Blocked access log entries include `defender.blocked`, `defender.action`, `defender.client_ip`, and `defender.reason` fields. If `access_log` is omitted, Defender still adds those fields to any normal Caddy access log entry for blocked requests.
+
+---
+
 ## **Custom Response**
 
 Return tailored messages with custom status codes for blocked requests:

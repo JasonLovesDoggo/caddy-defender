@@ -59,6 +59,7 @@ The `defender` directive is used to configure the Caddy Defender plugin. It has 
 defender <responder> {
     message <custom message>
     ranges <ip_ranges...>
+    access_log <logger_name...>
     url <url>
 }
 ```
@@ -72,6 +73,7 @@ defender <responder> {
   - `ratelimit`: Marks requests for rate limiting (requires [Caddy-Ratelimit](https://github.com/mholt/caddy-ratelimit) to be installed as well ).
   - `tarpit`: Stream data at a slow, but configurable rate to stall bots and pollute AI training.
 - `<ip_ranges...>`: An optional list of CIDR ranges or predefined range keys to match against the client's IP. Defaults to [`aws azurepubliccloud deepseek gcloud githubcopilot openai`](./plugin.go).
+- `<logger_name...>`: Optional Caddy access logger name(s) for requests blocked by Defender.
 - `<custom message>`: A custom message to return when using the `custom` responder.
 - `<url>`: The URI that the `redirect` responder would redirect to.
 
